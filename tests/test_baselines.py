@@ -101,3 +101,25 @@ def test_baselines_in_summary(tmp_path, monkeypatch):
 def test_supported_tasks_constant():
     assert "tool_search_statute" not in SUPPORTED_TASKS
     assert "gaia_fee_deadline" in SUPPORTED_TASKS
+
+
+def test_baselines_never_cite_scoring_anchors():
+    """R17 泄题回归：a_irac 基线不得引用 law_anchors（判分锚，题面不可见）。
+
+    修复前 random/rules 直接抄锚 → a_irac 双基线 96 分、高于真实考生。
+    cit_validity 例外：其锚即题面给出的待判引用（考试可见输入）。
+    """
+    from cnjudbench.baselines import random_answer, rules_answer
+    from cnjudbench.schemas.item import Item
+
+    path = REPO / "data" / "public" / "a_irac_reason.jsonl"
+    for line in path.read_text(encoding="utf-8").splitlines():
+        if not line.strip():
+            continue
+        item = Item.model_validate_json(line)
+        anchor = item.law_anchors[0]
+        for fn in (random_answer, rules_answer):
+            ans = json.loads(fn(item))
+            for c in ans.get("citations") or []:
+                hit = c.get("article") == anchor.article and c.get("law") == anchor.law
+                assert not hit, (item.id, fn.__name__, c)

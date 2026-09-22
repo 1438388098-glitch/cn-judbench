@@ -98,6 +98,28 @@ scripts/fix_airac_golds_r16.py 注释）。同一份考生答案（runs/airac-gl
 提示 a_irac 对头部模型已近天花板（违反中间带 ≤25% 目标），列入 hard 子集
 候选（见 docs/u-hard-subset-report.md）。
 
+## C4. hard 子集负结果 + 基线泄题修复（R17）
+
+**hard 子集负结果**：R17 增补 6 道复合争点题（ah-001..006，difficulty=4：
+请求权竞合/保证期间经过/表见代理/违约金定金不可抗力择一/民法典溯及力/
+工程价款优先权；配套 lawkb +9 条民法典条文并补全时间效力规定第一条第三款，
+库 48 版本）。真实考生（GLM subagent，runs/airac-hard-r17）6 题全部 100，
+任务 mean 90.00（25 题）。**结论：单步 IRAC 识别题对头部模型天然饱和——
+题面只要点名学说要素（违约金+定金/不可抗力），头部模型即可命中正解条号。
+这正反两面支撑论文主张：判别力必须来自 oracle 硬度阶梯（calc 隐藏单测、
+dms 状态终态、fault 故障注入），而非更花哨的开放式问法。**残余扣分项
+（a-008=0 应拒陷阱未拒、a-011=0 答错题、a-019=50 锚部分扣分）均为真实
+信号，非金样问题。**
+
+**基线泄题修复**：修 baselines 时发现 random/rules 的 structured 兜底直接
+引用 `item.law_anchors`——那是 statute 谓词的判分锚（题面不可见的答案组成
+部分），等基线偷看答案：a_irac 双基线曾因此得 96 分、**高于**真实考生
+（90）。修复：random 改域内随机法条池；rules 只准用题面正则《法》第X条；
+cit_validity 例外（锚即题面待判引用）。修复后 a_irac：random=rules=12，
+分层恢复。回归测试 tests/test_baselines.py::test_baselines_never_cite_scoring_anchors。
+**影响**：论文 T1 的基线两列需以修复后口径为准（v0.4.1），此前含基线的
+旧表作废重出。
+
 ## C. a_irac 转存失真教训（R14，负结果）
 
 a_irac 19 题真考生回灌 mean 37.68（runs/airac-glm/scored）——**数据失真不可

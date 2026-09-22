@@ -14,6 +14,6 @@ article_version:
   effective_from: '2021-01-01'
   effective_to: null
   superseded_by: null
-  note: 法释〔2020〕15号；第一条（时间效力一般规则）
-  text_hash: sha256:36b8688bb05eec11b6f21d9d9a9b4cfc0262f658d5f0ca322e0bed60cca87f9c
+  note: 法释〔2020〕15号；第一条（时间效力一般规则，含持续性法律事实）
+  text_hash: sha256:0e6c2b938a39f78d364657704232fbf5d41ad42651b42c6aaad5ceab8c26383f
   text_ref: text/spc_civtemp_1_2020.txt

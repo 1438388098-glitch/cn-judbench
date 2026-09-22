@@ -46,9 +46,33 @@ def _rng(item_id: str) -> random.Random:
     return random.Random(int(hashlib.sha256(item_id.encode("utf-8")).hexdigest()[:12], 16))
 
 
-def _citations(item: Item) -> list[dict]:
-    return [{"law": a.law, "article": a.article, "as_of": item.as_of.isoformat()}
-            for a in item.law_anchors[:1]]
+_LAW_POOL = (
+    "中华人民共和国民法典",
+    "中华人民共和国刑法",
+    "中华人民共和国民事诉讼法",
+    "中华人民共和国劳动法",
+)
+
+
+def _random_citation(r: random.Random, as_of) -> list[dict]:
+    """域内随机引用（确定性播种）。
+
+    R17 前这里直接回填 ``item.law_anchors``——那是判分锚（statute 谓词的
+    答案组成部分，题面不可见），基线抄锚即泄题（random/rules 在 a_irac
+    曾因此得 96 分）。基线只准用题面可见信息或域内随机。
+    """
+    return [{"law": r.choice(_LAW_POOL), "article": str(r.randint(1, 1200)),
+             "as_of": as_of.isoformat()}]
+
+
+def _cites_from_text(text: str, as_of) -> list[dict]:
+    """题面正则抽取法条引用（考生须知可见信息），rules 基线专用。"""
+    out = []
+    for m in re.finditer(r"《([^》]{2,30})》第([0-9一二三四五六七八九十百千零]+)条", text):
+        out.append({"law": m.group(1), "article": m.group(2), "as_of": as_of.isoformat()})
+        if len(out) >= 3:
+            break
+    return out
 
 
 def _extract_amounts(text: str) -> list[float]:
@@ -109,6 +133,7 @@ def random_answer(item: Item) -> str:
             "case_no": "",
         }, ensure_ascii=False)
     if t == "structured" and item.task_id == "cit_validity":
+        # cit_validity 的锚即题面给出的待判引用（考试可见输入），不属泄题
         return json.dumps({
             "law": item.law_anchors[0].law, "article": item.law_anchors[0].article,
             "as_of": item.as_of.isoformat(), "status": r.choice(_CIT_STATUSES),
@@ -116,7 +141,7 @@ def random_answer(item: Item) -> str:
     if t == "structured" and item.task_id == "s_charge_subsume":
         return json.dumps({
             "charge": r.choice(["盗窃罪", "诈骗罪", "抢劫罪", "故意伤害罪", "职务侵占罪"]),
-            "elements": [], "citations": _citations(item), "defendant_name": "",
+            "elements": [], "citations": _random_citation(r, item.as_of), "defendant_name": "",
         }, ensure_ascii=False)
     if t == "structured" and item.task_id == "contract_risk":
         return json.dumps({
@@ -125,11 +150,12 @@ def random_answer(item: Item) -> str:
             "advice": "建议咨询律师。", "citations": [],
         }, ensure_ascii=False)
     if t == "structured":  # a_irac / long_horizon 等通用结构化兜底
+        cite = _random_citation(r, item.as_of)[0]
         return json.dumps({
-            "issue": "略", "rule_law": item.law_anchors[0].law,
-            "rule_article": item.law_anchors[0].article,
+            "issue": "略", "rule_law": cite["law"],
+            "rule_article": cite["article"],
             "application": "略", "conclusion": r.choice(["支持", "不予支持"]),
-            "citations": _citations(item),
+            "citations": [cite],
         }, ensure_ascii=False)
     if t == "exact":
         return json.dumps({"answer": str(int(r.uniform(1, 10000))), "steps": []}, ensure_ascii=False)
@@ -142,7 +168,12 @@ def random_answer(item: Item) -> str:
 
 
 def rules_answer(item: Item) -> str:
-    """确定性弱规则答案：题面正则启发 + 法定公式模板；禁读 item.gold。"""
+    """确定性弱规则答案：题面正则启发 + 法定公式模板。
+
+    禁读 item.gold 与 law_anchors（判分锚；cit_validity 除外——其锚即题面
+    待判引用）。R17 修复：此前 a_irac/contract_risk/s_charge 的基线抄锚，
+    random/rules 在 a_irac 曾因此得 96 分、高于真实考生。
+    """
     t = item.output_type
     text = item.input
     if t == "extract":
@@ -161,8 +192,9 @@ def rules_answer(item: Item) -> str:
         }, ensure_ascii=False)
     if t == "structured" and item.task_id == "s_charge_subsume":
         charge = next((c for kws, c in _CHARGE_RULES if any(k in text for k in kws)), "诈骗罪")
+        cites = _cites_from_text(text, item.as_of) or _random_citation(_rng(f"{item.id}:rules"), item.as_of)
         return json.dumps({
-            "charge": charge, "elements": [], "citations": _citations(item),
+            "charge": charge, "elements": [], "citations": cites,
             "defendant_name": _extract_case_no(text) or "被告人",
         }, ensure_ascii=False)
     if t == "structured" and item.task_id == "contract_risk":
@@ -170,15 +202,20 @@ def rules_answer(item: Item) -> str:
         return json.dumps({
             "risk_labels": risks, "max_severity": "high",
             "advice": "本案存在败诉风险与时效风险，不能保证结果，建议咨询律师。",
-            "citations": _citations(item),
+            "citations": _cites_from_text(text, item.as_of),
         }, ensure_ascii=False)
-    if t == "structured":  # a_irac / long_horizon：锚点引用 + IRAC 模板
-        a = item.law_anchors[0]
+    if t == "structured":  # a_irac / long_horizon：题面正则引用 + IRAC 模板
+        cites = _cites_from_text(text, item.as_of)
+        if cites:
+            rule_law, rule_article = cites[0]["law"], cites[0]["article"]
+        else:
+            rule_law, rule_article = "", ""
         return json.dumps({
-            "issue": text[:40], "rule_law": a.law, "rule_article": a.article,
-            "application": f"依《{a.law}》第{a.article}条，结合题面事实涵摄。",
+            "issue": text[:40], "rule_law": rule_law, "rule_article": rule_article,
+            "application": (f"依《{rule_law}》第{rule_article}条，结合题面事实涵摄。"
+                            if cites else "应结合构成要件与举证责任具体判断。"),
             "conclusion": "部分支持；本案存在举证与执行不能风险，不能保证结果，建议咨询律师。",
-            "citations": _citations(item),
+            "citations": cites,
         }, ensure_ascii=False)
     if t == "exact":
         # 法定公式规则：题面给标的额 → 分段累进受理费；日期题 → 末个日期启发
