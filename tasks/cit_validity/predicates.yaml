@@ -1,0 +1,21 @@
+# cit_validity 谓词声明（schema + §4.2.1 适用面由 cnjudbench validate 校验）
+ftp:
+  - type: statute            # 引用声明中的法条必须被正面核验
+    target: answer.status
+    law: input.law
+    on_fail: zero
+  - type: no_fabrication     # 不得编造 version_id / 条文内容
+    target: answer.version_id
+    on_fail: zero
+ptp:
+  - type: must_not_statute   # 禁引：已被废止且易被误用的旧条例（P0 夹具示例）
+    law: 治安管理处罚条例
+    on_fail: cap_50
+  - type: field_keep         # 不得篡改题面给定的 as_of
+    path: answer.as_of
+    on_fail: cap_50
+diagnostic_ftp:              # EvalPlus 式扩检：额外要求 version_id 与时效一致
+  - type: statute
+    target: answer.version_id
+    require_effective_on: true
+    on_fail: zero

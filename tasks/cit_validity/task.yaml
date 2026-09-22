@@ -1,0 +1,15 @@
+task_id: cit_validity
+capability: Cit
+interaction: L1
+output_type: structured
+roles: [judge, lawyer]
+oracle: lawkb_resolve_status_match
+status: draft
+description: 横切 Cit 冒烟任务——引用有效性（存在/条号/时效）。P0a 仅做题面校验与解析器对照，不调用模型。
+prompt_template: |
+  你是法条引用核验助手。给定一条法律引用与时间点 as_of，请判断该引用在 as_of 当日
+  是否指向当时有效的条文版本，并输出 JSON 对象：
+  {"law": "...", "article": "...", "as_of": "...", "status": "...", "version_id": "..."}
+  status 只能取：ok / wrong_vintage / not_yet_effective / not_effective_on_as_of /
+  unknown_in_lawkb / unresolved_law。
+  待核验引用：{input}
