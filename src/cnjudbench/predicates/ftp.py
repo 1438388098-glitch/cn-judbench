@@ -12,7 +12,7 @@ import re
 from datetime import date
 from pathlib import Path
 
-from ..lawkb.resolve import normalize_article_no, normalize_law_name
+from ..lawkb.resolve import alias_lookup, normalize_article_no, normalize_law_name
 import json as _json
 
 from .base import EvalContext, PredicateResult
@@ -99,11 +99,11 @@ def statute(ctx: EvalContext, p, index: int) -> PredicateResult:
         for entry in gold.get("acceptable_articles") or []:
             if isinstance(entry, dict) and entry.get("law") and entry.get("article"):
                 accept_pairs.append((
-                    ctx.store.alias.get(normalize_law_name(str(entry["law"]))),
+                    alias_lookup(ctx.store, str(entry["law"])),
                     normalize_article_no(str(entry["article"])),
                 ))
     for anchor in required:
-        anchor_law_id = ctx.store.alias.get(normalize_law_name(anchor.law))
+        anchor_law_id = alias_lookup(ctx.store, anchor.law)
         anchor_ano = normalize_article_no(anchor.article)
         anchor_accepts = {anchor_ano} | {
             an for lid, an in accept_pairs if lid is not None and lid == anchor_law_id
@@ -111,7 +111,7 @@ def statute(ctx: EvalContext, p, index: int) -> PredicateResult:
         hit_exact = False
         hit_same_law = False
         for c, chk in zip(ctx.claims, ctx.checks):
-            claim_law_id = ctx.store.alias.get(normalize_law_name(c.law_raw))
+            claim_law_id = alias_lookup(ctx.store, c.law_raw)
             # 双方均须解析成功；双失败时 None==None 不得误判同法（P0-1）
             if anchor_law_id is None or claim_law_id is None or claim_law_id != anchor_law_id:
                 continue

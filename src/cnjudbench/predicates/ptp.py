@@ -7,7 +7,7 @@ from __future__ import annotations
 
 from .base import EvalContext, PredicateResult
 from .ftp import _as_iso_date, _walk
-from ..lawkb.resolve import normalize_law_name
+from ..lawkb.resolve import alias_lookup, normalize_law_name
 
 
 def must_not_statute(ctx: EvalContext, p, index: int) -> PredicateResult:
@@ -24,7 +24,7 @@ def must_not_statute(ctx: EvalContext, p, index: int) -> PredicateResult:
     violations: list[str] = []
     for c, chk in zip(ctx.claims, ctx.checks):
         claim_norm = normalize_law_name(c.law_raw)
-        claim_law_id = ctx.store.alias.get(claim_norm)
+        claim_law_id = alias_lookup(ctx.store, c.law_raw)
         if (claim_law_id and claim_law_id in forbidden_ids) or (claim_norm in forbidden_names):
             violations.append(c.law_raw)
 

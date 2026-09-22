@@ -35,6 +35,23 @@ def normalize_law_name(raw: str) -> str:
     return re.sub(r"\s+", "", s)
 
 
+_BRACKET_NOTE_RE = re.compile(r"[（(][^（）()]*[)）]\s*$")
+
+
+def strip_bracket_note(raw: str) -> str:
+    """去法名尾部的括注（修正/施行年份、试行等），供别名鲁棒注册。
+
+    考生引用常写作「…规定（2020年第二次修正）」——括注是版本说明，
+    不属于法名本体；逐段剥尾，剥空则原文返回。除剥尾外不做任何模糊归并。
+    """
+    s = str(raw or "").strip()
+    while True:
+        s2 = _BRACKET_NOTE_RE.sub("", s).strip()
+        if s2 == s or not s2:
+            return s
+        s = s2
+
+
 def normalize_article_no(raw: str) -> str:
     """条号归一：去「第/条」、中文数字→阿拉伯（第二百六十四条→264）、保留「之一」等后缀。"""
     s = str(raw or "").strip().translate(_FULL2HALF)
@@ -125,9 +142,23 @@ class ResolveResult(BaseModel):
     text_hash: str | None = None
 
 
+def alias_lookup(store: "LawkbStore", raw: str) -> str | None:
+    """引用侧法名解析：先精确归一名命中；未中再剥尾部括注重试。
+
+    考生引用常带「（2020年第二次修正）」「(试行)」等版本括注——括注是
+    版本说明而非法名本体；库内别名只登记规范名，故在查找侧剥尾重试
+    （R29：ah-104 实测必引覆盖 0/1 的假阴性根因）。不做其他模糊归并。
+    """
+    normalized = normalize_law_name(raw)
+    hit = store.alias.get(normalized)
+    if hit:
+        return hit
+    return store.alias.get(normalize_law_name(strip_bracket_note(raw)))
+
+
 def lookup_law(raw: str, store: "LawkbStore") -> ResolveName:
     normalized = normalize_law_name(raw)
-    law_id = store.alias.get(normalized)
+    law_id = alias_lookup(store, raw)
     return ResolveName(
         raw=raw,
         normalized=normalized,
