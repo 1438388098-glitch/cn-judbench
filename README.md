@@ -15,13 +15,15 @@
 | [docs/research-notes.md](docs/research-notes.md) | 第一轮调研：中文法律评测 |
 | [docs/research-notes-round2.md](docs/research-notes-round2.md) | 第二轮调研：coding / agent / 工程硬化 |
 | [docs/impl-P0a.md](docs/impl-P0a.md) | **P0a 实施文档**（lawkb + 校验 + 冒烟任务包） |
+| [docs/impl-P0b.md](docs/impl-P0b.md) | **P0b 实施文档**（FTP/PTP + CiteGuard + API/Manifest） |
 
 ## 项目状态
 
 - [x] 设计与调研（v0.3.1，含外部审查修订）
 - [x] **P0a 实施文档**（`docs/impl-P0a.md`）
 - [x] **P0a 代码** lawkb 多版本解析 + 题面/谓词校验 + `cit_validity` 冒烟（60 项测试）
-- [ ] **P0b** FTP/PTP 执行器 + CiteGuard + API adapter
+- [x] **P0b 实施文档**（`docs/impl-P0b.md`）
+- [ ] **P0b 代码** FTP/PTP 执行器 + CiteGuard + API adapter
 - [ ] P1 Judge / 红线 / CI 门禁
 - [ ] P2 工具层 / Legal-GAIA
 
