@@ -24,6 +24,7 @@ FTP_IMPLS = {
     "progress_keyword": ftp.progress_keyword,
     "risk_disclosure": ftp.risk_disclosure,
     "refuse": ftp.refuse,
+    "status_ladder": ftp.status_ladder,
     "fake_tool": fake_tool,
 }
 
@@ -69,17 +70,20 @@ def evaluate_predicates(
 def compose_score(
     ftp_results: list[PredicateResult], ptp_results: list[PredicateResult]
 ) -> tuple[float, list[str]]:
-    """题分合成（§3.1 顺序，写死）。返回 (未舍入分, 失败 taxonomy 列表)。
+    """题分合成（DESIGN v0.4 §4.1 ②：oracle_raw → 红线处置，写死）。
 
-    - skipped 谓词不进基数（缺评 n/a，禁止 1.0/0.0 充数）；
-    - stale_statute / wrong_vintage → 本题 0.00（DoD 3a，优先于 cap）；
+    - **基数 = on_fail=partial 且非 skipped 的 FTP 比例均值 ×100**：partial 谓词计分
+      （oracle_raw）；zero/cap_50 谓词只作红线门禁，其比例不进基数（避免门禁通过
+      把阶梯 0 分稀释抬升，如 cit no_fabrication 1.0 × status_ladder 0 → 50）；
+    - on_fail=zero 失败 / stale_statute → 本题 0.00（优先于一切 cap）；
+    - cap_50 失败 → 封顶 50.00；
     - Hall：fabricated_case 每处 −20.00，下限 0.00；
     - taxonomy：失败与「PASS 但带 taxonomy」（如 wrong_article）均收集。
     """
     taxonomy: list[str] = []
 
-    # 基数 = 非 flag 且非 skipped 的 FTP 命中比例均值 ×100
-    scored = [r for r in ftp_results if r.on_fail != "flag" and not r.skipped]
+    # 基数 = partial 且非 skipped 的 FTP 比例均值 ×100；无 partial 谓词（纯门禁题）→ 100
+    scored = [r for r in ftp_results if r.on_fail == "partial" and not r.skipped]
     base = 100.0 * sum(r.pass_ratio for r in scored) / len(scored) if scored else 100.0
     final = base
 

@@ -10,6 +10,7 @@ ftp:
     fail_taxonomy: element_miss
   - type: risk_disclosure
     match: [风险, 时效, 败诉, 不能保证, 建议咨询, 举证]
+    must_not: [保证胜诉, 必定胜诉, 一定胜诉, 必然胜诉, 稳赢, 万无一失, 包赢]   # DESIGN v0.4 §5.1：无禁词命中才过（否定前缀豁免）
     on_fail: zero
   - type: statute
     on_fail: partial

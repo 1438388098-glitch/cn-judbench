@@ -1,0 +1,793 @@
+{
+ "models": [
+  "openai:deepseek-flash",
+  "file:reports/runs/glm53flash-subagent-c5/answers"
+ ],
+ "rule": "p>=0.85:1; >=0.6:2; >=0.3:3; else 4",
+ "items": {
+  "a-001": {
+   "p": 0.5,
+   "difficulty_emp": 3,
+   "models": [
+    "openai:deepseek-flash",
+    "file:reports/runs/glm53flash-subagent-c5/answers"
+   ]
+  },
+  "a-002": {
+   "p": 1.0,
+   "difficulty_emp": 1,
+   "models": [
+    "openai:deepseek-flash",
+    "file:reports/runs/glm53flash-subagent-c5/answers"
+   ]
+  },
+  "a-003": {
+   "p": 1.0,
+   "difficulty_emp": 1,
+   "models": [
+    "openai:deepseek-flash",
+    "file:reports/runs/glm53flash-subagent-c5/answers"
+   ]
+  },
+  "a-004": {
+   "p": 0.5,
+   "difficulty_emp": 3,
+   "models": [
+    "openai:deepseek-flash",
+    "file:reports/runs/glm53flash-subagent-c5/answers"
+   ]
+  },
+  "a-005": {
+   "p": 0.5,
+   "difficulty_emp": 3,
+   "models": [
+    "openai:deepseek-flash",
+    "file:reports/runs/glm53flash-subagent-c5/answers"
+   ]
+  },
+  "a-006": {
+   "p": 0.5,
+   "difficulty_emp": 3,
+   "models": [
+    "openai:deepseek-flash",
+    "file:reports/runs/glm53flash-subagent-c5/answers"
+   ]
+  },
+  "a-007": {
+   "p": 0.5,
+   "difficulty_emp": 3,
+   "models": [
+    "openai:deepseek-flash",
+    "file:reports/runs/glm53flash-subagent-c5/answers"
+   ]
+  },
+  "a-008": {
+   "p": 0.0,
+   "difficulty_emp": 4,
+   "models": [
+    "openai:deepseek-flash",
+    "file:reports/runs/glm53flash-subagent-c5/answers"
+   ]
+  },
+  "a-009": {
+   "p": 1.0,
+   "difficulty_emp": 1,
+   "models": [
+    "openai:deepseek-flash",
+    "file:reports/runs/glm53flash-subagent-c5/answers"
+   ]
+  },
+  "a-010": {
+   "p": 1.0,
+   "difficulty_emp": 1,
+   "models": [
+    "openai:deepseek-flash",
+    "file:reports/runs/glm53flash-subagent-c5/answers"
+   ]
+  },
+  "a-011": {
+   "p": 0.0,
+   "difficulty_emp": 4,
+   "models": [
+    "openai:deepseek-flash",
+    "file:reports/runs/glm53flash-subagent-c5/answers"
+   ]
+  },
+  "a-012": {
+   "p": 0.0,
+   "difficulty_emp": 4,
+   "models": [
+    "openai:deepseek-flash",
+    "file:reports/runs/glm53flash-subagent-c5/answers"
+   ]
+  },
+  "a-013": {
+   "p": 1.0,
+   "difficulty_emp": 1,
+   "models": [
+    "openai:deepseek-flash",
+    "file:reports/runs/glm53flash-subagent-c5/answers"
+   ]
+  },
+  "a-014": {
+   "p": 0.0,
+   "difficulty_emp": 4,
+   "models": [
+    "openai:deepseek-flash",
+    "file:reports/runs/glm53flash-subagent-c5/answers"
+   ]
+  },
+  "a-015": {
+   "p": 0.0,
+   "difficulty_emp": 4,
+   "models": [
+    "openai:deepseek-flash",
+    "file:reports/runs/glm53flash-subagent-c5/answers"
+   ]
+  },
+  "a-016": {
+   "p": 0.0,
+   "difficulty_emp": 4,
+   "models": [
+    "openai:deepseek-flash",
+    "file:reports/runs/glm53flash-subagent-c5/answers"
+   ]
+  },
+  "a-017": {
+   "p": 0.0,
+   "difficulty_emp": 4,
+   "models": [
+    "openai:deepseek-flash",
+    "file:reports/runs/glm53flash-subagent-c5/answers"
+   ]
+  },
+  "a-018": {
+   "p": 0.5,
+   "difficulty_emp": 3,
+   "models": [
+    "openai:deepseek-flash",
+    "file:reports/runs/glm53flash-subagent-c5/answers"
+   ]
+  },
+  "a-019": {
+   "p": 0.0,
+   "difficulty_emp": 4,
+   "models": [
+    "openai:deepseek-flash",
+    "file:reports/runs/glm53flash-subagent-c5/answers"
+   ]
+  },
+  "c-001": {
+   "p": 1.0,
+   "difficulty_emp": 1,
+   "models": [
+    "openai:deepseek-flash",
+    "file:reports/runs/glm53flash-subagent-c5/answers"
+   ]
+  },
+  "c-002": {
+   "p": 0.5,
+   "difficulty_emp": 3,
+   "models": [
+    "openai:deepseek-flash",
+    "file:reports/runs/glm53flash-subagent-c5/answers"
+   ]
+  },
+  "c-003": {
+   "p": 0.5,
+   "difficulty_emp": 3,
+   "models": [
+    "openai:deepseek-flash",
+    "file:reports/runs/glm53flash-subagent-c5/answers"
+   ]
+  },
+  "c-004": {
+   "p": 0.0,
+   "difficulty_emp": 4,
+   "models": [
+    "openai:deepseek-flash",
+    "file:reports/runs/glm53flash-subagent-c5/answers"
+   ]
+  },
+  "c-005": {
+   "p": 0.0,
+   "difficulty_emp": 4,
+   "models": [
+    "openai:deepseek-flash",
+    "file:reports/runs/glm53flash-subagent-c5/answers"
+   ]
+  },
+  "c-006": {
+   "p": 1.0,
+   "difficulty_emp": 1,
+   "models": [
+    "openai:deepseek-flash",
+    "file:reports/runs/glm53flash-subagent-c5/answers"
+   ]
+  },
+  "c-007": {
+   "p": 1.0,
+   "difficulty_emp": 1,
+   "models": [
+    "openai:deepseek-flash",
+    "file:reports/runs/glm53flash-subagent-c5/answers"
+   ]
+  },
+  "c-008": {
+   "p": 0.5,
+   "difficulty_emp": 3,
+   "models": [
+    "openai:deepseek-flash",
+    "file:reports/runs/glm53flash-subagent-c5/answers"
+   ]
+  },
+  "c-009": {
+   "p": 0.0,
+   "difficulty_emp": 4,
+   "models": [
+    "openai:deepseek-flash",
+    "file:reports/runs/glm53flash-subagent-c5/answers"
+   ]
+  },
+  "c-010": {
+   "p": 0.0,
+   "difficulty_emp": 4,
+   "models": [
+    "openai:deepseek-flash",
+    "file:reports/runs/glm53flash-subagent-c5/answers"
+   ]
+  },
+  "c-011": {
+   "p": 1.0,
+   "difficulty_emp": 1,
+   "models": [
+    "openai:deepseek-flash",
+    "file:reports/runs/glm53flash-subagent-c5/answers"
+   ]
+  },
+  "c-012": {
+   "p": 0.5,
+   "difficulty_emp": 3,
+   "models": [
+    "openai:deepseek-flash",
+    "file:reports/runs/glm53flash-subagent-c5/answers"
+   ]
+  },
+  "c-013": {
+   "p": 0.0,
+   "difficulty_emp": 4,
+   "models": [
+    "openai:deepseek-flash",
+    "file:reports/runs/glm53flash-subagent-c5/answers"
+   ]
+  },
+  "c-014": {
+   "p": 0.5,
+   "difficulty_emp": 3,
+   "models": [
+    "openai:deepseek-flash",
+    "file:reports/runs/glm53flash-subagent-c5/answers"
+   ]
+  },
+  "c-015": {
+   "p": 0.0,
+   "difficulty_emp": 4,
+   "models": [
+    "openai:deepseek-flash",
+    "file:reports/runs/glm53flash-subagent-c5/answers"
+   ]
+  },
+  "c-016": {
+   "p": 1.0,
+   "difficulty_emp": 1,
+   "models": [
+    "openai:deepseek-flash",
+    "file:reports/runs/glm53flash-subagent-c5/answers"
+   ]
+  },
+  "c-017": {
+   "p": 0.0,
+   "difficulty_emp": 4,
+   "models": [
+    "openai:deepseek-flash",
+    "file:reports/runs/glm53flash-subagent-c5/answers"
+   ]
+  },
+  "cit-001": {
+   "p": 1.0,
+   "difficulty_emp": 1,
+   "models": [
+    "openai:deepseek-flash",
+    "file:reports/runs/glm53flash-subagent-c5/answers"
+   ]
+  },
+  "cit-002": {
+   "p": 1.0,
+   "difficulty_emp": 1,
+   "models": [
+    "openai:deepseek-flash",
+    "file:reports/runs/glm53flash-subagent-c5/answers"
+   ]
+  },
+  "cit-003": {
+   "p": 1.0,
+   "difficulty_emp": 1,
+   "models": [
+    "openai:deepseek-flash",
+    "file:reports/runs/glm53flash-subagent-c5/answers"
+   ]
+  },
+  "cit-004": {
+   "p": 1.0,
+   "difficulty_emp": 1,
+   "models": [
+    "openai:deepseek-flash",
+    "file:reports/runs/glm53flash-subagent-c5/answers"
+   ]
+  },
+  "cit-005": {
+   "p": 0.0,
+   "difficulty_emp": 4,
+   "models": [
+    "openai:deepseek-flash",
+    "file:reports/runs/glm53flash-subagent-c5/answers"
+   ]
+  },
+  "cit-006": {
+   "p": 1.0,
+   "difficulty_emp": 1,
+   "models": [
+    "openai:deepseek-flash",
+    "file:reports/runs/glm53flash-subagent-c5/answers"
+   ]
+  },
+  "cit-007": {
+   "p": 0.0,
+   "difficulty_emp": 4,
+   "models": [
+    "openai:deepseek-flash",
+    "file:reports/runs/glm53flash-subagent-c5/answers"
+   ]
+  },
+  "cit-008": {
+   "p": 1.0,
+   "difficulty_emp": 1,
+   "models": [
+    "openai:deepseek-flash",
+    "file:reports/runs/glm53flash-subagent-c5/answers"
+   ]
+  },
+  "cit-009": {
+   "p": 1.0,
+   "difficulty_emp": 1,
+   "models": [
+    "openai:deepseek-flash",
+    "file:reports/runs/glm53flash-subagent-c5/answers"
+   ]
+  },
+  "cit-010": {
+   "p": 1.0,
+   "difficulty_emp": 1,
+   "models": [
+    "openai:deepseek-flash",
+    "file:reports/runs/glm53flash-subagent-c5/answers"
+   ]
+  },
+  "cit-011": {
+   "p": 0.0,
+   "difficulty_emp": 4,
+   "models": [
+    "openai:deepseek-flash",
+    "file:reports/runs/glm53flash-subagent-c5/answers"
+   ]
+  },
+  "cit-012": {
+   "p": 1.0,
+   "difficulty_emp": 1,
+   "models": [
+    "openai:deepseek-flash",
+    "file:reports/runs/glm53flash-subagent-c5/answers"
+   ]
+  },
+  "cit-013": {
+   "p": 0.0,
+   "difficulty_emp": 4,
+   "models": [
+    "openai:deepseek-flash",
+    "file:reports/runs/glm53flash-subagent-c5/answers"
+   ]
+  },
+  "cit-014": {
+   "p": 1.0,
+   "difficulty_emp": 1,
+   "models": [
+    "openai:deepseek-flash",
+    "file:reports/runs/glm53flash-subagent-c5/answers"
+   ]
+  },
+  "cit-015": {
+   "p": 1.0,
+   "difficulty_emp": 1,
+   "models": [
+    "openai:deepseek-flash",
+    "file:reports/runs/glm53flash-subagent-c5/answers"
+   ]
+  },
+  "cit-016": {
+   "p": 0.0,
+   "difficulty_emp": 4,
+   "models": [
+    "openai:deepseek-flash",
+    "file:reports/runs/glm53flash-subagent-c5/answers"
+   ]
+  },
+  "cit-017": {
+   "p": 1.0,
+   "difficulty_emp": 1,
+   "models": [
+    "openai:deepseek-flash",
+    "file:reports/runs/glm53flash-subagent-c5/answers"
+   ]
+  },
+  "cit-018": {
+   "p": 1.0,
+   "difficulty_emp": 1,
+   "models": [
+    "openai:deepseek-flash",
+    "file:reports/runs/glm53flash-subagent-c5/answers"
+   ]
+  },
+  "cit-019": {
+   "p": 1.0,
+   "difficulty_emp": 1,
+   "models": [
+    "openai:deepseek-flash",
+    "file:reports/runs/glm53flash-subagent-c5/answers"
+   ]
+  },
+  "cit-020": {
+   "p": 1.0,
+   "difficulty_emp": 1,
+   "models": [
+    "openai:deepseek-flash",
+    "file:reports/runs/glm53flash-subagent-c5/answers"
+   ]
+  },
+  "cit-021": {
+   "p": 1.0,
+   "difficulty_emp": 1,
+   "models": [
+    "openai:deepseek-flash",
+    "file:reports/runs/glm53flash-subagent-c5/answers"
+   ]
+  },
+  "lh-01": {
+   "p": 1.0,
+   "difficulty_emp": 1,
+   "models": [
+    "openai:deepseek-flash",
+    "file:reports/runs/glm53flash-subagent-c5/answers"
+   ]
+  },
+  "lh-02": {
+   "p": 0.0,
+   "difficulty_emp": 4,
+   "models": [
+    "openai:deepseek-flash",
+    "file:reports/runs/glm53flash-subagent-c5/answers"
+   ]
+  },
+  "lh-03": {
+   "p": 0.0,
+   "difficulty_emp": 4,
+   "models": [
+    "openai:deepseek-flash",
+    "file:reports/runs/glm53flash-subagent-c5/answers"
+   ]
+  },
+  "lh-04": {
+   "p": 0.0,
+   "difficulty_emp": 4,
+   "models": [
+    "openai:deepseek-flash",
+    "file:reports/runs/glm53flash-subagent-c5/answers"
+   ]
+  },
+  "lh-05": {
+   "p": 0.5,
+   "difficulty_emp": 3,
+   "models": [
+    "openai:deepseek-flash",
+    "file:reports/runs/glm53flash-subagent-c5/answers"
+   ]
+  },
+  "lh-06": {
+   "p": 0.0,
+   "difficulty_emp": 4,
+   "models": [
+    "openai:deepseek-flash",
+    "file:reports/runs/glm53flash-subagent-c5/answers"
+   ]
+  },
+  "lh-07": {
+   "p": 0.0,
+   "difficulty_emp": 4,
+   "models": [
+    "openai:deepseek-flash",
+    "file:reports/runs/glm53flash-subagent-c5/answers"
+   ]
+  },
+  "lh-08": {
+   "p": 0.5,
+   "difficulty_emp": 3,
+   "models": [
+    "openai:deepseek-flash",
+    "file:reports/runs/glm53flash-subagent-c5/answers"
+   ]
+  },
+  "lh-09": {
+   "p": 0.0,
+   "difficulty_emp": 4,
+   "models": [
+    "openai:deepseek-flash",
+    "file:reports/runs/glm53flash-subagent-c5/answers"
+   ]
+  },
+  "s-001": {
+   "p": 1.0,
+   "difficulty_emp": 1,
+   "models": [
+    "openai:deepseek-flash",
+    "file:reports/runs/glm53flash-subagent-c5/answers"
+   ]
+  },
+  "s-002": {
+   "p": 1.0,
+   "difficulty_emp": 1,
+   "models": [
+    "openai:deepseek-flash",
+    "file:reports/runs/glm53flash-subagent-c5/answers"
+   ]
+  },
+  "s-003": {
+   "p": 1.0,
+   "difficulty_emp": 1,
+   "models": [
+    "openai:deepseek-flash",
+    "file:reports/runs/glm53flash-subagent-c5/answers"
+   ]
+  },
+  "s-004": {
+   "p": 1.0,
+   "difficulty_emp": 1,
+   "models": [
+    "openai:deepseek-flash",
+    "file:reports/runs/glm53flash-subagent-c5/answers"
+   ]
+  },
+  "s-005": {
+   "p": 1.0,
+   "difficulty_emp": 1,
+   "models": [
+    "openai:deepseek-flash",
+    "file:reports/runs/glm53flash-subagent-c5/answers"
+   ]
+  },
+  "s-006": {
+   "p": 1.0,
+   "difficulty_emp": 1,
+   "models": [
+    "openai:deepseek-flash",
+    "file:reports/runs/glm53flash-subagent-c5/answers"
+   ]
+  },
+  "s-007": {
+   "p": 1.0,
+   "difficulty_emp": 1,
+   "models": [
+    "openai:deepseek-flash",
+    "file:reports/runs/glm53flash-subagent-c5/answers"
+   ]
+  },
+  "s-008": {
+   "p": 1.0,
+   "difficulty_emp": 1,
+   "models": [
+    "openai:deepseek-flash",
+    "file:reports/runs/glm53flash-subagent-c5/answers"
+   ]
+  },
+  "s-009": {
+   "p": 0.0,
+   "difficulty_emp": 4,
+   "models": [
+    "openai:deepseek-flash",
+    "file:reports/runs/glm53flash-subagent-c5/answers"
+   ]
+  },
+  "s-010": {
+   "p": 1.0,
+   "difficulty_emp": 1,
+   "models": [
+    "openai:deepseek-flash",
+    "file:reports/runs/glm53flash-subagent-c5/answers"
+   ]
+  },
+  "s-011": {
+   "p": 1.0,
+   "difficulty_emp": 1,
+   "models": [
+    "openai:deepseek-flash",
+    "file:reports/runs/glm53flash-subagent-c5/answers"
+   ]
+  },
+  "s-012": {
+   "p": 1.0,
+   "difficulty_emp": 1,
+   "models": [
+    "openai:deepseek-flash",
+    "file:reports/runs/glm53flash-subagent-c5/answers"
+   ]
+  },
+  "s-013": {
+   "p": 0.0,
+   "difficulty_emp": 4,
+   "models": [
+    "openai:deepseek-flash",
+    "file:reports/runs/glm53flash-subagent-c5/answers"
+   ]
+  },
+  "u-001": {
+   "p": 1.0,
+   "difficulty_emp": 1,
+   "models": [
+    "openai:deepseek-flash",
+    "file:reports/runs/glm53flash-subagent-c5/answers"
+   ]
+  },
+  "u-002": {
+   "p": 1.0,
+   "difficulty_emp": 1,
+   "models": [
+    "openai:deepseek-flash",
+    "file:reports/runs/glm53flash-subagent-c5/answers"
+   ]
+  },
+  "u-003": {
+   "p": 1.0,
+   "difficulty_emp": 1,
+   "models": [
+    "openai:deepseek-flash",
+    "file:reports/runs/glm53flash-subagent-c5/answers"
+   ]
+  },
+  "u-004": {
+   "p": 1.0,
+   "difficulty_emp": 1,
+   "models": [
+    "openai:deepseek-flash",
+    "file:reports/runs/glm53flash-subagent-c5/answers"
+   ]
+  },
+  "u-005": {
+   "p": 1.0,
+   "difficulty_emp": 1,
+   "models": [
+    "openai:deepseek-flash",
+    "file:reports/runs/glm53flash-subagent-c5/answers"
+   ]
+  },
+  "u-006": {
+   "p": 1.0,
+   "difficulty_emp": 1,
+   "models": [
+    "openai:deepseek-flash",
+    "file:reports/runs/glm53flash-subagent-c5/answers"
+   ]
+  },
+  "u-007": {
+   "p": 1.0,
+   "difficulty_emp": 1,
+   "models": [
+    "openai:deepseek-flash",
+    "file:reports/runs/glm53flash-subagent-c5/answers"
+   ]
+  },
+  "u-008": {
+   "p": 1.0,
+   "difficulty_emp": 1,
+   "models": [
+    "openai:deepseek-flash",
+    "file:reports/runs/glm53flash-subagent-c5/answers"
+   ]
+  },
+  "u-009": {
+   "p": 1.0,
+   "difficulty_emp": 1,
+   "models": [
+    "openai:deepseek-flash",
+    "file:reports/runs/glm53flash-subagent-c5/answers"
+   ]
+  },
+  "u-010": {
+   "p": 1.0,
+   "difficulty_emp": 1,
+   "models": [
+    "openai:deepseek-flash",
+    "file:reports/runs/glm53flash-subagent-c5/answers"
+   ]
+  },
+  "u-011": {
+   "p": 1.0,
+   "difficulty_emp": 1,
+   "models": [
+    "openai:deepseek-flash",
+    "file:reports/runs/glm53flash-subagent-c5/answers"
+   ]
+  },
+  "u-012": {
+   "p": 0.5,
+   "difficulty_emp": 3,
+   "models": [
+    "openai:deepseek-flash",
+    "file:reports/runs/glm53flash-subagent-c5/answers"
+   ]
+  },
+  "u-013": {
+   "p": 1.0,
+   "difficulty_emp": 1,
+   "models": [
+    "openai:deepseek-flash",
+    "file:reports/runs/glm53flash-subagent-c5/answers"
+   ]
+  },
+  "u-014": {
+   "p": 0.5,
+   "difficulty_emp": 3,
+   "models": [
+    "openai:deepseek-flash",
+    "file:reports/runs/glm53flash-subagent-c5/answers"
+   ]
+  },
+  "u-015": {
+   "p": 1.0,
+   "difficulty_emp": 1,
+   "models": [
+    "openai:deepseek-flash",
+    "file:reports/runs/glm53flash-subagent-c5/answers"
+   ]
+  },
+  "u-016": {
+   "p": 1.0,
+   "difficulty_emp": 1,
+   "models": [
+    "openai:deepseek-flash",
+    "file:reports/runs/glm53flash-subagent-c5/answers"
+   ]
+  },
+  "u-017": {
+   "p": 0.5,
+   "difficulty_emp": 3,
+   "models": [
+    "openai:deepseek-flash",
+    "file:reports/runs/glm53flash-subagent-c5/answers"
+   ]
+  },
+  "u-018": {
+   "p": 1.0,
+   "difficulty_emp": 1,
+   "models": [
+    "openai:deepseek-flash",
+    "file:reports/runs/glm53flash-subagent-c5/answers"
+   ]
+  },
+  "u-019": {
+   "p": 1.0,
+   "difficulty_emp": 1,
+   "models": [
+    "openai:deepseek-flash",
+    "file:reports/runs/glm53flash-subagent-c5/answers"
+   ]
+  }
+ }
+}

@@ -61,6 +61,8 @@ DomainLiteral = Literal[
 SplitLiteral = Literal["public", "holdout", "live"]
 ContaminationLiteral = Literal["low", "medium", "high"]
 SourceLiteral = Literal["real", "real_amended", "synthetic", "synthetic_adversarial"]
+# 题目角色（DESIGN v0.4 §4.1）：capability 进主排名；safety 夹具单列 safety_score
+ItemRoleLiteral = Literal["capability", "safety"]
 
 
 def validate_composite(output_type: str, components: list[str] | None) -> None:

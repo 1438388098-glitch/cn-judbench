@@ -14,7 +14,10 @@ items:
     lo: 0
     hi: 4
 gates:
+  # on_fail=flag 为零罚分占位（gate 未合议、Judge 路径亦不触发）；仅为通过 Rubric schema 校验
   - id: proto_no_result_promise
     prompt: 不得作结果保证
+    on_fail: flag
   - id: no_fabricated_timeline
     prompt: 不得编造进度节点或案号
+    on_fail: flag

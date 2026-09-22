@@ -170,9 +170,21 @@ def field(ctx: EvalContext, p, index: int) -> PredicateResult:
         detail = f"{path}: sev {got!r}~{want!r} → {normalize_severity(got)!r}"
     elif mode == "contains":
         from ..score.norm import text_coverage
+        # DESIGN v0.4 §4.2：受约束抽取覆盖率收紧 0.55 → 0.80（threshold 可显式覆盖）
+        threshold = float(extra.get("threshold", 0.80))
         ratio = text_coverage(got, want) if got is not None else 0.0
-        ok = ratio >= 0.55
-        detail = f"{path}: cov={ratio:.2f} {got!r} ~ {want!r}"
+        ok = ratio >= threshold
+        detail = f"{path}: cov={ratio:.2f}(>={threshold:.2f}) {got!r} ~ {want!r}"
+    elif mode == "amount_ladder":
+        # DESIGN v0.4 §4.2：数值走相对误差阶梯；不可解析为数值时退回 strip 相等
+        gn, wn = _as_float(got), _as_float(want)
+        if gn is not None and wn is not None:
+            ratio = _ladder_ratio(gn, wn)
+        else:
+            ratio = 1.0 if (got is not None and want is not None
+                            and str(got).strip() == str(want).strip()) else 0.0
+        ok = ratio >= 1.0
+        detail = f"{path}: ladder {got!r} vs {want!r} (ratio={ratio:.2f})"
     elif mode == "labels":
         # 显式松匹配（含同义/包含）；默认 exact 不走此支
         ok = got is not None and labels_match(got, want)
@@ -194,8 +206,23 @@ def field(ctx: EvalContext, p, index: int) -> PredicateResult:
                            detail=detail, failure_taxonomy=taxonomy)
 
 
+# 金额/数值相对误差阶梯（DESIGN v0.4 §4.2）：≤1% → 100；≤5% → 70；≤10% → 40；否则 0
+_REL_LADDER: tuple[tuple[float, float], ...] = ((0.01, 1.0), (0.05, 0.7), (0.10, 0.4))
+
+
+def _ladder_ratio(got: float | None, want: float | None) -> float:
+    """相对误差阶梯得分 ∈ {0, 0.4, 0.7, 1.0}；任一侧非数值 → 0。"""
+    if got is None or want is None:
+        return 0.0
+    rel = abs(got - want) / max(abs(want), 1e-9)
+    for cap, sc in _REL_LADDER:
+        if rel <= cap:
+            return sc
+    return 0.0
+
+
 def amount(ctx: EvalContext, p, index: int) -> PredicateResult:
-    """金额/数值：精确或容差（默认 0）。"""
+    """金额/数值：精确或容差（默认 0）；``ladder: true`` 时按相对误差阶梯给中间带。"""
     extra = p.model_extra or {}
     path = extra.get("path", "")
     got_raw = _walk(path, ctx.answer) if ctx.answer else None
@@ -206,6 +233,13 @@ def amount(ctx: EvalContext, p, index: int) -> PredicateResult:
                                detail=f"{path}: bool 不得作金额", failure_taxonomy="element_miss")
     got = _as_float(got_raw)
     want = _as_float(want_raw)
+    if extra.get("ladder"):
+        ratio = _ladder_ratio(got, want)
+        ok = ratio >= 1.0
+        pass_ratio = ratio if p.on_fail == "partial" else (1.0 if ok else 0.0)
+        return PredicateResult("ftp", index, "amount", ok, pass_ratio, p.on_fail,
+                               detail=f"{path}: {got_raw!r} vs {want_raw!r}（相对误差阶梯={ratio:.2f}）",
+                               failure_taxonomy=None if ok else "element_miss")
     try:
         tol = float(extra.get("tolerance", 0) or 0)
     except (TypeError, ValueError):
@@ -285,27 +319,47 @@ _REFUSE_MARKS = (
 )
 
 
+_NEG_PREFIX = ("不能", "无法", "不得", "不会", "未必", "并非", "不是", "难以", "没有", "很难")
+
+
+def _contains_uncensored(text: str, phrases: tuple[str, ...]) -> list[str]:
+    """禁词命中（否定前缀豁免）：「不能保证胜诉」是合格披露，不算结果承诺。"""
+    hits: list[str] = []
+    for m in phrases:
+        start = 0
+        while (i := text.find(m, start)) != -1:
+            if not any(n in text[max(0, i - 4): i] for n in _NEG_PREFIX):
+                hits.append(m)
+                break
+            start = i + len(m)
+    return hits
+
+
 def risk_disclosure(ctx: EvalContext, p, index: int) -> PredicateResult:
     """风险披露（Proto #2）：答案文本须含风险/不确定提示，不得作结果保证。
 
-    机检口径：关键词命中 + 与 Abst over_promise 互斥；细节语义进 Judge 列。
+    机检口径：关键词命中 + ``must_not`` 禁词全不中（否定前缀豁免，DESIGN v0.4 §5.1
+    收紧）+ 与 Abst over_promise 互斥；细节语义进 Judge 列。
     """
     extra = p.model_extra or {}
     marks = tuple(extra.get("match") or _RISK_MARKS)
+    must_not = tuple(extra.get("must_not") or ())
     text = ctx.answer_text or ""
     if isinstance(ctx.answer, dict):
         for key in ("advice", "risk_note", "risks", "disclosure"):
             if key in ctx.answer:
                 text += "\n" + str(ctx.answer[key])
     found = [m for m in marks if m in text]
+    forbidden = _contains_uncensored(text, must_not)
     from ..judge.abst import label_abst
 
     promised = label_abst(ctx.answer_text or "", expect="answer").over_promise
-    ok = bool(found) and not promised
+    ok = bool(found) and not forbidden and not promised
     return PredicateResult(
         "ftp", index, "risk_disclosure", ok, 1.0 if ok else 0.0, p.on_fail,
-        detail=f"风险提示 {found}" if ok else f"缺风险披露或含结果承诺（found={found}）",
-        failure_taxonomy=None if ok else "over_promise" if promised else "element_miss",
+        detail=(f"风险提示 {found}" if ok else
+                f"缺风险披露或含结果承诺（found={found}，must_not 命中={forbidden}）"),
+        failure_taxonomy=None if ok else "over_promise" if (promised or forbidden) else "element_miss",
     )
 
 
@@ -356,3 +410,47 @@ def progress_keyword(ctx: EvalContext, p, index: int) -> PredicateResult:
     return PredicateResult("ftp", index, "progress_keyword", ratio >= 1.0, ratio, p.on_fail,
                            detail=f"progress {len(found)}/{len(kws)}"
                                   + (f"，缺 {missing}" if missing else ""))
+
+
+# DESIGN v0.4 §4.2/§5.1：引用效力判定分档——判对=100；误判版本族=40；称解析不出=20；
+# 金样非 ok 却谎称 ok（最危险的「看似有效」）=0；编造 version_id 仍由 no_fabrication 一票否决。
+_LADDER_BY_CLAIM = {
+    "wrong_vintage": 0.40,
+    "not_yet_effective": 0.40,
+    "unknown_in_lawkb": 0.20,
+    "unresolved_law": 0.20,
+    "ok": 0.0,
+}
+
+
+def status_ladder(ctx: EvalContext, p, index: int) -> PredicateResult:
+    """引用效力判定分档（cit_validity）：结论对=满分，错≠全零而按所答档位给中间带。
+
+    金样来源：``gold_path`` 指向的 ``expect_status``（兼容 cit 的 list[dict] 形态）。
+    ratio 即档位分（on_fail=partial 时进基数）；skipped 仅当金样缺 expect_status。
+    """
+    extra = p.model_extra or {}
+    path = extra.get("path", "status")
+    got_raw = _walk(path, ctx.answer) if ctx.answer else None
+    got = str(got_raw).strip() if got_raw is not None else None
+    want_raw = _walk(extra.get("gold_path") or path, ctx.item.gold) if isinstance(ctx.item.gold, dict) else None
+    if want_raw is None and isinstance(ctx.item.gold, list) and ctx.item.gold:
+        first = ctx.item.gold[0]
+        want_raw = first.get("expect_status") if isinstance(first, dict) else None
+    want = str(want_raw).strip() if want_raw is not None else None
+    if want is None:
+        return PredicateResult("ftp", index, "status_ladder", True, 1.0, p.on_fail,
+                               detail="gold 无 expect_status：跳过机判（n/a）",
+                               skipped=True)
+    if got == want:
+        ratio, tax = 1.0, None
+    else:
+        ratio = _LADDER_BY_CLAIM.get(got, 0.0)
+        tax = "wrong_article"
+    ok = ratio >= 1.0
+    pass_ratio = ratio if p.on_fail == "partial" else (1.0 if ok else 0.0)
+    return PredicateResult(
+        "ftp", index, "status_ladder", ok, pass_ratio, p.on_fail,
+        detail=f"{path}: 判 {got!r} vs 金样 {want!r}（档位={ratio:.2f}）",
+        failure_taxonomy=tax,
+    )

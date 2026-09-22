@@ -1,9 +1,12 @@
-# 默认谓词集：文字终答（条号/状态类，exact 语义）+ progress 诊断
+# 默认谓词集：终答判定 + progress 诊断
+# DESIGN v0.4 §4.2/§5.1：金额题走相对误差阶梯（≤1%→100 / ≤5%→70 / ≤10%→40），
+# 日期/文字题仍 exact——amount_ladder 模式自动按 gold 可否解析为数值分流。
 ftp:
   - type: field
-    on_fail: zero
+    on_fail: partial
     path: answer
     gold_path: answer
+    match: amount_ladder
 diagnostic_ftp:
   - type: progress_keyword
     on_fail: flag

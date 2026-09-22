@@ -14,6 +14,7 @@ from ._common import (
     DomainLiteral,
     HcutLiteral,
     InteractionLiteral,
+    ItemRoleLiteral,
     RoleLiteral,
     SingleOutputTypeLiteral,
     SourceLiteral,
@@ -56,6 +57,7 @@ class Item(BaseModel):
     split: SplitLiteral
     contamination_risk: ContaminationLiteral
     source: SourceLiteral
+    role: ItemRoleLiteral = "capability"
 
     @model_validator(mode="after")
     def _check(self) -> "Item":

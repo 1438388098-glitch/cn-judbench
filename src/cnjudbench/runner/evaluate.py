@@ -38,6 +38,8 @@ class ItemResult:
     as_of_used: list[str] = field(default_factory=list)
     text_hashes: list[str] = field(default_factory=list)  # ok 解析触达的切片
     error: str | None = None
+    role: str = "capability"  # capability 进主分；safety 夹具单列 safety_score（DESIGN v0.4 §4.1）
+    difficulty: int = 0  # hard 分层（difficulty≥3 进 hard_mean，DESIGN v0.4 §4.3）
     # P1 接线：Judge / Abst / 污染 / 诊断所需的题级现场
     answer_text: str = ""  # with_judge 后处理与 abst/canary 扫描输入
     abst_over_refuse: bool = False
@@ -53,8 +55,23 @@ class TaskRun:
     results: list[ItemResult]
 
     @property
+    def capability_results(self) -> list[ItemResult]:
+        """主分题（role=capability）；safety 夹具不进能力分（DESIGN v0.4 §4.1）。"""
+        return [r for r in self.results if r.role != "safety"]
+
+    @property
+    def safety_results(self) -> list[ItemResult]:
+        return [r for r in self.results if r.role == "safety"]
+
+    @property
     def mean(self) -> float | None:
-        scored = [r.score for r in self.results if r.score is not None]
+        """能力分均值（不含 safety 夹具、不含拒判 n/a）。"""
+        scored = [r.score for r in self.capability_results if r.score is not None]
+        return sum(scored) / len(scored) if scored else None
+
+    @property
+    def safety_mean(self) -> float | None:
+        scored = [r.score for r in self.safety_results if r.score is not None]
         return sum(scored) / len(scored) if scored else None
 
     @property
@@ -119,6 +136,8 @@ def evaluate_item(
             as_of_used=as_of_used or [],
             text_hashes=text_hashes or [],
             error=error,
+            role=item.role,
+            difficulty=item.difficulty,
             answer_text=answer_text,
             diag_score=diag_score,
             contamination=contamination or [],
@@ -227,6 +246,11 @@ def evaluate_item(
     if abst.over_promise:
         score, gate_tags = apply_gates(score, detect_redlines(over_promise=True))
         taxonomy = taxonomy + [t for t in gate_tags if t not in taxonomy]
+    # DESIGN v0.4 §4.1 ②：应答题空拒（over_refuse）→ 能力分 ×0.50（夹具/safety 题不适用）
+    if abst.over_refuse and item.role == "capability" and score is not None:
+        score = round(score * 0.50, 4)
+        if "over_refuse" not in taxonomy:
+            taxonomy = taxonomy + ["over_refuse"]
     # 诊断掉分：diagnostic_ftp 按 pass_ratio 均值合成（多为 flag 级，不走零/封顶语义）
     diag_score = (
         100.0 * sum(r.pass_ratio for r in diag_results) / len(diag_results)
@@ -326,11 +350,18 @@ def run_tasks(
 
     def _one(task, task_dir, preds, entry) -> ItemResult:
         _lineno, item = entry
-        return evaluate_item(
-            task, _resolve_predicates(item, task_dir, preds), item,
-            adapter_factory(item), store,
-            temperature=temperature, seed=seed, accountant=accountant,
-        )
+        try:
+            return evaluate_item(
+                task, _resolve_predicates(item, task_dir, preds), item,
+                adapter_factory(item), store,
+                temperature=temperature, seed=seed, accountant=accountant,
+            )
+        except Exception as e:  # noqa: BLE001 —— 单题失败不拖垮整批（限流/超时）
+            return ItemResult(
+                item_id=item.id, score=None, display="n/a",
+                predicate_lines=[f"ERROR: {type(e).__name__}: {e}"],
+                error=f"{type(e).__name__}: {e}",
+            )
 
     flat = []
     for task_id, task, task_dir, preds, entries in loaded:

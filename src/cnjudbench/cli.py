@@ -23,6 +23,7 @@ from dataclasses import asdict
 from datetime import date
 from pathlib import Path
 
+from .adapters.file_answers import FileAnswersAdapter, HashedFileAnswersAdapter
 from .adapters.mock import mock_dialog_adapter, mock_gold_adapter, mock_tools_adapter
 from .adapters.openai_compat import OpenAICompatAdapter
 from .judge import MockJudge, load_rubric
@@ -31,6 +32,7 @@ from .lawkb.resolve import resolve_article
 from .lawkb.store import LawkbStore
 from .metrics.aggregate import combine, diagnostic_drop
 from .metrics.cost import dollar_per_solve
+from .providers import apply_profile_to_args, load_env_local, resolve_profile
 from .report.writeup import limits_md
 from .runner.account import Accountant, price_key_from_model
 from .runner.evaluate import DISCLAIMER, TaskRun, load_task_package, run_task, run_tasks
@@ -79,7 +81,7 @@ def _build_parser() -> argparse.ArgumentParser:
             e.add_argument("--task", required=True)
         else:
             e.add_argument("--tasks", required=True, help="逗号分隔的 task_id 列表")
-        e.add_argument("--model", required=True, help="mock:gold 或 openai:<model>")
+        e.add_argument("--model", required=True, help="mock:gold / openai:<model> / file:<答案目录>")
         e.add_argument("--items-root", default="data/public")
         e.add_argument("--tasks-root", default="tasks")
         e.add_argument("--lawkb", default=DEFAULT_LAWKB)
@@ -90,9 +92,17 @@ def _build_parser() -> argparse.ArgumentParser:
         e.add_argument("--seed", type=int, default=None)
         e.add_argument("--concurrency", type=int, default=1,
                        help="评测线程池大小（1=串行；真实 API 可调高，如 50）")
+        e.add_argument("--reasoning-effort", default=None,
+                       choices=("low", "medium", "high", "max"),
+                       help="思考强度（智谱 reasoning_effort；GLM-5.3-Flash 推荐 max）")
+        e.add_argument("--timeout", type=float, default=60.0,
+                       help="单次 API 超时秒（思考模型建议 ≥180）")
+        e.add_argument("--provider", default=None,
+                       help="提供商（configs/providers.yaml：deepseek / zhipu …）")
         # P1 收尾：Judge / 混分开关
         e.add_argument("--with-judge", action="store_true", help="启用 Judge 后处理（机检/Judge 分列）")
-        e.add_argument("--judge", choices=("mock", "openai"), default="mock", help="Judge 后端")
+        e.add_argument("--judge", default="mock",
+                       help="Judge 后端：mock / openai / file:<judge答案目录>（按 sha256(judge prompt) 寻址）")
         e.add_argument("--judge-id", default=None, help="Judge 标识（进 manifest 与 limits）")
         e.add_argument("--k-pass", type=int, default=2, help="主观题 Judge 次数（§8.2 默认 2）")
         e.add_argument("--blend", choices=("parallel", "weighted"), default="parallel",
@@ -173,13 +183,24 @@ def _make_adapter_factory(args: argparse.Namespace, store: LawkbStore):
         return lambda item: mock_tools_adapter(item, store)
     if args.model == "mock:dialog":
         return lambda item: mock_dialog_adapter(item, store)
+    if args.model.startswith("file:"):
+        # 外部作答回灌：答案按 <dir>/<item_id>.txt 寻址（subagent 考生等场景）
+        answers_dir = Path(args.model.split(":", 1)[1])
+        return lambda item: FileAnswersAdapter(item.id, answers_dir)
     if args.model.startswith("openai:"):
+        effort = getattr(args, "reasoning_effort", None)
+        thinking = getattr(args, "_cnjb_thinking", None)
+        if effort and not thinking:
+            thinking = {"type": "enabled", "clear_thinking": False}
         adapter = OpenAICompatAdapter(
-            args.model.split(":", 1)[1], base_url=args.base_url, revision=args.revision
+            args.model.split(":", 1)[1], base_url=args.base_url, revision=args.revision,
+            reasoning_effort=effort, thinking=thinking,
+            timeout=getattr(args, "timeout", 60.0),
+            api_key=(getattr(args, "_cnjb_profile", {}) or {}).get("api_key"),
         )
         return lambda item: adapter
     raise SystemExit(
-        f"未知模型规格: {args.model!r}（支持 mock:gold / mock:tools / mock:dialog / openai:<model>）"
+        f"未知模型规格: {args.model!r}（支持 mock:gold / mock:tools / mock:dialog / openai:<model> / file:<答案目录>）"
     )
 
 
@@ -187,14 +208,26 @@ def _make_judge(args: argparse.Namespace):
     """--with-judge 时构造 Judge；mock 模型不得充当 openai Judge。"""
     if not args.with_judge:
         return None
-    if args.judge == "mock":
+    spec = args.judge
+    if spec == "mock":
         return MockJudge(judge_id=args.judge_id or "mock-judge", k_pass=args.k_pass)
-    if not args.model.startswith("openai:"):
-        raise SystemExit("--judge openai 需要 openai:<model> 作为 Judge 模型；mock 跑法请用 --judge mock")
-    adapter = OpenAICompatAdapter(
-        args.model.split(":", 1)[1], base_url=args.base_url, revision=args.revision
+    if spec.startswith("file:"):
+        # 外部作答回灌 Judge（subagent 裁判）：文件按 sha256(judge prompt) 寻址
+        j_adapter = HashedFileAnswersAdapter(Path(spec.split(":", 1)[1]))
+        return OpenAIJudge(j_adapter, judge_id=args.judge_id or "subagent-judge", k_pass=args.k_pass)
+    if spec == "openai":
+        if not args.model.startswith("openai:"):
+            raise SystemExit("--judge openai 需要 openai:<model> 作为 Judge 模型；mock 跑法请用 --judge mock")
+        effort = getattr(args, "reasoning_effort", None)
+        adapter = OpenAICompatAdapter(
+            args.model.split(":", 1)[1], base_url=args.base_url, revision=args.revision,
+            reasoning_effort=effort,
+            thinking={"type": "enabled", "clear_thinking": False} if effort else None,
+        )
+        return OpenAIJudge(adapter, judge_id=args.judge_id or "openai-judge", k_pass=args.k_pass)
+    raise SystemExit(
+        f"未知 --judge 规格: {spec!r}（支持 mock / openai / file:<judge答案目录>）"
     )
-    return OpenAIJudge(adapter, judge_id=args.judge_id or "openai-judge", k_pass=args.k_pass)
 
 
 def _build_summary(
@@ -204,25 +237,73 @@ def _build_summary(
     accountant: Accountant,
     judge_scores: dict[str, dict],
 ) -> dict:
-    """机检/Judge 分列 + 诊断掉分 + Abst + 成本 + 污染（impl-P1-rest §3）。"""
+    """机检/Judge 分列 + safety/hard/CI + 诊断掉分 + Abst + 成本 + 污染。
+
+    DESIGN v0.4 §4.3：主分 = capability（不含 safety 夹具）；safety 单列；
+    hard = difficulty≥3 子集；机检均值恒附 bootstrap 95% CI。
+    """
     from .metrics.aggregate import TaskScores, summarize
+    from .metrics.bootstrap import bootstrap_ci_mean
+
+    def _mean(xs: list[float]) -> float | None:
+        return sum(xs) / len(xs) if xs else None
 
     per_task: dict[str, dict] = {}
+    cap_all: list[float] = []
+    hard_all: list[float] = []
+    safety_all: list[float] = []
     for run in runs:
-        machine = [r.score for r in run.results if r.score is not None]
+        cap = [r for r in run.results if r.role != "safety" and r.score is not None]
+        safety = [r for r in run.results if r.role == "safety" and r.score is not None]
+        hard = [r for r in cap if r.difficulty >= 3]
+        machine = [r.score for r in cap]
         judged = [jr.mapped for jr in judge_scores.get(run.task_id, {}).values() if jr is not None]
         ts = TaskScores(task_id=run.task_id, machine=machine, judge=judged)
         row = summarize([ts])["tasks"][0]
         entry = {
+            "machine_mean": row["machine_mean"],
             "machine_mean_str": row["machine_mean_str"],
             "judge_mean_str": row["judge_mean_str"],
             "n_machine": row["n_machine"],
             "n_judge": row["n_judge"],
+            "solve_rate_str": (
+                fmt2(100.0 * sum(1 for s in machine if s >= 60.0) / len(machine))
+                if machine else "n/a"
+            ),
         }
+        if machine:
+            ci = bootstrap_ci_mean(machine)
+            entry["machine_ci95"] = [fmt2(ci["ci95_low"]), fmt2(ci["ci95_high"])]
+        else:
+            entry["machine_ci95"] = None
+        entry["hard_mean_str"] = fmt2(_mean([r.score for r in hard])) if hard else "n/a"
+        entry["n_hard"] = len(hard)
+        entry["safety_mean_str"] = fmt2(_mean([r.score for r in safety])) if safety else "n/a"
+        entry["n_safety"] = len(safety)
         if args.blend == "weighted":
             combined = combine(ts.mean_machine(), ts.mean_judge(), mode="weighted")
             entry["combined_str"] = fmt2(combined) if combined is not None else "n/a"
         per_task[run.task_id] = entry
+        cap_all += machine
+        hard_all += [r.score for r in hard]
+        safety_all += [r.score for r in safety]
+
+    # grand（§4.3）：维等权 macro（任务包等权）与题量加权 micro 分列；hard 子集附 CI
+    task_means = [per_task[r.task_id]["machine_mean"] for r in runs
+                  if isinstance(per_task[r.task_id].get("machine_mean"), float)]
+    grand_eq = _mean(task_means)
+    grand_w = _mean(cap_all)
+    grand_hard = _mean(hard_all)
+    hard_ci = bootstrap_ci_mean(hard_all) if len(hard_all) >= 2 else None
+    capability = {
+        "grand_eq": fmt2(grand_eq) if grand_eq is not None else "n/a",
+        "grand_w": fmt2(grand_w) if grand_w is not None else "n/a",
+        "hard": fmt2(grand_hard) if grand_hard is not None else "n/a",
+        "hard_ci95": [fmt2(hard_ci["ci95_low"]), fmt2(hard_ci["ci95_high"])] if hard_ci else None,
+        "n_capability": len(cap_all),
+        "n_hard": len(hard_all),
+        "n_safety": len(safety_all),
+    }
 
     diagnostics: dict[str, dict] = {}
     for run in runs:
@@ -239,7 +320,7 @@ def _build_summary(
     n_all = sum(len(r.results) for r in runs)
     n_refuse = sum(1 for r in runs for x in r.results if x.abst_over_refuse)
     n_promise = sum(1 for r in runs for x in r.results if x.abst_over_promise)
-    scores_flat = [x.score for r in runs for x in r.results if x.score is not None]
+    scores_flat = [x.score for r in runs for x in r.capability_results if x.score is not None]
     # 无价目（est_cost_usd=None）时禁编造 $/solve
     ledger = accountant.cost_ledger()
     est = ledger["est_cost_usd"]
@@ -249,12 +330,15 @@ def _build_summary(
         "created_at": manifest["created_at"],
         "model_id": args.model,
         "temperature": args.temperature,
+        "capability": capability,
+        "safety_score": fmt2(_mean(safety_all)) if safety_all else "n/a",
         "per_task": per_task,
         "tasks": {
             run.task_id: {
                 "items": [
                     {
                         "id": x.item_id,
+                        "role": x.role,
                         "score": x.display,
                         "judge": (judge_scores[run.task_id][x.item_id].mapped_str
                                   if judge_scores.get(run.task_id, {}).get(x.item_id) is not None
@@ -266,6 +350,7 @@ def _build_summary(
                     for x in run.results
                 ],
                 "mean": fmt2(run.mean) if run.mean is not None else "n/a",
+                "safety_mean": fmt2(run.safety_mean) if run.safety_mean is not None else "n/a",
                 "n": len(run.results),
             }
             for run in runs
@@ -295,9 +380,11 @@ def _execute_runs(args: argparse.Namespace, task_ids: list[str]) -> tuple[list[T
     factory = _make_adapter_factory(args, store)
     judge = _make_judge(args)
     accountant = Accountant(
-        price_key=price_key_from_model(args.model),
+        price_key=(
+            getattr(args, "_cnjb_price_key", None) or price_key_from_model(args.model)
+        ),
         judge_price_key=(
-            price_key_from_model(args.model)
+            (getattr(args, "_cnjb_price_key", None) or price_key_from_model(args.model))
             if judge is not None and args.judge == "openai"
             else None
         ),
@@ -395,7 +482,10 @@ def _print_runs(runs: list[TaskRun], artifacts: dict) -> None:
                 line += f"\tN/A: {r.error}"
             print(line)
         mean = fmt2(run.mean) if run.mean is not None else "n/a"
-        print(f"{run.task_id} mean: {mean} (n={len(run.results)})")
+        n_cap = len([r for r in run.capability_results if r.score is not None])
+        print(f"{run.task_id} mean: {mean} (n={n_cap}, capability)"
+              + (f" [safety {fmt2(run.safety_mean)} n={len(run.safety_results)}]"
+                 if run.safety_results else ""))
     for tid, entry in judge_scores.items():
         print(f"{tid} judge_mean: {entry['judge_mean_str']} (n_judge={entry['n_judge']})")
     print(f"slice_union_hash={artifacts['manifest']['lawkb']['slice_union_hash']}")
@@ -404,6 +494,19 @@ def _print_runs(runs: list[TaskRun], artifacts: dict) -> None:
 
 
 def _cmd_run_generic(args: argparse.Namespace) -> int:
+    # 提供商配置：base_url / 默认思考与超时 / 价目键（用户显式参数优先）
+    if getattr(args, "model", "") and not str(args.model).startswith(("mock:", "file:")):
+        try:
+            prof = resolve_profile(args.model, provider_name=getattr(args, "provider", None))
+        except SystemExit as e:
+            print(e)
+            return 2
+        apply_profile_to_args(args, prof)
+        # 显式 --temperature / --reasoning-effort 保持 CLI 优先
+        env_local = load_env_local()
+        if not prof.get("api_key"):
+            print("缺少 API Key：请设环境变量或写入 .env.local（见 configs/providers.yaml api_key_env）")
+            return 2
     task_ids = [args.task] if hasattr(args, "task") else [t.strip() for t in args.tasks.split(",") if t.strip()]
     try:
         assert_no_holdout(args.items_root, args.tasks_root, args.lawkb)

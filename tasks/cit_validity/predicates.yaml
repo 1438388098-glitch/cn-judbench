@@ -6,12 +6,11 @@
 # 但 no_fabrication 只查「声称的 version_id 与库矛盾」（unknown 分列不记幻觉），
 # 与判定结论无关，照常适用（impl-P0b §7 cit 机检点）。
 ftp:
-  - type: field              # 判定结论 = 金样 expect_status（判错 → 一票否决）
-    path: status
-    gold_path: "0.expect_status"
-    fail_taxonomy: wrong_article
-    on_fail: zero
-  - type: no_fabrication     # 编造 version_id → 一票否决（fabricated_case）
+  - type: status_ladder      # DESIGN v0.4 §4.2/§5.1：判定结论分档——判对 100；
+    path: status             # 误判版本族(not_yet/wrong_vintage) 40、称解析不出 20、
+    gold_path: "0.expect_status"  # 金样非 ok 却谎称 ok → 0（中间带取代 0/100 两极）
+    on_fail: partial
+  - type: no_fabrication     # 编造 version_id → 一票否决（fabricated_case；Cit 幻觉整题 0 不变）
     on_fail: zero
   - type: schema             # 栏目齐备（纯报告，不改分）
     required: [law, article, as_of, status]
