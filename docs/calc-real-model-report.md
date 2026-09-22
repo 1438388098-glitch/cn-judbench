@@ -131,3 +131,37 @@ a_irac 19 题真考生回灌 mean 37.68（runs/airac-glm/scored）——**数据
 2. 人工摘录只可用于定性观察（引用风格、法条选择），不得进入正式分数表；
 3. 本报告 A 节 calc 数据未受此影响（数值短答案，转存即原文）。
 正式跑分协议（paper-outline §7）已补此条。
+
+## C5. 全库锚点时效审计 + lh-06 金样修正 + v0.4.1 基线表（R18）
+
+对全部 12 包公库题做「anchor × as_of」解析扫描（resolve_article 逐题），
+结论分三层：
+
+1. **按设计保留**：cit_validity 的 stale/unresolved 锚（cit-003/005/006/011
+   等）与 fault 包的锚——时效判断本身是考点，机检语义正确。
+2. **无害冗余**：calc/gaia/dms/u_element/tool_search/tau 的 statute 类锚不在
+   lawkb（如 cf-001..019 的诉讼费办法13条）——已核对这些包的 predicates 均
+   不含 statute 谓词，锚是惰性元数据，不产生扣分。补库列入 backlog（R19+
+   逐题法学复核，夜间不仓促入库）。
+3. **真实金样 bug（已修）**：lh-06 继承纠纷（as_of=2020-06-01）锚挂民法典
+   509——时点未生效且争点不对口（合同编条文配继承题），mock:gold 回灌 0
+   分（金样无法自证）。改为继承法第10条（当时有效，库内带废止窗口
+   1985-10-01 → 2021-01-01，superseded_by 民法典1127），并补库 1127。
+   修复后 long_horizon mock:gold 100.00（lh-06 自证恢复）。
+
+**v0.4.1 基线表**（reports/runs/baseline-v041，基线泄题修复后口径）：
+
+| 任务 | random | rules | mock:gold |
+|---|---|---|---|
+| a_irac_reason | 12.00 | 12.00 | 100.00 |
+| calc_fail_to_pass | 17.39 | 93.48 | 100.00 |
+| cit_validity | 42.86 | 66.67 | 100.00 |
+| contract_risk | 0.00 | 0.00 | 100.00 |
+| gaia_fee_deadline | 0.00 | 17.65 | 100.00 |
+| long_horizon_case | 0.00 | 0.00 | 100.00 |
+| s_charge_subsume | 0.00 | 0.00 | 100.00 |
+| u_element_extract | 0.00 | 44.19 | 100.00 |
+| **grand** | **9.03** | **29.25** | **100.00** |
+
+金样自检全绿（8 包 mock:gold 全 100）——这是金样质量回归基线，后续任何
+gold/谓词/lawkb 改动都应保持本表可复现。

@@ -1,0 +1,18 @@
+law:
+  law_id: npc_succession_law
+  names:
+  - 中华人民共和国继承法
+  - 继承法
+  level: law
+  promulgated_on: '1985-04-10'
+  abolished_on: '2021-01-01'
+article_version:
+- law_id: npc_succession_law
+  article_no: '10'
+  version_id: suc_10_1985
+  effective_from: '1985-10-01'
+  effective_to: '2021-01-01'
+  superseded_by: pc_1127_2020
+  note: 第十条（法定继承顺序；2021-01-01 随民法典施行废止）
+  text_hash: sha256:79e068f81ecdec025a0898905e0115915ed702d49055dd1041df34d1946c82bf
+  text_ref: text/suc_10_1985.txt

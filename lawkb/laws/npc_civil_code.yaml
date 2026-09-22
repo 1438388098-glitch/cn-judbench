@@ -231,3 +231,12 @@ article_version:
   note: 第一千二百零二条（产品生产者侵权责任）
   text_hash: sha256:c766b95d84db4d4f729d9d8e2c63c78017d8b5ac5c8f1d02f91e552085b3efcf
   text_ref: text/pc_1202_2020.txt
+- law_id: npc_civil_code
+  article_no: '1127'
+  version_id: pc_1127_2020
+  effective_from: '2021-01-01'
+  effective_to: null
+  superseded_by: null
+  note: 第一千一百二十七条（法定继承顺序，节录前两款）
+  text_hash: sha256:c9fc22a8317149f773bbaa97cfd4793aa53b7ed58a773b6d8117a16f8cb313dc
+  text_ref: text/pc_1127_2020.txt
