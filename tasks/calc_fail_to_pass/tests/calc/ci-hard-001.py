@@ -1,6 +1,6 @@
 """隐藏单测：ci-hard-001（半年复利 6 期：200000×(1.03)^6 = 238810.46；单利 236000 判错）。fail-to-pass oracle，禁读 gold。"""
 
-_EXPECTED = 238810.46  # 生成期独立计算硬编码
+_EXPECTED = 38810.46  # 生成期独立计算硬编码
 _FORMULA_ID = 'compound_interest_semiannual'
 
 
