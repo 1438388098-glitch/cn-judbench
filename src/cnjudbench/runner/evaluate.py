@@ -280,14 +280,76 @@ def run_task(
     temperature: float = 0.0,
     seed: int | None = None,
     accountant: Accountant | None = None,
+    max_workers: int = 1,
 ) -> TaskRun:
     task, preds = load_task_package(task_dir)
-    run = TaskRun(task_id=task.task_id, results=[])
-    for _lineno, item in load_items_file(items_path):
-        item_result = evaluate_item(
+    entries = list(load_items_file(items_path))
+
+    def _one(entry) -> ItemResult:
+        _lineno, item = entry
+        return evaluate_item(
             task, _resolve_predicates(item, task_dir, preds), item,
             adapter_factory(item), store,
             temperature=temperature, seed=seed, accountant=accountant,
         )
-        run.results.append(item_result)
-    return run
+
+    if max_workers <= 1:
+        results = [_one(e) for e in entries]
+    else:
+        from concurrent.futures import ThreadPoolExecutor
+
+        with ThreadPoolExecutor(max_workers=max_workers) as ex:
+            results = list(ex.map(_one, entries))
+    return TaskRun(task_id=task.task_id, results=results)
+
+
+def run_tasks(
+    jobs: list[tuple[str, Path, Path]],
+    adapter_factory: Callable[[Item], ModelAdapter],
+    store,
+    *,
+    temperature: float = 0.0,
+    seed: int | None = None,
+    accountant: Accountant | None = None,
+    max_workers: int = 1,
+) -> list[TaskRun]:
+    """多任务包共享一个线程池（跨包并发，适合 --concurrency 50）。
+
+    ``jobs``：``(task_id, task_dir, items_path)``；返回顺序与 jobs 一致，
+    包内题序 = jsonl 原序。
+    """
+    loaded = []
+    for task_id, task_dir, items_path in jobs:
+        task, preds = load_task_package(task_dir)
+        entries = list(load_items_file(items_path))
+        loaded.append((task_id, task, task_dir, preds, entries))
+
+    def _one(task, task_dir, preds, entry) -> ItemResult:
+        _lineno, item = entry
+        return evaluate_item(
+            task, _resolve_predicates(item, task_dir, preds), item,
+            adapter_factory(item), store,
+            temperature=temperature, seed=seed, accountant=accountant,
+        )
+
+    flat = []
+    for task_id, task, task_dir, preds, entries in loaded:
+        for i, entry in enumerate(entries):
+            flat.append((task_id, i, task, task_dir, preds, entry))
+    n_per: dict[str, int] = {tid: len(entries) for tid, _t, _d, _p, entries in loaded}
+
+    if max_workers <= 1:
+        outs = [_one(t, d, p, e) for _tid, _i, t, d, p, e in flat]
+    else:
+        from concurrent.futures import ThreadPoolExecutor
+
+        with ThreadPoolExecutor(max_workers=max_workers) as ex:
+            outs = list(ex.map(lambda a: _one(a[2], a[3], a[4], a[5]), flat))
+
+    buckets: dict[str, list[ItemResult | None]] = {
+        tid: [None] * n for tid, n in n_per.items()
+    }
+    for (tid, i, *_rest), out in zip(flat, outs):
+        buckets[tid][i] = out
+    order = [tid for tid, *_ in loaded]
+    return [TaskRun(task_id=tid, results=list(buckets[tid])) for tid in order]

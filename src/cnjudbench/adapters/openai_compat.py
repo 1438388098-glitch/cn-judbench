@@ -90,9 +90,9 @@ class OpenAICompatAdapter:
                 with urllib.request.urlopen(req, timeout=self._timeout) as resp:
                     data = json.loads(resp.read().decode("utf-8"))
                 return data, int((time.monotonic() - start) * 1000)
-            except urllib.error.HTTPError as e:  # 4xx 直接失败；5xx 可重试
+            except urllib.error.HTTPError as e:  # 429/5xx 可重试；其余 4xx 直接失败
                 last_err = e
-                if e.code < 500:
+                if e.code not in (408, 429) and e.code < 500:
                     raise AdapterError(f"API {e.code}: {e.reason}（不重试）") from e
             except (urllib.error.URLError, TimeoutError, json.JSONDecodeError) as e:
                 last_err = e

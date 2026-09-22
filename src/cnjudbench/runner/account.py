@@ -13,6 +13,7 @@ Judge 调用单独记账（judge_calls / judge_*_tokens）：不与被评模型 
 
 from __future__ import annotations
 
+import threading
 import time
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
@@ -76,6 +77,7 @@ class Accountant:
     _model_cost_usd: float = 0.0
     _judge_cost_usd: float = 0.0
     _t0: float | None = field(default=None, repr=False)
+    _lock: threading.Lock = field(default_factory=threading.Lock, repr=False)
 
     def start_timer(self) -> None:
         self._t0 = time.monotonic()
@@ -94,35 +96,39 @@ class Accountant:
         cache_hit_tokens: int = 0,
         cache_miss_tokens: int = 0,
     ) -> None:
-        self.model_calls += 1
-        self.prompt_tokens += prompt_tokens
-        self.completion_tokens += completion_tokens
         hit = int(cache_hit_tokens or 0)
         miss = int(cache_miss_tokens or 0)
-        if hit or miss:
-            self.cache_hit_tokens += hit
-            self.cache_miss_tokens += miss
-        else:
+        if not (cache_hit_tokens or cache_miss_tokens):
             # 适配器未分列 cache 时保守按 miss 计（费用上限）
-            self.cache_miss_tokens += prompt_tokens
             miss = prompt_tokens
-        self._latencies.append(latency_ms)
+        cost = 0.0
         if self.price_key in PRICE_TABLE:
             rates = PRICE_TABLE[self.price_key]
             peak = _is_peak_utc()
-            self._model_cost_usd += _usd(hit, rates["input_hit"], peak=peak)
-            self._model_cost_usd += _usd(miss, rates["input_miss"], peak=peak)
-            self._model_cost_usd += _usd(completion_tokens, rates["output"], peak=peak)
+            cost += _usd(hit, rates["input_hit"], peak=peak)
+            cost += _usd(miss, rates["input_miss"], peak=peak)
+            cost += _usd(completion_tokens, rates["output"], peak=peak)
+        with self._lock:
+            self.model_calls += 1
+            self.prompt_tokens += prompt_tokens
+            self.completion_tokens += completion_tokens
+            self.cache_hit_tokens += hit
+            self.cache_miss_tokens += miss
+            self._latencies.append(latency_ms)
+            self._model_cost_usd += cost
 
     def add_judge(self, n_calls: int, prompt_tokens: int, completion_tokens: int) -> None:
-        self.judge_calls += n_calls
-        self.judge_prompt_tokens += prompt_tokens
-        self.judge_completion_tokens += completion_tokens
+        cost = 0.0
         if self.judge_price_key in PRICE_TABLE:
             rates = PRICE_TABLE[self.judge_price_key]
             peak = _is_peak_utc()
-            self._judge_cost_usd += _usd(prompt_tokens, rates["input_miss"], peak=peak)
-            self._judge_cost_usd += _usd(completion_tokens, rates["output"], peak=peak)
+            cost += _usd(prompt_tokens, rates["input_miss"], peak=peak)
+            cost += _usd(completion_tokens, rates["output"], peak=peak)
+        with self._lock:
+            self.judge_calls += n_calls
+            self.judge_prompt_tokens += prompt_tokens
+            self.judge_completion_tokens += completion_tokens
+            self._judge_cost_usd += cost
 
     @property
     def p95_latency_ms(self) -> int:

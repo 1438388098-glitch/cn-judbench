@@ -33,7 +33,7 @@ from .metrics.aggregate import combine, diagnostic_drop
 from .metrics.cost import dollar_per_solve
 from .report.writeup import limits_md
 from .runner.account import Accountant, price_key_from_model
-from .runner.evaluate import DISCLAIMER, TaskRun, load_task_package, run_task
+from .runner.evaluate import DISCLAIMER, TaskRun, load_task_package, run_task, run_tasks
 from .runner.guards import HoldoutPathError, assert_items_not_holdout, assert_no_holdout
 from .runner.manifest import (
     build_manifest,
@@ -88,6 +88,8 @@ def _build_parser() -> argparse.ArgumentParser:
         e.add_argument("--revision", default=None)
         e.add_argument("--temperature", type=float, default=0.0)
         e.add_argument("--seed", type=int, default=None)
+        e.add_argument("--concurrency", type=int, default=1,
+                       help="评测线程池大小（1=串行；真实 API 可调高，如 50）")
         # P1 收尾：Judge / 混分开关
         e.add_argument("--with-judge", action="store_true", help="启用 Judge 后处理（机检/Judge 分列）")
         e.add_argument("--judge", choices=("mock", "openai"), default="mock", help="Judge 后端")
@@ -307,12 +309,14 @@ def _execute_runs(args: argparse.Namespace, task_ids: list[str]) -> tuple[list[T
     item_hashes: dict[str, str] = {}
     all_items = []
     task_dirs: dict[str, Path] = {}
+    jobs: list[tuple[str, Path, Path]] = []
 
     for tid in task_ids:
         task_dir = Path(args.tasks_root) / tid
         items_path = Path(args.items_root) / f"{tid}.jsonl"
         task, _ = load_task_package(task_dir)
         task_dirs[tid] = task_dir
+        jobs.append((tid, task_dir, items_path))
         for line in items_path.read_text(encoding="utf-8-sig").splitlines():
             if line.strip():
                 raw_lines.append(line)
@@ -322,12 +326,13 @@ def _execute_runs(args: argparse.Namespace, task_ids: list[str]) -> tuple[list[T
         for _lineno, item in load_items_file(items_path):
             raw = next((ln for ln in raw_lines if f'"{item.id}"' in ln or f"'{item.id}'" in ln), item.input)
             item_hashes[item.id] = item_line_hash(item.id, raw)
-        runs.append(
-            run_task(
-                task_dir, items_path, factory, store,
-                temperature=args.temperature, seed=args.seed, accountant=accountant,
-            )
-        )
+
+    workers = max(1, int(getattr(args, "concurrency", 1) or 1))
+    runs = run_tasks(
+        jobs, factory, store,
+        temperature=args.temperature, seed=args.seed,
+        accountant=accountant, max_workers=workers,
+    )
 
     # holdout 守卫第二层：题面 split（路径层在 _cmd_run_generic 入口已查）
     assert_items_not_holdout(all_items)
