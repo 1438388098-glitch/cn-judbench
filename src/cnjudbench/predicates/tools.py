@@ -25,13 +25,15 @@ def fake_tool(ctx: EvalContext, p, index: int) -> PredicateResult:
         expected = list(ctx.item.gold.get("expected_tools") or [])
     log = ctx.tool_log
     unknown = [e.name for e in log if e.error == "unknown_tool"]
+    called_names = {e.name for e in log}
     executed = [e for e in log if e.ok]
 
     violations: list[str] = []
     if unknown:
         violations.append(f"未注册工具: {unknown}")
-    if expected and not executed:
-        violations.append(f"期望调用 {expected} 但沙箱无成功日志")
+    # 期望工具须真的出现在调用日志（含业务失败），不能被无关成功调用顶替（P1-9）
+    if expected and not (set(expected) & called_names):
+        violations.append(f"期望调用 {expected} 但沙箱无对应调用记录")
     if not log and _NARRATIVE_RE.search(ctx.answer_text or ""):
         violations.append("叙述声称已调用但无任何调用记录")
 
@@ -55,14 +57,24 @@ def tool_sequence(ctx: EvalContext, p, index: int) -> PredicateResult:
     if not expected:
         return PredicateResult("ptp", index, "tool_sequence", True, 1.0, p.on_fail,
                                detail="题面未声明 expected_tools，跳过")
-    called_ok = {e.name for e in ctx.tool_log if e.ok}
-    covered = sum(1 for t in set(expected) if t in called_ok)
+    # 覆盖 = 工具名出现在日志（不论业务成败）；参数正确性由 tool_ast 单独管（P0-2）
+    called = {e.name for e in ctx.tool_log}
+    covered = sum(1 for t in set(expected) if t in called)
     ratio = covered / len(set(expected))
-    missing = sorted(set(expected) - called_ok)
+    missing = sorted(set(expected) - called)
+    # 已调用但参数/schema 失败 → tool_arg_invalid；完全未调 → tool_miss
+    failed_calls = [e for e in ctx.tool_log if not e.ok and e.name in set(expected)]
+    tax = None
+    if ratio < 1.0:
+        tax = "tool_miss"
+    elif failed_calls:
+        tax = "tool_arg_invalid"
     return PredicateResult(
-        "ptp", index, "tool_sequence", ratio >= 1.0, ratio, p.on_fail,
-        detail=f"工具覆盖 {covered}/{len(set(expected))}" + (f"，缺 {missing}" if missing else ""),
-        failure_taxonomy=None if ratio >= 1.0 else "tool_miss",
+        "ptp", index, "tool_sequence", ratio >= 1.0 and not failed_calls, ratio, p.on_fail,
+        detail=f"工具覆盖 {covered}/{len(set(expected))}"
+               + (f"，缺 {missing}" if missing else "")
+               + (f"，调用失败 {[e.name for e in failed_calls]}" if failed_calls else ""),
+        failure_taxonomy=tax,
     )
 
 
@@ -74,9 +86,13 @@ def tool_ast(ctx: EvalContext, p, index: int) -> PredicateResult:
         return PredicateResult("ptp", index, "tool_ast", ok, 1.0 if ok else 0.0, p.on_fail,
                                detail="无调用日志" if not ok else "题面未要求调用，跳过",
                                failure_taxonomy=None if ok else "tool_miss")
-    valid = sum(1 for e in ctx.tool_log if e.ok)
+    # AST 只看参数 schema 合法率（schema_ok）；业务 tool_error 不算参数非法（P0-1）
+    valid = sum(1 for e in ctx.tool_log if getattr(e, "schema_ok", e.ok))
     ratio = valid / len(ctx.tool_log)
-    bad = [f"{e.name}({e.error})" for e in ctx.tool_log if not e.ok]
+    bad = [
+        f"{e.name}({e.error})" for e in ctx.tool_log
+        if not getattr(e, "schema_ok", e.ok)
+    ]
     return PredicateResult(
         "ptp", index, "tool_ast", ratio >= 1.0, ratio, p.on_fail,
         detail=f"参数合法 {valid}/{len(ctx.tool_log)}" + (f"，违例 {bad}" if bad else ""),
