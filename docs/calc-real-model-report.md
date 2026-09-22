@@ -1,4 +1,6 @@
-# calc_fail_to_pass 46 题真实考生全量首测（R13）
+# 真实考生测量管线报告（R13/R14）
+
+## A. calc_fail_to_pass 46 题全量首测（R13）
 
 - 考生：GLM subagent（8 agent × 3-7 题）· 回灌：`--model file:runs/calc-glm-r2/answers`
 - 逐题分：`runs/calc-glm-r2/scored/summary.json`
@@ -36,3 +38,20 @@ cf-011/012 互串），机检 per-item 判分将其如实记为半分而非误�
 `scripts/calibrate_difficulty.py --runs runs/calc-glm-r2/scored runs/calc-glm1/scored`
 → 交集 10 题：cf-005 p=1.0→d1；cf-017/019、ci-008/011/012、cp-006 等 p=0.50→d3。
 产出 docs/difficulty-emp-calc.md。真实模型池 ≥3 点后可全量回写 difficulty_emp。
+
+## B. n-gram 污染自检（R14）
+
+`--ngram-corpus FRAMEWORK.md --ngram-size 8` 对 a_irac 19 题：max/mean 重叠均
+0.0000（runs/ngram-self/summary.json）——防污染双检管线自检通过。
+
+## C. a_irac 转存失真教训（R14，负结果）
+
+a_irac 19 题真考生回灌 mean 37.68（runs/airac-glm/scored）——**数据失真不可
+用于能力结论**：考生 agent 原始输出为详尽论证，人工转存时被压缩成摘要
+（application 单句化、citations 删减），机检按 structured 谓词如实扣分。
+方法论结论：
+1. **subagent 考生管线的转存环节必须是程序化的**——考生直接 Write
+   answers/<item_id>.txt，或答案 JSON 由 agent 消息原文逐字落盘；
+2. 人工摘录只可用于定性观察（引用风格、法条选择），不得进入正式分数表；
+3. 本报告 A 节 calc 数据未受此影响（数值短答案，转存即原文）。
+正式跑分协议（paper-outline §7）已补此条。

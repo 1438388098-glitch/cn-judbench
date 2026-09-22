@@ -72,7 +72,7 @@ bootstrap CI（1000 次）、flip 门禁（机检>5% 不进榜）、组合 pass^
 4. Workshop 预热：NLP4PI / LegalNLP / LeXFile。
 
 ## 7. 落地差距清单（R11 后状态）
-1. ⬜ DS v0.4 复跑（密钥）→ T1/T2 完整（export → subagent/API → file: 回灌 → aggregate_passk 全链路已跑通）；
+1. ⬜ DS v0.4 复跑（密钥）→ T1/T2 完整（export → subagent/API → file: 回灌 → aggregate_passk 全链路已跑通；**转存必须程序化**——人工摘录会系统性压缩答案致分数失真，见 calc-real-model-report.md §C）；
 2. ✅ ~~u_element hard 子集~~ 28 题落地；GLM 实测 82.1% 满分——**饱和结论转为论文素材**（头部模型在格式保真维仍系统性失分，见 E4）；
 3. ✅ ~~holdout 冻结~~ 工具+协议文已备（freeze_holdout.py --apply 双审待执行）；live 流程文已备；
 4. ⬜ 人评 κ 试点（协议+κ 工具已备，待招募）；
