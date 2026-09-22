@@ -1,21 +1,23 @@
 # cit_validity 谓词声明（schema + §4.2.1 适用面由 cnjudbench validate 校验）
+#
+# 语义注意：本题的答案是**对引用效力的判定**，不是对效力本身的主张——
+# 引用 resolve 不出 ok 往往恰是正确答案（wrong_vintage 等），
+# 因此判分走 field(status) 对金样，statute 不进 ftp；
+# 但 no_fabrication 只查「声称的 version_id 与库矛盾」（unknown 分列不记幻觉），
+# 与判定结论无关，照常适用（impl-P0b §7 cit 机检点）。
 ftp:
-  - type: statute            # 引用声明中的法条必须被正面核验
-    target: answer.status
-    law: input.law
+  - type: field              # 判定结论 = 金样 expect_status（判错 → 一票否决）
+    path: status
+    gold_path: "0.expect_status"
+    fail_taxonomy: wrong_article
     on_fail: zero
-  - type: no_fabrication     # 不得编造 version_id / 条文内容
-    target: answer.version_id
+  - type: no_fabrication     # 编造 version_id → 一票否决（fabricated_case）
     on_fail: zero
+  - type: schema             # 栏目齐备（纯报告，不改分）
+    required: [law, article, as_of, status]
+    on_fail: flag
 ptp:
-  - type: must_not_statute   # 禁引：已被废止且易被误用的旧条例（P0 夹具示例）
-    law: 治安管理处罚条例
-    on_fail: cap_50
   - type: field_keep         # 不得篡改题面给定的 as_of
-    path: answer.as_of
+    path: as_of
+    expect_from: item.as_of
     on_fail: cap_50
-diagnostic_ftp:              # EvalPlus 式扩检：额外要求 version_id 与时效一致
-  - type: statute
-    target: answer.version_id
-    require_effective_on: true
-    on_fail: zero
