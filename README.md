@@ -39,7 +39,7 @@
 - [x] **v0.4 统计协议** bootstrap CI / pass^k 组合语义 / report.csv / 正式分 provisional 门禁 / n-gram 污染双检 / random·rules 基线同管线
 - [x] **v0.4 新任务** calc_fail_to_pass 46 题（隐藏单测 oracle，五公式：受理费/单利/期间/半年复利/保全费，hard 变体考节假日顺延与封顶规则）+ u_element hard 子集 28 题（GLM 实测 82.1%，见 docs/u-hard-subset-report.md）+ dms_side_effect_intake 16 题（env_diff 终态 diff；state0 预置「在办案件」与双卡分心）+ tool_fault_recovery 12 题（§5.4 四型故障注入 recovery×final + R22 nth=2「先成功后故障」进阶 4 题）
 - [x] **v0.4 翻转实证** GLM 考生模式 k=3 复测：逐对题级翻转 6/11≈55% ≫ 5% 门禁（docs/u-hard-subset-report.md 追加节）→ 单样本 run 一律 provisional，主表强制 pass^k
-- [x] **v0.4.1 测量效度审计** 金样法学复核消融（同答案重判 31.58→86.84，acceptable_articles any-of 多解口径）· 基线泄题修复与扫描（law_anchors 判分锚禁入基线，a_irac random/rules 96→12）· lh-06 锚点时效修正（继承法10 带废止窗口）· lawkb v0.4.1 扩库（12 法 51 版本）· v0.4.1 基线表（random 9.03 / rules 29.25 / mock:gold 8 包全 100，见 docs/calc-real-model-report.md §C5）
+- [x] **v0.4.1 测量效度审计** 金样法学复核消融（同答案重判 31.58→86.84，acceptable_articles any-of 多解口径）· 基线泄题修复与扫描（law_anchors 判分锚禁入基线，a_irac random/rules 96→12）· lh-06 锚点时效修正（继承法10 带废止窗口）· lawkb v0.4.1 扩库（12 法 51 版本）· v0.4.1 基线表（random 9.03 / rules 29.25 / mock:gold 8 包全 100，见 docs/calc-real-model-report.md §C5） · E12+ 要素不点名实测（ah-101..104 仍饱和，as_of 版本选择是唯一实质错因）· E15 引用括注假阴性修复（2/29 题误罚 50→100，引用侧剥尾括注）
 - [ ] 待办：DS v0.4 复跑（密钥）· holdout 冻结执行（协议已备）· 人评 κ 试点（方案已备）· lawkb 惰性锚补库（E14 审计准入）
 
 ## 快速开始（5 分钟）
