@@ -1,0 +1,14 @@
+# u_element_extract 主观 rubric（P1 冒烟；与机检分并列展示，禁止混入机检总分）
+rubric_id: u_element_r1
+items:
+  - id: element_coverage
+    weight: 1.0
+    prompt: 法律要件识别是否完整、无遗漏
+    lo: 0
+    hi: 4
+  - id: cite_quality
+    weight: 1.0
+    prompt: 引用与事实的对应是否准确
+    lo: 0
+    hi: 4
+gates: []

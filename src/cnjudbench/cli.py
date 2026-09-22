@@ -7,28 +7,38 @@
     python -m cnjudbench smoke-cit-validity [--items data/public/cit_validity.jsonl]
     python -m cnjudbench run  --task cit_validity --model mock:gold
     python -m cnjudbench run-all --tasks cit_validity,u_element_extract,s_charge_subsume --model mock:gold
+    python -m cnjudbench run-all --tasks u_element_extract --model mock:gold --out reports/runs/r1 \
+        --with-judge --judge mock            # P1：机检分 + Judge 分分列 + limits.md
 
-退出码：校验失败 / 冒烟不一致 → 1；run 中存在拒判（n/a）→ 1。
+退出码：校验失败 / 冒烟不一致 → 1；run 中存在拒判（n/a）→ 1；
+holdout 路径/题面进入评测输入（守卫拒读）→ 2。
 """
 
 from __future__ import annotations
 
 import argparse
-import json
 import sys
+from dataclasses import asdict
 from datetime import date
 from pathlib import Path
 
 from .adapters.mock import mock_gold_adapter
 from .adapters.openai_compat import OpenAICompatAdapter
+from .judge import MockJudge, load_rubric
+from .judge.openai_judge import OpenAIJudge
 from .lawkb.resolve import resolve_article
 from .lawkb.store import LawkbStore
+from .metrics.aggregate import combine, diagnostic_drop
+from .metrics.cost import dollar_per_solve
+from .report.writeup import limits_md
 from .runner.account import Accountant
 from .runner.evaluate import DISCLAIMER, TaskRun, load_task_package, run_task
+from .runner.guards import HoldoutPathError, assert_items_not_holdout, assert_no_holdout
 from .runner.manifest import build_manifest, item_content_hash, write_run
+from .runner.with_judge import apply_judge
 from .scale import fmt2
 from .smoke import format_report, run_smoke
-from .validate.items import validate_items_dir
+from .validate.items import load_items_file, validate_items_dir
 from .validate.tasks import validate_tasks
 
 DEFAULT_LAWKB = "lawkb"
@@ -71,6 +81,13 @@ def _build_parser() -> argparse.ArgumentParser:
         e.add_argument("--revision", default=None)
         e.add_argument("--temperature", type=float, default=0.0)
         e.add_argument("--seed", type=int, default=None)
+        # P1 收尾：Judge / 混分开关
+        e.add_argument("--with-judge", action="store_true", help="启用 Judge 后处理（机检/Judge 分列）")
+        e.add_argument("--judge", choices=("mock", "openai"), default="mock", help="Judge 后端")
+        e.add_argument("--judge-id", default=None, help="Judge 标识（进 manifest 与 limits）")
+        e.add_argument("--k-pass", type=int, default=2, help="主观题 Judge 次数（§8.2 默认 2）")
+        e.add_argument("--blend", choices=("parallel", "weighted"), default="parallel",
+                       help="默认 parallel 分列不混分；weighted 显式 0.7/0.3 加权")
 
     return p
 
@@ -122,7 +139,7 @@ def cmd_smoke(args: argparse.Namespace) -> int:
     return 0 if report.all_match else 1
 
 
-# ---------- run / run-all（P0b） ----------
+# ---------- run / run-all（P0b 机检 + P1 Judge/守卫） ----------
 
 
 def _make_adapter_factory(args: argparse.Namespace, store: LawkbStore):
@@ -136,24 +153,132 @@ def _make_adapter_factory(args: argparse.Namespace, store: LawkbStore):
     raise SystemExit(f"未知模型规格: {args.model!r}（支持 mock:gold / openai:<model>）")
 
 
+def _make_judge(args: argparse.Namespace):
+    """--with-judge 时构造 Judge；mock 模型不得充当 openai Judge。"""
+    if not args.with_judge:
+        return None
+    if args.judge == "mock":
+        return MockJudge(judge_id=args.judge_id or "mock-judge", k_pass=args.k_pass)
+    if not args.model.startswith("openai:"):
+        raise SystemExit("--judge openai 需要 openai:<model> 作为 Judge 模型；mock 跑法请用 --judge mock")
+    adapter = OpenAICompatAdapter(
+        args.model.split(":", 1)[1], base_url=args.base_url, revision=args.revision
+    )
+    return OpenAIJudge(adapter, judge_id=args.judge_id or "openai-judge", k_pass=args.k_pass)
+
+
+def _build_summary(
+    args: argparse.Namespace,
+    runs: list[TaskRun],
+    manifest: dict,
+    accountant: Accountant,
+    judge_scores: dict[str, dict],
+) -> dict:
+    """机检/Judge 分列 + 诊断掉分 + Abst + 成本 + 污染（impl-P1-rest §3）。"""
+    from .metrics.aggregate import TaskScores, summarize
+
+    per_task: dict[str, dict] = {}
+    for run in runs:
+        machine = [r.score for r in run.results if r.score is not None]
+        judged = [jr.mapped for jr in judge_scores.get(run.task_id, {}).values() if jr is not None]
+        ts = TaskScores(task_id=run.task_id, machine=machine, judge=judged)
+        row = summarize([ts])["tasks"][0]
+        entry = {
+            "machine_mean_str": row["machine_mean_str"],
+            "judge_mean_str": row["judge_mean_str"],
+            "n_machine": row["n_machine"],
+            "n_judge": row["n_judge"],
+        }
+        if args.blend == "weighted":
+            combined = combine(ts.mean_machine(), ts.mean_judge(), mode="weighted")
+            entry["combined_str"] = fmt2(combined) if combined is not None else "n/a"
+        per_task[run.task_id] = entry
+
+    diagnostics: dict[str, dict] = {}
+    for run in runs:
+        diag = [r.diag_score for r in run.results if r.diag_score is not None]
+        if not diag:
+            continue
+        main = [r.score for r in run.results if r.score is not None and r.diag_score is not None]
+        drop, alert = diagnostic_drop(sum(main) / len(main), sum(diag) / len(diag))
+        diagnostics[run.task_id] = {
+            "diag_drop": fmt2(drop),
+            "reward_hacking_alert": alert,
+        }
+
+    n_all = sum(len(r.results) for r in runs)
+    n_refuse = sum(1 for r in runs for x in r.results if x.abst_over_refuse)
+    n_promise = sum(1 for r in runs for x in r.results if x.abst_over_promise)
+    scores_flat = [x.score for r in runs for x in r.results if x.score is not None]
+    # 无价格表（est_cost_usd=None）时禁编造 $/solve
+    est = accountant.est_cost_usd
+    dps = dollar_per_solve(est, scores_flat) if est is not None else None
+    summary = {
+        "run_id": manifest["run_id"],
+        "created_at": manifest["created_at"],
+        "model_id": args.model,
+        "per_task": per_task,
+        "tasks": {
+            run.task_id: {
+                "items": [
+                    {
+                        "id": x.item_id,
+                        "score": x.display,
+                        "judge": (judge_scores[run.task_id][x.item_id].mapped_str
+                                  if judge_scores.get(run.task_id, {}).get(x.item_id) is not None
+                                  else "n/a"),
+                        "taxonomy": x.taxonomy,
+                        "error": x.error,
+                        "predicates": x.predicate_lines,
+                    }
+                    for x in run.results
+                ],
+                "mean": fmt2(run.mean) if run.mean is not None else "n/a",
+                "n": len(run.results),
+            }
+            for run in runs
+        },
+        "diagnostics": diagnostics,
+        "abst": {
+            "over_refuse_rate": fmt2(100.0 * n_refuse / n_all) if n_all else "n/a",
+            "over_promise_rate": fmt2(100.0 * n_promise / n_all) if n_all else "n/a",
+        },
+        "cost": {
+            # 单次 run 无同题复跑，pass^k 不诚实计算 → 留空；复跑稳定性走 flip/成本脚本
+            "pass_k": None,
+            "dollar_per_solve": fmt2(dps) if dps is not None else None,
+            "p95_latency_ms": accountant.p95_latency_ms,
+        },
+        "contamination": {
+            "hits": [asdict(h) for r in runs for x in r.results for h in x.contamination],
+        },
+        "slice_union_hash": manifest["lawkb"]["slice_union_hash"],
+        "disclaimer": DISCLAIMER,
+    }
+    return summary
+
+
 def _execute_runs(args: argparse.Namespace, task_ids: list[str]) -> tuple[list[TaskRun], dict]:
     store = _load_store(args.lawkb)
     factory = _make_adapter_factory(args, store)
     accountant = Accountant()
+    judge = _make_judge(args)
     runs: list[TaskRun] = []
     prompts: list[str] = []
     raw_lines: list[str] = []
+    all_items = []
+    task_dirs: dict[str, Path] = {}
 
     for tid in task_ids:
         task_dir = Path(args.tasks_root) / tid
         items_path = Path(args.items_root) / f"{tid}.jsonl"
         task, _ = load_task_package(task_dir)
+        task_dirs[tid] = task_dir
         for line in items_path.read_text(encoding="utf-8").splitlines():
             if line.strip():
                 raw_lines.append(line)
-        from .validate.items import load_items_file
-
         for _lineno, item in load_items_file(items_path):
+            all_items.append(item)
             prompts.append(task.prompt_template.replace("{input}", item.input))
         runs.append(
             run_task(
@@ -161,6 +286,15 @@ def _execute_runs(args: argparse.Namespace, task_ids: list[str]) -> tuple[list[T
                 temperature=args.temperature, seed=args.seed, accountant=accountant,
             )
         )
+
+    # holdout 守卫第二层：题面 split（路径层在 _cmd_run_generic 入口已查）
+    assert_items_not_holdout(all_items)
+
+    # P1：Judge 后处理（judge_calls/judge tokens 记账后建 manifest，口径一致）
+    judge_scores: dict[str, dict] = {}
+    if judge is not None:
+        rubrics = {tid: load_rubric(d) for tid, d in task_dirs.items()}
+        judge_scores = apply_judge(runs, judge, rubrics, accountant=accountant, k_pass=args.k_pass)
 
     manifest = build_manifest(
         runs=runs,
@@ -174,33 +308,30 @@ def _execute_runs(args: argparse.Namespace, task_ids: list[str]) -> tuple[list[T
         content_hash=item_content_hash(raw_lines),
         accountant=accountant,
     )
-    summary = {
-        "run_id": manifest["run_id"],
-        "created_at": manifest["created_at"],
-        "model_id": args.model,
-        "tasks": {
-            run.task_id: {
-                "items": [
-                    {
-                        "id": r.item_id,
-                        "score": r.display,
-                        "taxonomy": r.taxonomy,
-                        "error": r.error,
-                    }
-                    for r in run.results
-                ],
-                "mean": fmt2(run.mean) if run.mean is not None else "n/a",
-                "n": len(run.results),
-            }
-            for run in runs
-        },
-        "slice_union_hash": manifest["lawkb"]["slice_union_hash"],
-        "disclaimer": DISCLAIMER,
-    }
-    return runs, {"manifest": manifest, "summary": summary}
+    summary = _build_summary(args, runs, manifest, accountant, judge_scores)
+    return runs, {"manifest": manifest, "summary": summary, "judge": judge,
+                  "unknown_in_lawkb": sum(
+                      1 for r in runs for x in r.results
+                      if any("unknown_in_lawkb" in line for line in x.predicate_lines))}
+
+
+def _limits_text(args: argparse.Namespace, artifacts: dict) -> str:
+    judge = artifacts.get("judge")
+    if judge is not None:
+        bias = (f"{judge.judge_id}（k_pass={args.k_pass}，prompt_hash={judge.prompt_hash}）；"
+                "正式对比前须换真 Judge 并双盲校准")
+    else:
+        bias = "本次 run 未启用 Judge（--with-judge）"
+    return limits_md(
+        flip_rate=None,  # 单跑不测翻转；复跑测定走 scripts/flip_rate_check.py
+        unknown_in_lawkb=artifacts["unknown_in_lawkb"],
+        judge_bias=bias,
+        pending_text_review=[],
+    )
 
 
 def _print_runs(runs: list[TaskRun], artifacts: dict) -> None:
+    judge_scores = artifacts["summary"].get("per_task", {})
     for run in runs:
         for r in run.results:
             line = f"{run.task_id}\t{r.item_id}\t{r.display}"
@@ -211,6 +342,8 @@ def _print_runs(runs: list[TaskRun], artifacts: dict) -> None:
             print(line)
         mean = fmt2(run.mean) if run.mean is not None else "n/a"
         print(f"{run.task_id} mean: {mean} (n={len(run.results)})")
+    for tid, entry in judge_scores.items():
+        print(f"{tid} judge_mean: {entry['judge_mean_str']} (n_judge={entry['n_judge']})")
     print(f"slice_union_hash={artifacts['manifest']['lawkb']['slice_union_hash']}")
     print(f"manifest={artifacts['manifest']['run_id']} harness={artifacts['manifest']['harness_sha']}")
     print(DISCLAIMER)
@@ -218,11 +351,17 @@ def _print_runs(runs: list[TaskRun], artifacts: dict) -> None:
 
 def _cmd_run_generic(args: argparse.Namespace) -> int:
     task_ids = [args.task] if hasattr(args, "task") else [t.strip() for t in args.tasks.split(",") if t.strip()]
-    runs, artifacts = _execute_runs(args, task_ids)
+    try:
+        assert_no_holdout(args.items_root, args.tasks_root, args.lawkb)
+        runs, artifacts = _execute_runs(args, task_ids)
+    except HoldoutPathError as e:
+        print(f"HOLDOUT GUARD: {e}")
+        return 2
     out_dir = Path(args.out) if args.out else Path("reports/runs") / artifacts["manifest"]["run_id"]
-    write_run(out_dir, artifacts["manifest"], artifacts["summary"])
+    write_run(out_dir, artifacts["manifest"], artifacts["summary"],
+              limits_text=_limits_text(args, artifacts))
     _print_runs(runs, artifacts)
-    print(f"written: {out_dir}/manifest.json, {out_dir}/summary.json")
+    print(f"written: {out_dir}/manifest.json, {out_dir}/summary.json, {out_dir}/limits.md")
     na = sum(1 for run in runs for r in run.results if r.score is None)
     return 1 if na else 0
 

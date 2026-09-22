@@ -78,13 +78,16 @@ def build_manifest(
             "completion_tokens": accountant.completion_tokens,
             "est_cost_usd": accountant.est_cost_usd,
             "judge_calls": accountant.judge_calls,
+            "judge_prompt_tokens": accountant.judge_prompt_tokens,
+            "judge_completion_tokens": accountant.judge_completion_tokens,
             "p95_latency_ms": accountant.p95_latency_ms,
         },
         "disclaimer": DISCLAIMER,
     }
 
 
-def write_run(out_dir: Path, manifest: dict, summary: dict) -> Path:
+def write_run(out_dir: Path, manifest: dict, summary: dict,
+              limits_text: str | None = None) -> Path:
     out_dir.mkdir(parents=True, exist_ok=True)
     (out_dir / "manifest.json").write_text(
         json.dumps(manifest, ensure_ascii=False, indent=2), encoding="utf-8"
@@ -92,4 +95,6 @@ def write_run(out_dir: Path, manifest: dict, summary: dict) -> Path:
     (out_dir / "summary.json").write_text(
         json.dumps(summary, ensure_ascii=False, indent=2), encoding="utf-8"
     )
+    if limits_text is not None:
+        (out_dir / "limits.md").write_text(limits_text, encoding="utf-8")
     return out_dir
