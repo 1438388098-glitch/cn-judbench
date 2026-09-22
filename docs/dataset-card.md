@@ -1,0 +1,70 @@
+# CN-JudBench 数据集卡片（Dataset Card, v0.4）
+
+- 快照：2026-09-23 · public split 共 **251 题**（holdout/live 冻结见 docs/holdout-live-protocol.md，本卡不含）
+- 口径：题面 schema/适用面校验 `python -m cnjudbench validate` 全过（12 任务包）
+
+## 1. 动机与用途
+
+测出大模型/Agent 在中国司法工作流中「哪一维能用、哪一维危险、是否稳定、代价多少」；
+oracle 硬度阶梯（隐藏单测 > 状态 diff > exact > 受约束 F1 > Judge）支持论文级
+可复现对比。**不得用于司法裁判、合规放行或当事人决策。**
+
+## 2. 任务包构成（12 包 / 251 题）
+
+| 任务包 | L 层 | oracle | 题数 | 主要能力维 |
+|---|---|---|---|---|
+| cit_validity | L1 | 机检（引用效力 status_ladder） | 21 | K |
+| u_element_extract | L1 | element 抽取（含 hard 28 题） | 43 | U |
+| calc_fail_to_pass | L1 | **隐藏单测**（tests/calc/*.py，46 题） | 46 | U |
+| s_charge_subsume | L1 | 罪名归并 exact | 20 | S |
+| tool_search_statute | L2 | tool_sequence/ast + exact | 26 | R |
+| gaia_fee_deadline | L3a | 金额阶梯 + progress | 17 | U/O |
+| dms_side_effect_intake | L3a | **env_diff 终态 diff**（state0 预置 4 题） | 13 | O |
+| tool_fault_recovery | L2 | **fault_recovery**（recovery×final） | 8 | O |
+| contract_risk | L1 | must_not/风险披露 | 17 | C |
+| a_irac_reason | L1 | 结构化 IRAC | 19 | A |
+| tau_jud_intake | L3b | 终态 F1 + Proto（多轮） | 12 | C |
+| long_horizon_case | L4 | score–time 多日流程 | 9 | O |
+| （另：dms/fault 冒烟与负例夹具见 reference.md） | | | | |
+
+## 3. 科目与难度分布
+
+- **8 科目全覆盖**：每任务包在 民商事/刑事/合同合规/劳动/家事/知产/行政/执行
+  至少各 1 题（validate 网格强制）；民商事为天然大头（诉讼费/利息/期间类计算
+  题集中在民商事）。
+- **难度**：1–4 级作者标注（1 基础 7 题 / 2 基础-中 84 / 3 中 98 / 4 难 62）；
+  实证重标（difficulty_emp，按通过率分带）工具已备（scripts/calibrate_difficulty.py），
+  待真实模型数据冻结后回写。
+- **来源**：synthetic（结构化生成，参数化题目+程序化金样）为主；
+  synthetic_adversarial 13 题为对抗注入（干扰段/陷阱/负例夹具）。
+  **不含任何真实案件卷宗、个人身份信息或受版权保护的文本。**
+
+## 4. 标注与金样质量
+
+- 每题 gold 由生成程序按成文规则独立计算（如隐藏单测期望值生成期硬编码），
+  判分管线**不读 gold**（oracle 隔离）；两套真相源一致性由测试锁定
+  （`test_gold_consistent_with_hidden_tests` 等）。
+- 公平性校验（v0.4）：`answer_enums` 声明的作答枚举必须逐字出现在题面
+  （考生须知覆盖判分口径）；canary 每题一枚（sha256 派生 `CNJB-CANARY-*`）。
+
+## 5. 防污染
+
+- 每题 canary 字段进 L1 输出扫描；n-gram 双检（`--ngram-corpus`）对全部题面
+  与外部语料做归一化 8-gram 重叠报告（summary.contamination）。
+- 生成器脚本全部入库（scripts/add_*.py），题目可由种子重现，支持事后审计。
+
+## 6. 已知局限
+
+1. 合成题为主：语言风格较真实裁判文书规整；真实卷宗纳入需走 holdout 冻结协议。
+2. u_element hard 子集对高档模型已近饱和（GLM 实测 82.1% 满分），中间带验收
+   应以中档模型为主（见 docs/u-hard-subset-report.md）。
+3. d-fake-001 类负例夹具对真实模型无区分度（功能为 harness 自检）。
+4. 单法官域（劳动/家事等）题量仅满足域覆盖网格，分域细分排名不具统计力
+   （§6.1 n 规则：单维 n<50 不排名）。
+5. fault 任务 final_exact 口径公平性修正进行中
+   （docs/fault-dms-real-model-report.md 发现 2/3）。
+
+## 7. 许可与引用
+
+- 数据与代码：项目仓库许可（见 LICENSE）；lawkb 法条文本来自权威公开文本。
+- 引用格式与版本号以 FRAMEWORK.md 头部为准（v0.4）。
