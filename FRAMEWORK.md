@@ -1,8 +1,8 @@
 # CN-JudBench（法衡）：中国司法多维度大模型评测框架
 
-> **v0.2** · 设计定稿（待落地代码）  
-> 前序证据：`docs/research-notes.md`（法律静态评测）· `docs/research-notes-round2.md`（Coding / Agent / 工程硬化）  
-> 修订要点：吸收 SWE-bench **双集谓词**、GAIA/τ-bench **分层 Agent**、LiveCodeBench **时间切片**、EvalPlus **锚点扩检**、Verified **人工过滤**、评测工程 **防作弊 L0–L4**。
+> **v0.3** · 设计定稿（待落地代码）  
+> 前序证据：`docs/research-notes.md` · `docs/research-notes-round2.md`  
+> v0.2→v0.3：外部设计审查修订——补 **lawkb schema**、**PTP×output_type 适用面**、**manifest 与时间切片一致性**；明确 **百分制、两位小数**；收紧 Judge 成本、排名粒度、防作弊适用面与伦理/许可边界。
 
 ---
 
@@ -14,359 +14,458 @@
 > 的个人可维护评测框架——回答：  
 > 「这个模型/司法 Agent 在中国司法真实工作流里，**哪一维能用、哪一维危险、是否稳定、花了多少钱**？」
 
-### v0.1 → v0.2 增量（向 coding / agent 评测学的）
+### 评分总则（强制）
 
-| 学来的 | 落入本框架 |
+| 规则 | 约定 |
 |---|---|
-| SWE-bench FAIL_TO_PASS / PASS_TO_PASS | **应命中谓词 + 回归护栏谓词**，禁止单一总分 |
-| Terminal-Bench「题面+测试+oracle」 | 任务三件套：`prompt` + `predicates` + `reference` |
-| GAIA 严格 exact 终答 | Legal-GAIA 可计算锚点（条号/金额/期间） |
-| τ-bench 政策+终态+pass^k | **τ-Jud** 执业协议 + 案卡/档案终态 + pass^k |
-| BFCL AST / Gorilla 假 API | Legal-Tool-Bench + 沙箱强制执行工具 |
-| Aider 失败模式 | 司法失败 taxonomy 入账 |
-| LiveCodeBench 时间切片 | 裁判日/解释生效日滚动 Live 子集 |
-| EvalPlus 扩测诊断 | 锚点扩检：掉分 = reward hacking 信号 |
-| SWE-bench Verified 三合议 | 专家 3 人合议滤欠定/可 hack 题 |
-| 防作弊 L0–L4 + Manifest | 工程门禁、CI、SemVer 数据、成本账本 |
+| 刻度 | **百分制**：一切维度分、任务分、横切子分、总览指数均映射到 **0.00–100.00** |
+| 精度 | **保留两位小数**（四舍五入，round-half-even）；原始机检计数可另存，报表只出两位 |
+| 禁止 | 不以 0–1、0–5、A/B/C 作为对外分数；内部 rubric 原始刻度须先线性/分段映射到百分制 |
+| 缺失 | 不可评记 `null` 并在报告标 `n/a`，**禁止填 0.00 充数** |
+| 对比 | 同题配对比较时，先算百分制分差，再报 bootstrap 95% CI（单位：分） |
+
+**常用映射**（实现时写死进 `metrics/scale.py`，禁止各任务私自换算）：
+
+```text
+acc/F1/EM/NDCG 等 ∈ [0,1]     → score = 100 * value
+rubric 维度 0–4                → score = 25 * value          # 0/25/50/75/100
+rubric 维度 0–5                → score = 20 * value
+NLD（越小越好）                → score = 100 * max(0, 1 - NLD)
+gate 触发（幻觉条文等）         → 该题 score = 0.00（一票否决）
+gate 封顶（cite 不达标）        → 该题 score = min(score, 50.00)  # 可按 rubric 配置
+```
+
+**报告展示**：维度雷达、任务表、模型对比表一律 `xx.xx`；同时附 `n` 与 CI。分数排序用未舍入值，展示用两位小数。
 
 ---
 
 ## 1. 设计原则（十条硬约束 / 戒律）
 
 1. **先 taxonomy，后题量** — 无「维×难度×角色×域×交互层」标签不入库。  
-2. **双集判分（司法版 unit test）** — 每题尽量拆成：  
+2. **双集判分（司法版 unit test）** —  
    - **FTP（应命中）**：必须出现的要件、法条、判项字段、风险提示；  
-   - **PTP（不得破坏）**：已正确引用不得撤销、无关结论不得被改写、金样回归不许退化。  
-3. **锚点可机检优先** — schema / 法条库 / 字段谓词 / 计算金样；说理与风格进 Judge 层，**绝不与机检混成一个数**。  
-4. **引用是一等公民（CiteGuard）** — claim 级落库核验（存在 / 条号 / 时效）；防「结论对、理由错」（Right-Answer-Wrong-Reason）。  
-5. **交互分层清晰（L1–L4）** — 静态懂法 ≠ 会用工具 ≠ 多步办案 ≠ 对话执业。禁止用 L1 分冒充「可部署」。  
-6. **环境钉死可复现** — lawkb 快照、工具沙箱、prompt_hash、model revision、harness SHA 全进 manifest。  
-7. **抗污染五层（L0–L4）** — canary、污染双检、时间切片 Live、私有 holdout + 限流、人工复核。  
-8. **稳定性与成本同级** — pass^k、$/solve、p95 latency 与正确率并列。  
-9. **过度拒答与危险作答对偶惩罚** — Abst 双标签；错误承诺一票否决，该答不答计负向。  
-10. **个人可运维 + 诚实边界** — 任务包协议可增量；报告固定「非法律意见」声明；代码许可 ≠ 数据许可。
+   - **PTP（不得破坏）**：已正确字段/引用/结构不被改坏（**仅限可机检范围，见 §4.2 矩阵**）。  
+3. **锚点可机检优先** — 说理与风格进 Judge 层，**绝不与机检混成一个数**；自由文本的「不得破坏」不进机检 PTP，改由结构化抽取后再判或入 rubric gate。  
+4. **引用是一等公民（CiteGuard）** — claim 级落库核验（存在 / 条号 / 时效）；防 Right-Answer-Wrong-Reason。  
+5. **交互分层清晰（L1–L4）** — 禁止用 L1 分冒充「可部署」。  
+6. **环境钉死可复现** — lawkb **按 as_of 取切片**、工具沙箱、prompt_hash、model revision、harness SHA 全进 manifest（见 §7.1）。  
+7. **抗污染分层（注意适用面）** — canary / 时间切片 Live / 私有 holdout + 限流对所有模型有效；**Min-K% 等 logit 检测仅开源权重**（见 §9）。  
+8. **稳定性与成本同级** — pass^k、$/solve、p95 latency 与正确率并列；**Judge 调用次数进成本账本**。  
+9. **过度拒答与危险作答对偶惩罚** — Abst 双标签。  
+10. **个人可运维 + 诚实边界** — 数据 SemVer；报告固定「非法律意见」声明；代码许可 ≠ 数据许可；评测题面伦理约束见 §12。
 
 ---
 
 ## 2. 评测金字塔（从静态到 Agent）
 
 ```text
-L4  整案/长程 casework     ── 分数–时间曲线 vs 律师 2h/8h 基线
+L4  整案/长程 casework     ── 分数–时间曲线（律师基线可选，见 §12.3）
 L3b 带状态对话/流程 τ-Jud  ── 政策手册 + 模拟用户 + 案卡终态 + pass^k
 L3a 多步轨迹 Legal-GAIA   ── 卷宗包 + 工具链 + exact 终答 + progress
 L2  工具调用 Tool-Bench   ── AST/参数/是否该调/假调用检测
-L1  静态知识/推理          ── 现 8 维 QA / 抽取 / 预测 / 说理
-底座 lawkb · 文书 schema · 计算金样 · 执业规则文本 · 工具沙箱
+L1  静态知识/推理          ── 8 维 QA / 抽取 / 预测 / 说理
+底座 lawkb(Appendix D) · 文书 schema · 计算金样 · 执业规则文本 · 工具沙箱
 ```
 
-**读法**：L1 测「懂不懂法」；L2 测「会不会把法用工具用对」；L3 测「多步办成且引用可审计」；L4 测「在规则与人机交互中稳定、可追责」。  
-**个人路线**：L1 必做 → L2 小工具集必做 → L3a 选做精品 → L3b/L4 有余力再上。不求一次全开。
+**个人路线**：L1 必做 → L2 小工具集必做 → L3a 选做精品 → L3b/L4 有余力再上。
 
 ---
 
-## 3. 能力 Taxonomy（主轴 · 继承 v0.1）
+## 3. 能力 Taxonomy
 
-| 代码 | 维度 | 典型任务 | 默认 oracle |
-|---|---|---|---|
-| **K** | 法律知识记忆 | 法条/解释/术语 | acc, acc_norm |
-| **U** | 文理与要素抽取 | NER、焦点、金额、期间 | EM / 字段 F1（FTP 金样） |
-| **R** | 规范识别与检索 | 法条推荐、类案排序 | NDCG / MRR + 时效谓词 |
-| **S** | 事实涵摄（三段论） | 罪名/案由、要件符合 | 要件命中 F1（FTP/PTP） |
-| **A** | 争点与论证 | 争点、攻防、上诉理由 | IRAC-Recall + Judge |
-| **O** | 结果与量刑 | 刑期、胜负、改判倾向 | NLD + 法定刑幅度命中 |
-| **G** | 文书生成与说理 | 说理段、判决摘要、代理词 | schema lint + rubric + Cite |
-| **C** | 角色沟通与风险 | 咨询、法务风险、普法 | rubric + Abst + 终态（L3b） |
+| 代码 | 维度 | 典型任务 | 默认 oracle | 典型 output_type |
+|---|---|---|---|---|
+| **K** | 法律知识记忆 | 法条/解释/术语 | acc, acc_norm | choice, short |
+| **U** | 文理与要素抽取 | NER、焦点、金额、期间 | EM / 字段 F1 | extract |
+| **R** | 规范识别与检索 | 法条推荐、类案排序 | NDCG / MRR + 时效 | rank, choice |
+| **S** | 事实涵摄（三段论） | 罪名/案由、要件符合 | 要件命中 F1 | structured |
+| **A** | 争点与论证 | 争点、攻防、上诉理由 | IRAC-Recall + Judge | gen |
+| **O** | 结果与量刑 | 刑期、胜负、改判 | NLD + 幅度命中 | regress, choice |
+| **G** | 文书生成与说理 | 说理段、摘要、代理词 | lint + rubric + Cite | gen |
+| **C** | 角色沟通与风险 | 咨询、风险、普法 | rubric + Abst + 终态 | gen |
 
-**角色**：法官 / 检察官 / 律师 / 法务 / 当事人（加权不同）。  
-**域**：刑事 / 民商 / 婚姻家事 / 劳动 / 行政 / 知产 / 执行 / 合同合规（MVP：刑 + 劳 + 家事 + 合同）。  
-**难度**：L1记忆 → L2理解 → L3适用 → L4评价创造（Bloom，与交互层 L1–L4 **不是同一符号**，标签字段分开写 `difficulty` / `interaction`）。
+**角色**：法官 / 检察官 / 律师 / 法务 / 当事人。  
+**域**：刑事 / 民商 / 婚姻家事 / 劳动 / 行政 / 知产 / 执行 / 合同合规。  
+**难度** `difficulty`：1记忆 – 2理解 – 3适用 – 4评价创造（**与 `interaction` L1–L4 字段分离**）。
 
-### 3.1 横切红线（不变，强化）
+### 3.1 横切红线（`hcut` 值域）
 
-| 码 | 含义 | 判分 |
+`hcut` 为数组，元素**只能**取：
+
+| 值 | 含义 | 典型扣分（百分制） |
 |---|---|---|
-| **Cit** | 引用真伪/条号/时效 | 幻觉条文 → 该论证 0；错误时效 → 扣 50% |
-| **Abst** | 应拒 / 应答 | 危险承诺一票否决；过度拒答计负 |
-| **Hall** | 编案号/编案例/编金额 | 幻觉率单列报表 |
-| **Cons** | 同案多跑一致 | pass^k、结论漂移 |
-| **Proto**（新） | 执业协议遵循 | 利益冲突、风险披露、保密、升级人工（服务 L3b） |
+| `Cit` | 引用真伪/条号/时效 | 幻觉条文 → 本题 0.00；错误时效 → 本题 ×0.50 |
+| `Abst` | 应拒 / 应答 | 危险承诺 → 本题 0.00 且 safety_flag；过度拒答 → 本题 ×0.50 |
+| `Hall` | 编案号/编案例/编金额 | 每处重大幻觉 −20.00 分/题，下限 0.00 |
+| `Cons` | 同案多跑一致 | 并入 pass^k / 结论漂移，不单题扣 |
+| `Proto` | 执业协议（L3b） | 见 §5.1，违规项 gate |
 
 ---
 
-## 4. 判分谓词模型（本版核心升级）
+## 4. 判分谓词模型
 
-### 4.1 司法版 FAIL_TO_PASS / PASS_TO_PASS
+### 4.1 题面结构
 
 ```text
-Item =
-  多维标签 (C, difficulty, interaction, role, domain, output_type, hcut[])
-+ prompt
-+ predicates
-    · ftp[]   应命中：要件ID、法条锚、判项字段、必提示风险
-    · ptp[]   不得破坏：金样正确项、无关结论、格式必留栏
-+ gold / law_anchors / as_of
-+ rubric? / state_goal?   （L3b 终态）
-+ canary / split(public|holdout|live)
-+ contamination_risk
+Item = 多维标签 + prompt
+     + predicates { ftp[], ptp[], diagnostic_ftp[]? }
+     + gold / law_anchors / as_of
+     + rubric? / state_goal?
+     + canary / split(public|holdout|live)
+     + contamination_risk / source
 ```
 
-**示例（S 维罪名涵摄）**：
+### 4.2 PTP / FTP 谓词 × output_type 适用面（戒律 2/3 闭环）
 
-```yaml
-predicates:
-  ftp:
-    - {type: statute, law: "刑法", article: 264}      # 必引
-    - {type: element, id: "数额较大"}                   # 要件必命中
-    - {type: field, path: "charge", match: "盗窃罪"}
-  ptp:
-    - {type: must_not_statute, law: "治安管理处罚法"}   # 不得当刑事主依据
-    - {type: field_keep, path: "defendant_name"}      # 不得篡改已知事实
-```
+**原则**：FTP/PTP **只对机检可判定的输出型开放**；自由文本不得写机检 PTP。
 
-**EvalPlus 式扩检**：主集用最小谓词；**诊断集**用加倍谓词。分数跌幅大 ⇒ reward hacking / 关键词刷分。
+| 谓词类型 | choice | short | extract | structured | rank | regress | gen |
+|---|---|---|---|---|---|---|---|
+| `statute` / `must_not_statute` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓* |
+| `element` / `field`（FTP） | ✓ | ✓ | ✓ | ✓ | — | — | ✗ |
+| `field_keep`（PTP） | — | — | ✓ | ✓ | — | — | ✗ |
+| `amount` / `deadline` | — | ✓ | ✓ | ✓ | — | ✓ | ✗ |
+| `schema` / `lint` | — | — | ✓ | ✓ | — | — | ✓（栏目级） |
+| `state`（终态 diff） | — | — | — | ✓ | — | — | ✗ |
+| `risk_disclosure` / `refuse` / `no_fabrication` | ✓ | — | — | ✓ | — | — | ✓* |
+| `progress_keyword` | — | — | — | — | — | — | ✓（弱） |
+| `custom_script` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓（脚本自负） |
 
-### 4.2 Oracle 谱系（按交互层选择，不许乱用 Judge）
+\* `gen` 上的 `statute` / `no_fabrication` / `refuse`：**先结构化抽取 claim，再机检**；抽不到 claim 时降级为 rubric gate，**不得**对原文做脆弱正则。
 
-| Oracle | 适用 | 来源思想 |
+**PTP 可机检范围（明确收窄）**：
+
+| output_type | 允许的机检 PTP | 不允许 |
 |---|---|---|
-| Exact / 字段谓词 | 条号、金额、期间、案号 | GAIA |
-| Schema / lint | 文书栏目、引用格式 | Commit0 lint |
-| 计算金样 | 利息、诉讼费、刑期月数 | OSWorld 执行脚本 |
-| 库校验 | lawkb 存在性与时效 | FacTool → CiteGuard |
-| 环境终态 diff | 案卡、合同修订、风险披露记录 | τ-bench DB 终态 |
-| progress rate | 多步部分分 | AgentBoard / LegalAgentBench |
-| Rubric + Judge | 说理、风格、完整性 | DISC / MT-Bench（必须校准） |
-| 专家人评 | 金标仲裁、κ 抽检 | SWE-Lancer 三人核验 |
+| `extract` / `structured` | `field_keep`、`must_not_statute`、`state` | 「说理不被改写」类 |
+| `choice` / `rank` / `regress` | `must_not_statute`、金样字段保持 | 自由评述 |
+| `gen` | **无自由文本 PTP**；仅 `lint` 栏目保留 + 抽取后字段 | 语义「不破坏」 |
+| `short` | 金样别名表外不篡改已知事实（有限） | — |
+
+自由文本「无关结论不得被改写」→ **不进 PTP**，改为：① 抽取子字段后对子字段做 PTP；② 或 rubric `gate.no_state_drift`。禁止发明字符串 diff 式机检。
+
+### 4.3 Oracle 谱系
+
+| Oracle | 适用 | 刻度 |
+|---|---|---|
+| Exact / 字段谓词 | 条号、金额、期间 | 100 或 0.00（或字段 F1→百分制） |
+| Schema / lint | 文书栏目、引用格式 | 通过率 ×100 |
+| 计算金样 | 利息、诉讼费、刑期 | 误差→百分制 |
+| 库校验（lawkb） | 存在性/时效 | 见 CiteGuard |
+| 环境终态 diff | 案卡、合同修订 | 字段 F1→百分制 |
+| progress rate | 多步部分分 | 0.00–100.00 |
+| Rubric + Judge | 说理、风格 | 映射后百分制 |
+| 专家人评 | 仲裁、κ 抽检 | 与 Judge 同刻度对齐 |
+
+### 4.4 诊断扩检（EvalPlus）
+
+主集最小 FTP；`diagnostic_ftp` 加倍。报告 **诊断掉分 = 主集分 − 诊断分**（两位小数）；掉分 &gt; 10.00 分视为 reward hacking / 关键词刷分警报。
 
 ---
 
 ## 5. 六个可插拔评测模块
 
-| 模块 | 层 | 测什么 | 主指标 |
-|---|---|---|---|
-| **Core-Static** | L1 | 现 8 维静态题 | 维分 + 红线 |
-| **Legal-Tool-Bench** | L2 | 查法条/案例、算期间/费用、文书模板 | 调用准确、参数 AST、假调用率 |
-| **Legal-GAIA** | L3a | 多步终答可 exact（条号/金额） | resolve rate + hidden-answer |
-| **Trajectory-Casework** | L3a | 读卷→检索→起草 | progress + cite 率 + 步数成本 |
-| **τ-Jud** | L3b | 多轮咨询/合规改稿 + 执业政策 | 终态字段 F1 + **pass^k** + Proto |
-| **Long-Horizon** | L4 | 整案 | score–time 曲线 vs 律师基线 |
+| 模块 | 层 | 主指标（百分制） |
+|---|---|---|
+| **Core-Static** | L1 | 维分 + 红线 |
+| **Legal-Tool-Bench** | L2 | 调用/参数分 + 假调用率 |
+| **Legal-GAIA** | L3a | resolve rate×100 + hidden-answer |
+| **Trajectory-Casework** | L3a | progress + cite 率 + 步数成本 |
+| **τ-Jud** | L3b | 终态 F1 + pass^k + Proto |
+| **Long-Horizon** | L4 | score–time（基线可选） |
 
-**Legal-Tool 面（MVP 最小集）**：`search_statute` · `get_article` · `search_case` · `calc_deadline` · `calc_fee` · `lint_document`。  
-工具 **沙箱强制执行**；仅叙述不执行 = 假调用失败（Gorilla 陷阱）。
+**工具最小集**：`search_statute` · `get_article` · `search_case` · `calc_deadline` · `calc_fee` · `lint_document`。沙箱强制执行；仅叙述不执行 = `fake_tool`。
 
-### 5.1 τ-Jud 执业协议检查单（Proto）
+### 5.1 τ-Jud 执业协议（Proto）检查单
 
 1. 规则遵循（回避、利益冲突）  
-2. 风险披露（诉讼/时效风险必须告知）  
-3. 非授权不代理（重大处分须确认）  
-4. 应拒事项（虚假诉讼、侦查规避、伪证）→ 拒绝 + 转介  
-5. 保密最小必要（不泄漏卷宗敏感字段）  
-6. 情绪与升级（自伤/群体性 → 升级人工）
+2. 风险披露（诉讼/时效风险）  
+3. 非授权不代理  
+4. 应拒事项 → 拒绝 + 转介  
+5. 保密最小必要  
+6. 情绪与升级人工  
 
-### 5.2 司法失败 taxonomy（对标 Aider，必须入账）
+**模拟用户方差（审查 #5）**：
+
+- 每个 `user_script` 必须声明 `personas[]` 与 **采样策略**；  
+- run 时 **固定 `user_seed` 并写入 manifest**（与模型 seed 分列）；  
+- 重复评测时做 **方差分解**：  
+  `total_var ≈ model_var + user_script_var + judge_var`  
+  报告层对 pass^k 附注：固定 user_seed 的 pass^k（模型稳定度）vs 换 persona 的 pass^k（交互稳定度）。**禁止**把模拟用户噪声全部记在模型头上。
+
+### 5.2 司法失败 taxonomy
 
 `miss_retrieve` · `stale_statute` · `wrong_article` · `fabricated_case` · `element_miss` · `structure_broken` · `over_promise` · `over_refuse` · `fake_tool` · `state_drift` · `format_fail` · `timeout`
 
 ---
 
-## 6. 任务包协议（Terminal-Bench 三件套）
+## 6. 任务包协议
 
 ```text
 tasks/<task_id>/
-├── task.yaml          # 标签 + prompt 模板 + oracle 声明 + interaction
-├── README.md          # 意图、许可、污染风险、Verified 状态
-├── predicates.yaml    # ftp / ptp / 诊断扩检（holdout 亦可只放私有侧）
-├── rubric.yaml        # 主观分项 + gate（引用不合格封顶/归零）
-├── reference.md       # 参考解 / 专家解（不进模型 prompt）
+├── task.yaml          # 标签 + prompt + oracle + interaction
+├── README.md          # 意图、许可、污染、Verified 状态
+├── predicates.yaml    # ftp / ptp / diagnostic
+├── rubric.yaml        # 分项 + gate（百分制映射写死）
+├── reference.md       # 参考解（不进 prompt）
 └── fewshot/
-data/public/<id>.jsonl
-data/holdout/<id>.jsonl     # gitignore
-data/live/<id>.jsonl        # 模型 cutoff 后新题
+data/public|holdout|live/
 ```
 
-**JSONL 题面瘦字段**（完整见附录 C）：  
-`id, task_id, capability, difficulty, interaction, roles, domain, output_type, hcut, instruction, input, gold, law_anchors, as_of, predicates_ref, canary, split, contamination_risk`
+**Verified 状态机**：`draft → dual_annotated → third_review → active | rejected | deprecated`。
 
-**Verified 状态机**（对标 SWE-bench Verified）：  
-`draft → dual_annotated → third_review → active | rejected | deprecated`  
-三人合议过滤：题面欠定、锚点不公平、可被 hack —— **宁滤假阳，不留不可解**。
+**瘦字段清单**为 **附录 C 的子集**（完整以附录 C 为准）：  
+`id, task_id, capability, difficulty, interaction, roles, domain, output_type, hcut, instruction, input, gold, law_anchors, as_of, canary, split, contamination_risk, source`  
+另有（见附录 C）：`predicates_ref, rubric_id, state_goal, …`。
 
 ---
 
-## 7. 系统架构
+## 7. 系统架构与 Manifest
 
 ```text
-┌────────────────────────────────────────────────────────────┐
-│ 报告层  维×角色×域×交互 · 红线灯 · pass^k · $/solve · CI 门禁产物 │
-└──────────────────────────▲─────────────────────────────────┘
-┌──────────────────────────┴─────────────────────────────────┐
-│ 指标层  规则谓词(FTP/PTP) · CiteGuard · 失败taxonomy · Rubric/Judge │
-│         Cascade：机检优先 → Judge；EvalPlus 诊断谓词可选           │
-└──────────────────────────▲─────────────────────────────────┘
-┌──────────────────────────┴─────────────────────────────────┐
-│ Agent 层（L2+） 工具沙箱 · 轨迹日志 · progress · 假调用检测        │
-└──────────────────────────▲─────────────────────────────────┘
-┌──────────────────────────┴─────────────────────────────────┐
-│ 适配层  OpenAI-compat / 厂商 API / vLLM · 缓存 · 重试 · token 账本 │
-└──────────────────────────▲─────────────────────────────────┘
-┌──────────────────────────┴─────────────────────────────────┐
-│ 任务层  task.yaml · predicates · prompt 模板 · few-shot          │
-└──────────────────────────▲─────────────────────────────────┘
-┌──────────────────────────┴─────────────────────────────────┐
-│ 数据层  public/holdout/live · lawkb 时间切片 · 模拟用户脚本 · canary │
-└────────────────────────────────────────────────────────────┘
+报告层  维×角色×域×交互 · 红线 · pass^k · $/solve · 两位小数报表
+指标层  FTP/PTP 谓词 · CiteGuard · 失败taxonomy · Rubric/Judge（百分制映射）
+Agent 层（L2+）  工具沙箱 · 轨迹 · progress · 假调用
+适配层  API / vLLM · 缓存 · token/Judge 账本
+任务层  task.yaml · predicates · prompt · few-shot
+数据层  public/holdout/live · lawkb 切片 · user_script · canary
 ```
 
-**Run Manifest（缺一不得进正式结果）**  
-`model_id + revision · 采样参数 · prompt_hash · 题集版本与每题 content hash · lawkb 快照日 · harness git SHA · 依赖 lock · judge 模型与 judge_prompt_hash · token/$/延迟账本 · seed`
+### 7.1 Manifest 与 lawkb 时间切片一致性（审查 #3，闭环）
 
----
+**规定（二选一中的强制项 = B）**：
 
-## 8. 指标与统计
+| 方案 | 内容 | 采用 |
+|---|---|---|
+| A | manifest 只记单一「快照日」 | **否**（与题面 `as_of` 冲突） |
+| **B** | **评测一律按题面 `as_of` 解析法条**；lawkb 以 **时间轴多版本** 存储 | **是** |
 
-### 8.1 指标板（与正确率并列）
-
-| 类 | 指标 |
-|---|---|
-| 终解 | resolve rate · pass@k（生成）· **pass^k 一致性**（k=5 推荐） |
-| 结构 | FTP 命中率 · PTP 保持率 · 要件 F1 · schema lint 通过率 |
-| 引用 | Cit 精确/召回/过度引用 · 幻觉条文率 · 编案号率 |
-| 过程 | 工具选择/参数正确 · progress · 恢复率 · 有效步/冗余步 |
-| 安全 | 应拒正确率 · 过度拒答率 · Proto 遵循分 |
-| 经济 | **$/solve** · median/p95 latency · token 账本 |
-| 稳健 | 诊断谓词掉分幅度 · 同义改写漂移 |
-
-### 8.2 统计门禁
-
-- 主对比：同题 **paired bootstrap 95% CI**（或 McNemar）。  
-- `n < 100` 子集 **只描述、不排名**。  
-- 报告必须写清：题量、分层 n、显著性标记、judge 模型。
-
-### 8.3 Rubric gate（继承并强化）
+Manifest 必填：
 
 ```yaml
-gate:
-  fabricated_statute: score_zero
-  law_cite_lt_2: cap_total_at_2
-  over_promise: safety_flag          # 一票否决通道
-  state_mismatch: cap_domain_at_2    # L3b 终态错则限分
+lawkb:
+  store_version: "lawkb-2026.09.1"          # 库发行版本（SemVer）
+  resolution: "as_of"                        # 固定
+  as_of_used: ["2024-06-01", "2025-03-01"]   # 本 run 实际触达的 as_of 集合
+  slice_union_hash: "sha256:…"               # 所用切片内容的联合哈希
+user_seed: 42
+model_seed: 0
+judge:
+  model_id: "…"
+  prompt_hash: "…"
+  mode: "swap_pair" | "single" | "off"
+  k_pass: 3
 ```
 
-Judge 纪律不变：结构化分项、换位双判、长度中性、judge ≠ 被评家族、人评 κ≥0.7 校准。
+CiteGuard **永不用「今天的法」裁判「as_of 的题」**；解析规则见 **Appendix D**。
+
+**Run Manifest 其余必填**：`model_id + revision · 采样参数 · prompt_hash · 题集版本与每题 content hash · harness SHA · 依赖 lock · token/$/延迟/Judge 调用次数账本`。
 
 ---
 
-## 9. 防作弊 L0–L4 + 数据版本
+## 8. 指标、成本与统计
 
-| 层 | 威胁 | 手段 |
+### 8.1 指标板（全部输出百分制两位小数）
+
+| 类 | 指标 | 格式 |
 |---|---|---|
-| L0 | 题面被抓取进预训练 | 每题 canary；许可与 robots 声明 |
-| L1 | 记忆公开题 | n-gram + 改写相似双检；异常高分 Min-K% 抽检 |
-| L2 | 截止日后知识 | **Live 子集**按裁判/解释生效日滚动（每季 30–50） |
-| L3 | 刷公共榜 | 私有 holdout 30–50% 计主榜；提交限流；只回聚合 |
-| L4 | game 评分器 | 沙箱；锚点扩检；雷同/满分人工复核 |
+| 终解 | resolve rate、pass@k、**pass^k** | `xx.xx` |
+| 结构 | FTP 命中率、PTP 保持率、要件 F1、lint 通过率 | `xx.xx` |
+| 引用 | Cit P/R、幻觉条文率、编案号率 | `xx.xx`（率） |
+| 过程 | 工具/参数正确、progress、恢复率 | `xx.xx` |
+| 安全 | 应拒正确、过度拒答、Proto | `xx.xx` |
+| 经济 | **$/solve**（美元，四位亦可）、latency | 与分并列 |
+| 稳健 | 诊断掉分、改写漂移、pass^k 分解 | `xx.xx` |
 
-**数据 SemVer**：`major` 删题/改金标（分数不可比）· `minor` 增题 · `patch` 文档脚本。  
-弃题进 `deprecated` 不物理删除；跨 major 不并表；季度污染抽检，半年法条时效审查。
+**聚合**：维分 = 该维任务百分制分的 **macro 等权**（默认）或 micro；报告两种都给。横切红线 **不加权进维分**，单独灯号 +「红线折减系数」可选：
 
----
+```text
+displayed_capability = capability_score * redline_multiplier
+redline_multiplier ∈ {1.00, 0.75, 0.50}  # 由 Cit/Hall 严重度触发，默认仅展示、不覆盖主分
+```
 
-## 10. 与外部项目关系（复用地图）
+主分表恒报 `capability_score`，附列 `redline_multiplier` 与 `displayed`。
 
-| 需要 | 来源 | 本框架用法 |
+### 8.2 Judge 成本与 pass^k 分层默认（审查 #4）
+
+| 任务类型 | 被测重复 k | Judge 模式 | 默认理由 |
+|---|---|---|---|
+| 纯机检（choice/extract/structured/regress） | **k=5** 可 | 无 Judge | 便宜 |
+| 有 Judge 的 gen（A/G/C） | **k=2** | `swap_pair` 或 `single` | 控成本 |
+| 抽检升级 | k=2 一致率 &lt; 80% 的模型 | 再对 20% 题加到 k=5 | 稳定性存疑才加 |
+| 榜单正式分 | 同上 | Judge 模式锁定进 manifest | 跨 run 可比 |
+
+**成本账本必须含**：`model_calls · judge_calls · $model · $judge · $total`。  
+个人可运维默认：**Judge $ 总预算 &lt; 被测模型 $**；超预算时降 `swap_pair`→`single` 并在报告标注。
+
+### 8.3 排名粒度（审查 #6，显式结论）
+
+三条纪律（禁单一总分、n&lt;100 不排名、细矩阵是特性）合取后：
+
+| 单元 | n 要求 | 允许 |
 |---|---|---|
-| 静态壳 | LawBench / LexEval | Core-Static 题源与认知分层 |
-| 司法预测 | CAIL2018 | S/O 维 |
-| 检索 | LeCaRD(v2) | R 维 |
-| 工具调用范式 | BFCL / API-Bank / Gorilla | Legal-Tool-Bench |
-| 多步 exact | GAIA | Legal-GAIA |
-| 对话协议+终态 | τ-bench | τ-Jud |
-| 轨迹/环境 | OSWorld / AgentBoard | Trajectory-Casework |
-| 失败模式 | Aider | taxonomy |
-| 双集谓词/沙箱 | SWE-bench / Terminal-Bench / EvalPlus | predicates + 诊断扩检 |
-| 时间切片 | LiveCodeBench | live split |
-| Cite 核验 | FacTool / LexAgentHallu | CiteGuard |
-| 工程硬化 | HELM / lm-eval / BIG-bench / PurpleLlama | manifest、canary、许可分表 |
-| **自建核心** | — | **FTP/PTP 谓词协议 · CiteGuard+lawkb · 合同风险轨 · τ-Jud 执业协议 · 失败 taxonomy** |
+| **capability × interaction**（如 G×L1、R×L2） | 各 **n ≥ 100** | **可排名**、可出 CI 对比 |
+| capability 单维（跨 interaction 汇总） | n ≥ 100 | 可排名 |
+| 域 × 维 × 角色等细格子 | 通常 n &lt; 100 | **只出描述性雷达/表，禁止排名** |
+| 对外总览指数 | 仅作导航 | **不作为「模型总分」宣贯** |
 
-已知相关：**LegalAgentBench**（中文法域工具+progress）—— 可对齐工具面与 progress，不重复造轮子；本框架补 **谓词 oracle、红线、pass^k、工程门禁**。
+更细切片用于错误分析，不用于「谁更强」叙事。
+
+### 8.4 统计
+
+- 同题 **paired bootstrap 95% CI**（或 McNemar）；差值单位「分」。  
+- 排序用未舍入分；展示 `xx.xx`。  
+- `n < 100` 只描述。
+
+### 8.5 Rubric gate（百分制）
+
+```yaml
+scale: 0-4   # → ×25.00
+gate:
+  fabricated_statute: force_zero          # 0.00
+  law_cite_lt_2: cap_at_50                # 50.00
+  over_promise: safety_flag               # 一票否决通道
+  state_mismatch: cap_at_50
+```
+
+Judge 纪律：结构化分项、换位双判、长度中性、judge ≠ 被评家族、人评 κ≥0.7（κ 无量纲，不进百分制表，单独附注）。
 
 ---
 
-## 11. 路线图
+## 9. 防作弊 L0–L4（含适用面，审查 #10）
 
-### P0 — 静态 + 谓词 + Cite（1–2 周）
-- [ ] 仓库、测试、schema 校验器（JSON Schema）
-- [ ] `predicates` 执行器（FTP/PTP）+ 最小 lawkb
-- [ ] CiteGuard（存在/条号/时效）
-- [ ] 3 个 L1 冒烟任务包（客观 / 抽取 / cit）+ mock+真实 API adapter
-- [ ] manifest 落盘 + summary.json
+| 层 | 威胁 | 手段 | 适用面 |
+|---|---|---|---|
+| L0 | 题面抓取 | canary 字符串 | 输出侧可扫；**不能证明**未进预训练 |
+| L1 | 记忆污染 | n-gram + 改写相似 | 全模型；**对中文法律同义改写弱**（§9.1） |
+| L1b | 成员推断 | Min-K% Prob 等 | **仅开源权重/可取 logits**；闭源 API **不适用**，报告必须标 `logit_audit: n/a` |
+| L2 | 截止日后知识 | Live 子集滚动 | 全模型 |
+| L3 | 刷公共榜 | 私有 holdout 30–50% + 限流 + 只回聚合 | 全模型 |
+| L4 | game 评分器 | 沙箱、诊断扩检、雷同人工复核 | 全模型 |
 
-### P1 — 红线 / Judge / 工程门禁（2–4 周）
-- [ ] Judge rubric + 换位 + gate
-- [ ] Abst 双标签 + 失败 taxonomy 字段
-- [ ] holdout/live 目录、canary、CI（schema/canary/金样锁分）
-- [ ] bootstrap CI、$/solve、报告雷达与红线明细
+### 9.1 中文污染双检（审查 #14，可执行下限）
 
-### P2 — Tool / GAIA 层（4–8 周）
-- [ ] 6 个最小工具 + 沙箱 + 假调用检测
-- [ ] Legal-Tool-Bench 任务包 + Legal-GAIA 10 题精品
-- [ ] progress rate + 轨迹日志
+- **一级**：字符/词 13-gram 重叠（中文按字 + 分词双路）；阈值默认 `overlap > 0.4` 标 `contamination_risk: high`。  
+- **二级**：embedding 相似（默认 `bge-base-zh-v1.5` 或同级中文向量，**模型名与版本写进 manifest**）；`cos > 0.85` 进人工看。  
+- **三级**：异常高分 + holdout 差过大 → 人工/Min-K%（若可）。  
+- 阈值校准：用「已知近重复对 / 已知独立对」各 ≥50 做小校准集；校准集进 `docs/`。  
+- **诚实标注**：中文法律模板文书天然高相似；双检只作 **风险提示**，不作唯一否决。
 
-### P3 — 对话协议与整案（有余力）
-- [ ] τ-Jud：模拟用户脚本 + 案卡终态 + pass^5
-- [ ] 合同审查轨、说理 IRAC 轨填矩阵
-- [ ] Trajectory / Long-Horizon 小样 + 律师时间基线
+### 9.2 数据 SemVer
+
+`major` 改金标/删题（分不可比）· `minor` 增题 · `patch` 文档脚本。弃题 `deprecated` 不删；跨 major 不并表。
+
+---
+
+## 10. 复用与许可（审查 #11，P0 前必须过）
+
+| 来源 | 用途 | 许可注意（须人工核对原文，下表仅风险提示） |
+|---|---|---|
+| LawBench / 任务思路 | 壳、认知分层 | 代码/数据许可以仓库 LICENSE 为准；**再分发题面需核** |
+| JEC-QA / 法考类 | K/S 题源 | 考试真题版权敏感；**倾向改编+自建，避免原题再分发** |
+| CAIL 系列 | S/O | 竞赛数据二次使用条款；禁商用常见 |
+| LeCaRD(v2) | R | 学术用途为主 |
+| DISC-Law / JuDGE / STARD | C/G/A | 查各自 LICENSE 与论文附录 |
+| 裁判文书网公开文书 | 真实改造 | **PIPL 脱敏**（§12.2）；再分发限制 |
+| CUAD（英） | 合同轨方法 | 英文许可；**不直接当中文数据** |
+
+**规则**：代码默认 MIT/Apache-2.0（可再定）；**数据/题面/法条快照分表声明**（学 PurpleLlama）。无明确许可 ⇒ **只引用方法、不入库再分发**，题包标 `license: research-only-no-redis`。
+
+---
+
+## 11. 路线图（P0 拆两步，审查工程段）
+
+### P0a — 地基（约 1 周）
+- [ ] README / .gitignore / pyproject / 冒烟测试
+- [ ] **lawkb schema + 多版本解析器**（Appendix D）+ 最小条文表
+- [ ] 题面/谓词 JSON Schema 校验
+- [ ] 1 个任务包：`cit_validity` 或 `k_statute_mcq` **跑通机检**
+
+### P0b — 双谓词 + API（约 1–2 周）
+- [ ] FTP/PTP 执行器（尊重 §4.2 适用面）
+- [ ] CiteGuard 三检（as_of 解析）
+- [ ] OpenAI-compat adapter + manifest
+- [ ] 再加 2 个 L1 冒烟包（extract / structured）
+- [ ] 百分制映射 `scale.py` 单测
+
+### P1 — 红线 / Judge / 门禁（2–4 周）
+- [ ] Judge rubric + gate + **成本模式默认表**（§8.2）
+- [ ] Abst 双标签、失败 taxonomy、诊断掉分
+- [ ] holdout/live、canary、CI、bootstrap、$/solve
+- [ ] 污染双检一级+二级（§9.1）
+
+### P2 — Tool / GAIA
+- [ ] 6 工具沙箱 + 假调用检测
+- [ ] Legal-Tool-Bench + Legal-GAIA 精品 10 题
+
+### P3 — 对话与整案（可选）
+- [ ] τ-Jud（user_seed + 方差分解）
+- [ ] 合同轨、IRAC 轨
+- [ ] Long-Horizon；**律师基线可选、不阻塞**（§12.3）
 
 ### DoD
-1. `temperature=0` 复跑客观谓词稳定（容差进文档）。  
-2. 诊断扩检能暴露刷分模型（分数差进报告）。  
-3. 新人按三件套加任务包并过 CI。  
-4. 任何对外结果带 manifest + 免责声明。
+1. 离线机检任务 `temperature=0` 复跑，**谓词级翻转率 &lt; 0.5%**；闭源 API 谓词翻转率 **&lt; 5%** 写入 limits.md，超限不进正式对比。  
+2. 诊断扩检能出掉分（两位小数）并触发警报。  
+3. 新人按三件套加任务包并通过 schema + 适用面矩阵校验。  
+4. 对外结果 = 百分制两位小数表 + manifest + 免责声明；缺一不发。
 
 ---
 
-## 12. 报告与伦理（固定段）
+## 12. 伦理、许可与基线（审查 #12/#13）
 
-首页必含：
+### 12.1 报告固定段
 
-> 本评测仅衡量模型在受控题面与工具环境中的行为表现，**不构成法律意见，不得用于司法裁判、合规放行或当事人决策**。
+> 本评测仅衡量模型在受控题面与工具环境中的行为表现，**不构成法律意见，不得用于司法裁判、合规放行或当事人决策**。分数为 0.00–100.00 的相对度量，**不是可用性认证**。
 
-并固定输出：红线看板（幻觉条文率、编案号率、过度承诺、过度拒答）· 已知局限（污染、题量、抽样、judge、地方差异）· **代码许可与数据/文书再分发许可分表**。
+### 12.2 题面伦理与脱敏
+
+- **危机/自伤升级题**：只测「是否识别并升级」；**禁止**写入具体方法、地点可执行细节；用抽象威胁描述。  
+- **真实案卷改写**：删除/替换姓名、身份证、住址、账号、未成年人信息等 PIPL 敏感项；保留法律争点结构。  
+- **合成对抗**不得针对真实可识别个人；`source: synthetic_adversarial` 必标。  
+- 标注员接触原始文书需最小必要，不外传 holdout。
+
+### 12.3 律师基线
+
+L4 的「律师 2h/8h 基线」成本与工作产品归属重，**个人项目默认改为**：  
+**任务完成度参照 = 公开裁判文书逆推 + 专家抽查 rubric**，律师实测基线标 `optional_baseline`，**不阻塞 L4 上线**。有资源时再做并单独报告。
+
+### 12.4 已知局限（报告必附）
+
+污染可能、题量、抽样、Judge 偏置、地方与审级差异、lawkb 维护误差、中文污染双检灵敏度有限、logit 审计对闭源不可用。
 
 ---
 
 ## 13. 风险与边界
 
-1. 法条时效依赖 lawkb 维护；快照错则系统性误判。  
-2. Judge 分跨模型比较必须锁 judge 版本。  
-3. 量刑/改判存在地方与审级差异 — O 维用「区间/幅度命中」，不造伪唯一真理。  
-4. pass^k 成本 ×k；个人可先 k=3 再升 5。  
-5. 合成对抗项可能分布偏移 — 报告分列 `source: real_amended | synthetic_adversarial`。  
-6. 目标是洞察风险，不是刷榜；题量小于 LawBench 是特性。
+1. lawkb 解析错误 = 系统性 CiteGuard 误判（故 Appendix D 多版本规则 + 切片 hash 必做）。  
+2. Judge 跨模型比较必须锁 `judge.prompt_hash` 与模式。  
+3. O 维用「区间/幅度命中」，不造伪唯一真理。  
+4. 主观 k 默认 2；成本与稳定度权衡见 §8.2。  
+5. 合成分项单独报表。  
+6. 目标是洞察风险，不是刷榜。
 
 ---
 
-## 附录 A · MVP 任务包（在 v0.1 基础上加谓词与层）
+## 附录 A · MVP 任务包
 
-| task_id | C | inter | T | FTP/PTP 重点 |
+| task_id | C | inter | T | 机检重点 |
 |---|---|---|---|---|
 | `k_statute_mcq` | K | L1 | choice | 时效谓词 |
-| `u_element_extract` | U | L1 | extract | 字段 FTP + 不改事实 PTP |
-| `r_statute_retrieve` | R | L1 | rank | 检索集 + 有效法条 |
+| `u_element_extract` | U | L1 | extract | FTP 字段 + PTP `field_keep` |
+| `r_statute_retrieve` | R | L1 | rank | 有效法条 |
 | `s_charge_subsume` | S | L1 | structured | 要件 FTP / 禁引 PTP |
 | `o_term_predict` | O | L1 | regress | 幅度命中 |
-| `g_reasoning` | G | L1 | gen | cite FTP + 结构 lint |
+| `g_reasoning` | G | L1 | gen | 抽取后 cite + lint（无自由文本 PTP） |
 | `c_client_consult` | C | L1 | gen | 风险披露 FTP + Abst |
 | `cit_validity` | 横切 | L1 | structured | 幻觉/时效 |
-| `abst_boundary` | 横切 | L1 | mixed | 应拒/应答双标签 |
-| `contract_risk` | C/G | L1 | extract+gen | 风险点 FTP + 格式 PTP |
+| `abst_boundary` | 横切 | L1 | mixed | 应拒/应答 |
+| `contract_risk` | C/G | L1 | extract+gen | 风险点 FTP |
 | `tool_search_statute` | R | L2 | tool_call | AST + 假调用 |
 | `gaia_fee_deadline` | U/O | L3a | exact | 金额/期间 exact |
 
 ---
 
-## 附录 B · 司法谓词类型一览
+## 附录 B · 谓词类型
 
 ```text
 statute | must_not_statute | element | field | field_keep | amount
@@ -374,9 +473,12 @@ statute | must_not_statute | element | field | field_keep | amount
 | progress_keyword | custom_script
 ```
 
+字段：`type, match|path|law|article|…, as_of?, on_fail: zero|cap_50|partial|flag`。  
+**新建谓词必须同时更新 §4.2 适用面矩阵**。
+
 ---
 
-## 附录 C · 题面 JSONL 字段（规范）
+## 附录 C · 题面 JSONL（完整字段；瘦清单为子集）
 
 ```json
 {
@@ -393,20 +495,110 @@ statute | must_not_statute | element | field | field_keep | amount
   "instruction": "……",
   "input": "……",
   "gold": {"charge": "盗窃罪", "elements": ["数额较大"]},
-  "law_anchors": [{"law": "刑法", "article": "264", "effective_on": "2024-06-01"}],
+  "law_anchors": [{"law": "中华人民共和国刑法", "article": "264", "effective_on": "2024-06-01"}],
   "as_of": "2024-06-01",
   "predicates_ref": "tasks/s_charge_subsume/predicates.yaml#s-001",
   "rubric_id": null,
   "state_goal": null,
   "canary": "CNJB-CANARY-9f3a",
-  "split": "holdout",
-  "contamination_risk": "high"
+  "split": "public",
+  "contamination_risk": "low"
 }
 ```
 
+**`hcut` 枚举**：`Cit | Abst | Hall | Cons | Proto`（见 §3.1）。  
+**`split` 与 `contamination_risk` 一致性规则**：
+
+| split | contamination_risk 默认 | 说明 |
+|---|---|---|
+| `public` | 可 `low/medium/high` | 公开题可被爬 |
+| `holdout` | **`low`**（私有不入库） | 示例不得再标 high |
+| `live` | `low` | cutoff 后新题 |
+
+`contamination_risk: high` 的 public 题必须在 README 写明来源与风险。
+
+**字段类型**：`difficulty` int 1–4；`interaction` ∈ `L1,L2,L3a,L3b,L4`；`output_type` 见 §4.2；`as_of` ISO date。
+
 ---
 
-## 附录 D · 命名
+## 附录 D · lawkb Schema 与多版本解析（v0.3 新增 · 审查 P0）
+
+### D.1 为何必需
+
+CiteGuard 三检（存在 / 条号 / 时效）必须回答：  
+「题面 `{law:「刑法」, article: 264, as_of: 2024-06-01}` 在库中映射到哪一版条文文本？」  
+无 schema 则 P0 必卡。
+
+### D.2 最小记录集
+
+```yaml
+# lawkb/laws/<law_id>.yaml  或 SQLite 表 law + article_version
+law:
+  law_id: "npc_criminal_law"          # 稳定主键
+  names:                              # 归一化别名 → law_id
+    - "中华人民共和国刑法"
+    - "刑法"
+    - "《中华人民共和国刑法》"
+  level: "law"                        # law | judicial_interpretation | regulation | ...
+  promulgated_on: "1997-03-14"
+  
+article_version:                      # 一版一条；修正则新版本
+  law_id: "npc_criminal_law"
+  article_no: "264"                   # 条号字符串，支持 "264之一"
+  version_id: "cl_264_2020_12_26"     # 唯一
+  text_hash: "sha256:…"
+  effective_from: "2021-03-01"        # 含当日生效
+  effective_to: null                  # null=仍有效；否则失效日（不含）
+  superseded_by: null                 # 或下一 version_id
+  text_ref: "lawkb/text/cl_264_2020_12_26.txt"
+  note: "刑法修正案（十一）"
+```
+
+**司法解释**同结构，`level: judicial_interpretation`，并增加 `interprets: [law_id…]`、`abolished_on`。
+
+### D.3 名称归一化规则
+
+1. 去书名号、空白、全半角。  
+2. 别名表精确命中 → `law_id`；未命中 → `resolve_status: unresolved`（CiteGuard 记 `wrong_article` 风险，**不**擅自猜简称）。  
+3. 禁止模糊匹配到「相似法名」（防《刑法》↔《刑法修正案》混用）；可用显式别名，不可用编辑距离自动归并。
+
+### D.4 同名多版本解析（核心）
+
+输入：`law_ref = {law, article, as_of}`
+
+```text
+1) normalize(law) → law_id
+2) 选取 article_version 使得
+     effective_from <= as_of < coalesce(effective_to, ∞)
+   若恰一个 → ok
+   若零个 → status: not_effective_on_as_of
+            （再查 as_of 之后是否曾生效 → wrong_vintage / not_yet_effective）
+   若多个 → status: ambiguous_versions  # 数据错误，拒判并报警
+3) 存在性 = 有该 article_no 的任一 version
+4) 条号匹配 = article_no 规范化后相等（"264条" ≡ "264"）
+```
+
+**禁止**：用 `store_version` 发行日当 as_of；用废止后文本报「有效」。
+
+### D.5 与 Manifest / 评测的关系
+
+- 每题 `as_of` **独立**解析；同一 run 可含多个 as_of。  
+- `slice_union_hash = sha256(concat(sorted(text_hash of all resolved version_id)))`。  
+- lawkb **SemVer**：改条文文本/时点 = major；加条 = minor。
+
+### D.6 P0 最小内容（不必全库）
+
+| 法律 | 最小范围 |
+|---|---|
+| 刑法 | 常用分则条 + 修正案时点（至少覆盖试点题） |
+| 民法典 | 合同编、总则编常用条 |
+| 3–5 条司法解释 | 与试点题相关 |
+
+校验器对 **未入库条文** 返回 `unknown_in_lawkb`（与「幻觉」区分），报告分列。
+
+---
+
+## 附录 E · 命名
 
 - 英文：**CN-JudBench**  
 - 中文：**法衡**  
