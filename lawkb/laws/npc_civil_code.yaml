@@ -1,0 +1,44 @@
+law:
+  law_id: npc_civil_code
+  names:
+  - 中华人民共和国民法典
+  - 民法典
+  level: law
+  promulgated_on: '2020-05-28'
+article_version:
+- law_id: npc_civil_code
+  article_no: '188'
+  version_id: pc_188_2020
+  effective_from: '2021-01-01'
+  effective_to: null
+  superseded_by: null
+  note: 第一百八十八条（普通诉讼时效三年）
+  text_hash: sha256:93af19ae0459f1896a1947929e47af6c2ed181d61a2e236609ed125bb1b7e42e
+  text_ref: text/pc_188_2020.txt
+- law_id: npc_civil_code
+  article_no: '509'
+  version_id: pc_509_2020
+  effective_from: '2021-01-01'
+  effective_to: null
+  superseded_by: null
+  note: 第五百零九条（全面履行与诚信履行）
+  text_hash: sha256:6092893c19fc13285fba96971bc601984509b92c926f45e1275e61e0fa2f12af
+  text_ref: text/pc_509_2020.txt
+- law_id: npc_civil_code
+  article_no: '563'
+  version_id: pc_563_2020
+  effective_from: '2021-01-01'
+  effective_to: null
+  superseded_by: null
+  note: 第五百六十三条（法定解除）
+  text_hash: sha256:6f8865de12e8358f28a6530d1d76bc1809ea1f6583a4976cd71816c6f67047e9
+  text_ref: text/pc_563_2020.txt
+- law_id: npc_civil_code
+  article_no: '577'
+  version_id: pc_577_2020
+  effective_from: '2021-01-01'
+  effective_to: null
+  superseded_by: null
+  note: 第五百七十七条（违约责任）
+  text_hash: sha256:63830fce1ceaa48f33111eed528495103eb3515ebb5795ccd33bab0119fe6ed2
+  text_ref: text/pc_577_2020.txt

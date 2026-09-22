@@ -1,0 +1,20 @@
+law:
+  law_id: spc_theft_interp_2013
+  names:
+  - 最高人民法院、最高人民检察院关于办理盗窃刑事案件适用法律若干问题的解释
+  - 盗窃刑事案件解释
+  - 盗窃司法解释
+  level: judicial_interpretation
+  promulgated_on: '2013-04-02'
+  interprets:
+  - npc_criminal_law
+article_version:
+- law_id: spc_theft_interp_2013
+  article_no: '1'
+  version_id: spc_theft_1_2013
+  effective_from: '2013-04-04'
+  effective_to: null
+  superseded_by: null
+  note: 法释〔2013〕8号；第一条（盗窃罪数额标准）
+  text_hash: sha256:a1f6eac65e28634d4829a8acd704f1430014bdba95ae15cb5aa75ed7a93a3f1b
+  text_ref: text/spc_theft_1_2013.txt

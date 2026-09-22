@@ -1,0 +1,37 @@
+law:
+  law_id: spc_private_lending_2015
+  names:
+  - 最高人民法院关于审理民间借贷案件适用法律若干问题的规定
+  - 民间借贷司法解释
+  - 民间借贷规定
+  level: judicial_interpretation
+  promulgated_on: '2015-08-06'
+  interprets: []
+article_version:
+- law_id: spc_private_lending_2015
+  article_no: '25'
+  version_id: spc_pl_25_2015
+  effective_from: '2015-09-01'
+  effective_to: '2020-08-20'
+  superseded_by: spc_pl_25_2020
+  note: 法释〔2015〕18号原文（待校对）
+  text_hash: sha256:1d08fd9a572bb8a0cb4f1a0a987ad49c04830131ae66304086c46cc0f86f5992
+  text_ref: text/spc_pl_25_2015.txt
+- law_id: spc_private_lending_2015
+  article_no: '25'
+  version_id: spc_pl_25_2020
+  effective_from: '2020-08-20'
+  effective_to: '2021-01-01'
+  superseded_by: spc_pl_25_2021
+  note: 法释〔2020〕6号第一次修正（LPR 四倍上限）
+  text_hash: sha256:3a8415acade49c01ee9a8615d35dc4d7b867933c8d110f6b6660f66ebd7d7557
+  text_ref: text/spc_pl_25_2020.txt
+- law_id: spc_private_lending_2015
+  article_no: '25'
+  version_id: spc_pl_25_2021
+  effective_from: '2021-01-01'
+  effective_to: null
+  superseded_by: null
+  note: 法释〔2020〕17号第二次修正（对接民法典；本条文字未变）
+  text_hash: sha256:3a8415acade49c01ee9a8615d35dc4d7b867933c8d110f6b6660f66ebd7d7557
+  text_ref: text/spc_pl_25_2021.txt

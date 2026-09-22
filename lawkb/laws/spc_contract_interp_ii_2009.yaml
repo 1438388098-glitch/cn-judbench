@@ -1,0 +1,21 @@
+law:
+  law_id: spc_contract_interp_ii_2009
+  names:
+  - 最高人民法院关于适用《中华人民共和国合同法》若干问题的解释（二）
+  - 合同法解释（二）
+  - 合同法司法解释（二）
+  level: judicial_interpretation
+  promulgated_on: '2009-04-27'
+  interprets:
+  - npc_contract_law_1999
+  abolished_on: '2021-01-01'
+article_version:
+- law_id: spc_contract_interp_ii_2009
+  article_no: '26'
+  version_id: spc_ctrct2_26_2009
+  effective_from: '2009-05-13'
+  effective_to: '2021-01-01'
+  superseded_by: null
+  note: 法释〔2009〕5号；第二十六条（情势变更）；因民法典施行配套废止（待校对）
+  text_hash: sha256:0bce917970e844642729a102317298bbaa5a87477b563a5cc5ab5fa970192543
+  text_ref: text/spc_ctrct2_26_2009.txt

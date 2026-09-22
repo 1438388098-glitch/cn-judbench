@@ -1,0 +1,19 @@
+law:
+  law_id: spc_civil_temporal_2020
+  names:
+  - 最高人民法院关于适用《中华人民共和国民法典》时间效力的若干规定
+  - 民法典时间效力规定
+  level: judicial_interpretation
+  promulgated_on: '2020-12-14'
+  interprets:
+  - npc_civil_code
+article_version:
+- law_id: spc_civil_temporal_2020
+  article_no: '1'
+  version_id: spc_civtemp_1_2020
+  effective_from: '2021-01-01'
+  effective_to: null
+  superseded_by: null
+  note: 法释〔2020〕15号；第一条（时间效力一般规则）
+  text_hash: sha256:36b8688bb05eec11b6f21d9d9a9b4cfc0262f658d5f0ca322e0bed60cca87f9c
+  text_ref: text/spc_civtemp_1_2020.txt
