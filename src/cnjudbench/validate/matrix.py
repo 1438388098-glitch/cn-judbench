@@ -33,6 +33,8 @@ ALLOWED: dict[str, frozenset[str]] = {
     "no_fabrication": frozenset({"choice", "structured", "gen"}),
     # DESIGN v0.4 §4.2：引用效力判定分档（cit_validity），语义同 field 但带阶梯
     "status_ladder": frozenset({"choice", "short", "exact", "extract", "structured"}),
+    # DESIGN v0.4 §5.2：fail_to_pass 隐藏单测，结构化/复合产出适用
+    "unit_tests": frozenset({"composite", "structured", "gen", "tool_call"}),
     "progress_keyword": frozenset({"gen", "tool_call", "exact"}),
     "custom_script": _ALL,
     # P2（impl-P2 §3/§5，同步 FRAMEWORK §4.2.1）：工具轨迹谓词仅限 tool_call

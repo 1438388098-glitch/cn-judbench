@@ -133,6 +133,11 @@ def random_answer(item: Item) -> str:
         }, ensure_ascii=False)
     if t == "exact":
         return json.dumps({"answer": str(int(r.uniform(1, 10000))), "steps": []}, ensure_ascii=False)
+    if t == "composite":  # calc_fail_to_pass：形状合规、内容（数值+规则标识）随机
+        return json.dumps({"answer": int(r.uniform(1, 1e6)),
+                           "work": {"formula_id": r.choice(
+                               ["fee_tiered_2007", "interest_statutory", "period_cpm"])},
+                          }, ensure_ascii=False)
     return json.dumps({"refuse": False, "note": "random"}, ensure_ascii=False)
 
 
@@ -183,12 +188,21 @@ def rules_answer(item: Item) -> str:
                                "steps": ["依《诉讼费用交纳办法》第十三条分段累进"]}, ensure_ascii=False)
         dates = _extract_dates(text)
         return json.dumps({"answer": dates[-1] if dates else "", "steps": []}, ensure_ascii=False)
+    if t == "composite" and item.task_id == "calc_fail_to_pass":
+        # 法条解析器规则：题面标的额 → 分段累进受理费（与 hidden test 同一法条公式）
+        m = re.search(r"标的额\s*(\d[\d,]*)\s*元", text)
+        if m:
+            return json.dumps({"answer": _fee_rule(float(m.group(1).replace(",", ""))),
+                               "work": {"formula_id": "fee_tiered_2007"}}, ensure_ascii=False)
+        return json.dumps({"answer": 0, "work": {"formula_id": "fee_tiered_2007"}},
+                          ensure_ascii=False)
     return json.dumps({"refuse": False, "note": "rules"}, ensure_ascii=False)
 
 
 SUPPORTED_TASKS = {
     "cit_validity", "u_element_extract", "s_charge_subsume",
     "contract_risk", "a_irac_reason", "long_horizon_case", "gaia_fee_deadline",
+    "calc_fail_to_pass",
 }
 
 

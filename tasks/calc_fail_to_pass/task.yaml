@@ -1,0 +1,13 @@
+task_id: calc_fail_to_pass
+capability: U
+interaction: L1
+output_type: composite
+components: [structured]
+roles: [lawyer]
+oracle: fail_to_pass
+status: draft
+description: 法条计算 fail-to-pass（DESIGN v0.4 §5.2）——分段受理费/利息/期间计算，隐藏单测 oracle（容差 0.5%/1 元），无关键词。
+prompt_template: |
+  你是中国司法计算助手。按题面给定的法条规则完成计算，输出 JSON 对象：
+  {"answer": 计算结果（元/天，纯数字）, "work": {"formula_id": 所用规则标识}}
+  题面：{input}

@@ -1,0 +1,2 @@
+rubric_id: calc_r1
+description: 机判任务包（隐藏单测 oracle），无主观评分 rubric；人核时仅校验计算过程叙述与 formula_id 一致性。

@@ -1,0 +1,5 @@
+# calc_fail_to_pass 谓词（composite：隐藏单测为主分基数；无关键词谓词）
+ftp:
+  - type: unit_tests        # fail-to-pass 隐藏用例（§5.2 主分 = passed/total）
+    tests_dir: tasks/calc_fail_to_pass/tests/calc
+    on_fail: partial

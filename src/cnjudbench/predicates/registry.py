@@ -25,6 +25,7 @@ FTP_IMPLS = {
     "risk_disclosure": ftp.risk_disclosure,
     "refuse": ftp.refuse,
     "status_ladder": ftp.status_ladder,
+    "unit_tests": ftp.unit_tests,
     "fake_tool": fake_tool,
 }
 

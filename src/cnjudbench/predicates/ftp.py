@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import re
 from datetime import date
+from pathlib import Path
 
 from ..lawkb.resolve import normalize_article_no, normalize_law_name
 from .base import EvalContext, PredicateResult
@@ -453,4 +454,50 @@ def status_ladder(ctx: EvalContext, p, index: int) -> PredicateResult:
         "ftp", index, "status_ladder", ok, pass_ratio, p.on_fail,
         detail=f"{path}: 判 {got!r} vs 金样 {want!r}（档位={ratio:.2f}）",
         failure_taxonomy=tax,
+    )
+
+
+_REPO_ROOT = Path(__file__).resolve().parents[3]
+
+
+def unit_tests(ctx: EvalContext, p, index: int) -> PredicateResult:
+    """fail_to_pass 隐藏单测 oracle（DESIGN v0.4 §5.2，硬度阶梯顶格）。
+
+    ``tests_dir`` 下每题一个 ``<item_id>.py``，须定义 ``check(answer) -> (passed, total)``；
+    容差（≤0.5% 或 ≤1 元）与取整规则在用例内部实现。主分 = total 基础上的通过比例，
+    on_fail=partial 时进基数——无关键词、无文本相似，行为正确性唯一判定。
+    """
+    import importlib.util
+
+    extra = p.model_extra or {}
+    tests_dir = extra.get("tests_dir")
+    if not tests_dir:
+        return PredicateResult("ftp", index, "unit_tests", False, 0.0, p.on_fail,
+                               detail="谓词缺 tests_dir（配置错误）",
+                               failure_taxonomy="config_error")
+    path = Path(tests_dir)
+    if not path.is_absolute():
+        path = _REPO_ROOT / path
+    path = path / f"{ctx.item.id}.py"
+    if not path.is_file():
+        # 隐藏用例缺失按跳过记 n/a，禁止把基建缺口记成模型 0 分
+        return PredicateResult("ftp", index, "unit_tests", True, 1.0, p.on_fail,
+                               detail=f"隐藏用例缺失: {path.name}（跳过机判 n/a）",
+                               skipped=True)
+    spec = importlib.util.spec_from_file_location(f"cnjb_hidden_{ctx.item.id}", path)
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    try:
+        passed, total = mod.check(ctx.answer if isinstance(ctx.answer, dict) else {})
+    except Exception as e:  # noqa: BLE001 —— 用例自身异常=判分失败，如实报
+        return PredicateResult("ftp", index, "unit_tests", False, 0.0, p.on_fail,
+                               detail=f"隐藏用例执行异常: {e}",
+                               failure_taxonomy="harness_error")
+    ratio = (passed / total) if total else 0.0
+    ok = passed == total
+    pass_ratio = ratio if p.on_fail == "partial" else (1.0 if ok else 0.0)
+    return PredicateResult(
+        "ftp", index, "unit_tests", ok, pass_ratio, p.on_fail,
+        detail=f"隐藏单测 {passed}/{total}",
+        failure_taxonomy=None if ok else "wrong_answer",
     )
