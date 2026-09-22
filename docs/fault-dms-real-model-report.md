@@ -65,3 +65,12 @@ abstain 放宽（重试后降级合法，status=无法完成 即成立）。
 - 半角镜像变体 d-201..203 落地（16 题）：源案号半角、金样半角，与全角金样
   形成方向对称夹具——「擅自归一化」任一方向都失分，格式保真从偶发区分点
   固化为受控测量维。
+
+## R22/R20 追加（2026-09-23 凌晨）
+
+- **fault nth=2 进阶 4 题（f-101..104，全库 264 题）**：覆盖「此前调用一直成功、
+  后续同类调用突发失败」形态——error+retry_same / timeout+vary / empty+switch_tool /
+  error+abstain。mock:tools 重放 e2e 12 题全 100；真实考生数据待下次跑分窗口。
+- **a_irac k=3 实测**（关联 R20）：pass^3=76.00 [60,92]、翻转率 8%>5% 门禁，
+  详见 docs/passk-airac-r20.md；换答事故由 R21 guard
+  （scripts/check_answer_alignment.py）在回灌前机检阻断。

@@ -694,3 +694,5 @@ article_version:                      # 一版一条；修正则新版本
 | 10 | difficulty | 作者标注 | `difficulty_emp` 实证重标（p_i 通过率分带；回写待数据冻结） | `scripts/calibrate_difficulty.py` |
 | 11 | 正式分契约 | manifest 字段列表 | +deps.lock_sha256/stats/judge 块，缺则 `provisional: true` 不进对比表 | DESIGN §8（实现见 Sprint B 候选） |
 | 12 | 新任务 | — | **calc_fail_to_pass 已落地**（§5.2，43 题隐藏单测 oracle）·**dms_side_effect_intake 已落地**（§5.3，13 题 env_diff + state0 预置/双卡分心）·**tool_fault_recovery 已落地**（§5.4，8 题四型故障注入，recovery×final 主分，recovery% 进 report.csv）| `tasks/calc_fail_to_pass`、`tasks/dms_side_effect_intake`、`tasks/tool_fault_recovery` |
+| 13 | 测量效度（v0.4.1） | 无审计协议 | **三道自检落地**：金样自证（mock:gold 8 包全 100）·基线泄题扫描（law_anchors 判分锚禁入基线，回归测试锁定）·金样消融（同答案重判，a_irac 31.58→86.84）| `scripts/check_answer_alignment.py`、`tests/test_baselines.py`、`reports/runs/baseline-v041` |
+| 14 | 多解口径（v0.4.1） | 单金样条号 | gold.`acceptable_articles` any-of：article_set 命中任一即覆盖；statute 同法（经 lawkb 别名解析）并入锚集合；缺省行为不变 | `predicates/ftp.py`、`tests/test_airac_anyof_r16.py` |
