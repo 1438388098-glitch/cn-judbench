@@ -1,0 +1,14 @@
+task_id: gaia_fee_deadline
+capability: U
+interaction: L3a
+output_type: exact
+roles: [lawyer, judge]
+domain: civil_commercial
+oracle: exact_hidden_answer
+status: draft
+description: Legal-GAIA 精品 10 题——诉讼费/期间/条号/金额多步终答（检索→计算→作答），gold 不进 prompt；progress 为诊断列不进主分。
+prompt_template: |
+  你是司法工作台 Agent。多步完成下列任务（需要时先推理/计算），输出 JSON 对象：
+  {"answer": "<终答>", "steps": ["<关键步骤一句话>", ...]}
+  终答格式以题面要求为准（金额取整元；日期 ISO YYYY-MM-DD；文字题按题面指定措辞）。
+  gold 不会提供。任务：{input}

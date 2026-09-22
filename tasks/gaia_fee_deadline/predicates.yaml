@@ -1,0 +1,9 @@
+# 默认谓词集：文字终答（条号/状态类，exact 语义）+ progress 诊断
+ftp:
+  - type: field
+    on_fail: zero
+    path: answer
+    gold_path: answer
+diagnostic_ftp:
+  - type: progress_keyword
+    on_fail: flag

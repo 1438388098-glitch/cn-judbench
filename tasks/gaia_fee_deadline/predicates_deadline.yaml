@@ -1,0 +1,9 @@
+# 日期终答（期间/施行日，exact 语义）+ progress 诊断
+ftp:
+  - type: deadline
+    on_fail: zero
+    path: answer
+    gold_path: answer
+diagnostic_ftp:
+  - type: progress_keyword
+    on_fail: flag

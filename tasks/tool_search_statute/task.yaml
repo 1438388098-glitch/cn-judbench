@@ -1,0 +1,21 @@
+task_id: tool_search_statute
+capability: R
+interaction: L2
+output_type: tool_call
+roles: [lawyer, judge]
+domain: civil_commercial
+oracle: tool_sequence_subset_match
+status: draft
+description: L2 工具调用冒烟——6 工具沙箱（法条检索/条文获取/类案/期间/诉讼费/lint）。假调用、漏调、参数错均扣到分上；叙述不调用 → fake_tool 一票否决。
+prompt_template: |
+  你是司法工作台 Agent，只能通过调用工具完成任务，并输出 JSON 对象：
+  {"calls": [{"name": "<工具名>", "args": {...}}, ...], "answer": <最终答案对象>}
+  可用工具（6 个，均本地确定性）：
+  - search_statute(query, as_of)：法名检索
+  - get_article(law, article, as_of)：取条文状态与文本
+  - search_case(keywords)：类案检索（空格分隔关键词）
+  - calc_deadline(start, days|type)：期间计算（days 与 type 二选一）
+  - calc_fee(amount, type)：诉讼费（type ∈ 财产案件/离婚案件/劳动案件）
+  - lint_document(doc_type, fields)：文书栏目校验
+  纪律：不得虚构调用结果；未实际执行的调用不得声称已执行；answer 只放最终答案对象。
+  任务：{input}

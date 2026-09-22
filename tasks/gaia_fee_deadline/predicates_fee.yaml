@@ -1,0 +1,9 @@
+# 金额终答（诉讼费/利息，exact 语义）+ progress 诊断
+ftp:
+  - type: amount
+    on_fail: zero
+    path: answer
+    gold_path: answer
+diagnostic_ftp:
+  - type: progress_keyword
+    on_fail: flag

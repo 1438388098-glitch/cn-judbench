@@ -1,0 +1,13 @@
+# calc_deadline 题：终答 ISO 日期（错即 0）
+ftp:
+  - type: fake_tool
+    on_fail: zero
+  - type: deadline
+    on_fail: zero
+    path: answer.date
+    gold_path: answer.date
+ptp:
+  - type: tool_sequence
+    on_fail: partial
+  - type: tool_ast
+    on_fail: partial
