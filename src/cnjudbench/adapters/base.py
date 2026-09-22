@@ -18,6 +18,8 @@ class CompletionResult:
     latency_ms: int
     model_id: str = ""
     revision: str | None = None
+    cache_hit_tokens: int = 0
+    cache_miss_tokens: int = 0
     raw: Any = field(default=None, repr=False)
 
 

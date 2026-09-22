@@ -142,6 +142,13 @@ def build_payload(summary: dict, summary_path: Path) -> dict:
             "temperature": summary.get("temperature"),
             "note": "机检分；Judge 未启用则 n/a。百分制两位小数。",
         },
+        "metrics": {
+            "run_id": summary.get("run_id"),
+            "cost": summary.get("cost") or {},
+            "abst": summary.get("abst") or {},
+            "diagnostics": summary.get("diagnostics") or {},
+            "n_items": sum((t.get("n") or 0) for t in tasks),
+        },
         "disclaimer": summary.get("disclaimer")
         or "本评测不构成法律意见，不得用于司法裁判、合规放行或当事人决策。",
         "tasks": sorted(tasks, key=lambda t: t["id"]),
@@ -165,7 +172,14 @@ def main() -> int:
     root.mkdir(parents=True, exist_ok=True)
     out = root / "dashboard-data.json"
     out.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
+    # 面板 index.html 加载的是 dashboard-data.js（window.CNJB_DATA）
+    js = root / "dashboard-data.js"
+    js.write_text(
+        "window.CNJB_DATA=" + json.dumps(payload, ensure_ascii=False) + ";",
+        encoding="utf-8",
+    )
     print(f"synced: {summary_path} -> {out}")
+    print(f"synced: {summary_path} -> {js}")
     print(
         f"model={payload['model_id']} equal={payload['overview']['equal_weight']} "
         f"weighted={payload['overview']['item_weighted']}"

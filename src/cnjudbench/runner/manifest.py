@@ -85,15 +85,7 @@ def build_manifest(
             "item_content_hash": content_hash,
             "item_hashes": item_hashes or {},
         },
-        "accounting": {
-            "prompt_tokens": accountant.prompt_tokens,
-            "completion_tokens": accountant.completion_tokens,
-            "est_cost_usd": accountant.est_cost_usd,
-            "judge_calls": accountant.judge_calls,
-            "judge_prompt_tokens": accountant.judge_prompt_tokens,
-            "judge_completion_tokens": accountant.judge_completion_tokens,
-            "p95_latency_ms": accountant.p95_latency_ms,
-        },
+        "accounting": accountant.cost_ledger(),
         "disclaimer": DISCLAIMER,
     }
     if trajectory_hashes:

@@ -130,7 +130,13 @@ def evaluate_item(
     prompt = _build_prompt(task, item)
     completion = adapter.complete(prompt, temperature=temperature, seed=seed)
     if accountant is not None:
-        accountant.add(completion.prompt_tokens, completion.completion_tokens, completion.latency_ms)
+        accountant.add(
+            completion.prompt_tokens,
+            completion.completion_tokens,
+            completion.latency_ms,
+            cache_hit_tokens=completion.cache_hit_tokens,
+            cache_miss_tokens=completion.cache_miss_tokens,
+        )
 
     # P1 接线：Abst 双标签 + canary 一级扫描（对原始输出，含解析失败路径）
     abst = label_abst(completion.text, expect="answer")

@@ -84,7 +84,11 @@ def run_dialog(
         )
         if accountant is not None:
             accountant.add(
-                completion.prompt_tokens, completion.completion_tokens, completion.latency_ms
+                completion.prompt_tokens,
+                completion.completion_tokens,
+                completion.latency_ms,
+                cache_hit_tokens=completion.cache_hit_tokens,
+                cache_miss_tokens=completion.cache_miss_tokens,
             )
         history.append(DialogTurn("assistant", completion.text))
         n_turns += 1

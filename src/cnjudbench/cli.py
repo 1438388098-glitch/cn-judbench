@@ -32,7 +32,7 @@ from .lawkb.store import LawkbStore
 from .metrics.aggregate import combine, diagnostic_drop
 from .metrics.cost import dollar_per_solve
 from .report.writeup import limits_md
-from .runner.account import Accountant
+from .runner.account import Accountant, price_key_from_model
 from .runner.evaluate import DISCLAIMER, TaskRun, load_task_package, run_task
 from .runner.guards import HoldoutPathError, assert_items_not_holdout, assert_no_holdout
 from .runner.manifest import (
@@ -238,13 +238,15 @@ def _build_summary(
     n_refuse = sum(1 for r in runs for x in r.results if x.abst_over_refuse)
     n_promise = sum(1 for r in runs for x in r.results if x.abst_over_promise)
     scores_flat = [x.score for r in runs for x in r.results if x.score is not None]
-    # 无价格表（est_cost_usd=None）时禁编造 $/solve
-    est = accountant.est_cost_usd
+    # 无价目（est_cost_usd=None）时禁编造 $/solve
+    ledger = accountant.cost_ledger()
+    est = ledger["est_cost_usd"]
     dps = dollar_per_solve(est, scores_flat) if est is not None else None
     summary = {
         "run_id": manifest["run_id"],
         "created_at": manifest["created_at"],
         "model_id": args.model,
+        "temperature": args.temperature,
         "per_task": per_task,
         "tasks": {
             run.task_id: {
@@ -274,8 +276,8 @@ def _build_summary(
         "cost": {
             # 单次 run 无同题复跑，pass^k 不诚实计算 → 留空；复跑稳定性走 flip/成本脚本
             "pass_k": None,
-            "dollar_per_solve": fmt2(dps) if dps is not None else None,
-            "p95_latency_ms": accountant.p95_latency_ms,
+            "dollar_per_solve": (f"{dps:.4f}" if dps is not None else None),
+            **ledger,
         },
         "contamination": {
             "hits": [asdict(h) for r in runs for x in r.results for h in x.contamination],
@@ -289,8 +291,16 @@ def _build_summary(
 def _execute_runs(args: argparse.Namespace, task_ids: list[str]) -> tuple[list[TaskRun], dict]:
     store = _load_store(args.lawkb)
     factory = _make_adapter_factory(args, store)
-    accountant = Accountant()
     judge = _make_judge(args)
+    accountant = Accountant(
+        price_key=price_key_from_model(args.model),
+        judge_price_key=(
+            price_key_from_model(args.model)
+            if judge is not None and args.judge == "openai"
+            else None
+        ),
+    )
+    accountant.start_timer()
     runs: list[TaskRun] = []
     prompts: list[str] = []
     raw_lines: list[str] = []
@@ -328,6 +338,7 @@ def _execute_runs(args: argparse.Namespace, task_ids: list[str]) -> tuple[list[T
         rubrics = {tid: load_rubric(d) for tid, d in task_dirs.items()}
         judge_scores = apply_judge(runs, judge, rubrics, accountant=accountant, k_pass=args.k_pass)
 
+    accountant.stop_timer()
     manifest = build_manifest(
         runs=runs,
         store_version=store.store_version,
@@ -458,7 +469,8 @@ def _cmd_run_dialog(args: argparse.Namespace) -> int:
     script = UserScript.model_validate(_yaml.safe_load(us_path.read_text(encoding="utf-8")))
 
     factory = _make_adapter_factory(args, store)
-    accountant = Accountant()
+    accountant = Accountant(price_key=price_key_from_model(args.model))
+    accountant.start_timer()
     items = [it for _ln, it in load_items_file(items_path)]
     assert_items_not_holdout(items)
 
@@ -499,6 +511,7 @@ def _cmd_run_dialog(args: argparse.Namespace) -> int:
         # 主展示列 = 固定 user_seed 的第一次
         last[item.id] = last[f"{item.id}#f0"]
 
+    accountant.stop_timer()
     from .metrics.cost import pass_at_k as _pak
 
     def _bool_runs(scores: list[float], k: int) -> list[list[bool]]:
@@ -543,6 +556,7 @@ def _cmd_run_dialog(args: argparse.Namespace) -> int:
         ),
         "score_time_auc_str": fmt2(st_auc) if st_auc is not None else "n/a",
         "score_time_auc_note": "approx" if st_auc is not None else None,
+        "cost": accountant.cost_ledger(),
         "disclaimer": DISCLAIMER,
     }
 

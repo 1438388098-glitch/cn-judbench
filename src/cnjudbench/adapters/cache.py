@@ -56,6 +56,8 @@ class FileCache:
                         "latency_ms": result.latency_ms,
                         "model_id": result.model_id,
                         "revision": result.revision,
+                        "cache_hit_tokens": result.cache_hit_tokens,
+                        "cache_miss_tokens": result.cache_miss_tokens,
                     },
                     ensure_ascii=False,
                 ),

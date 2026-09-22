@@ -68,6 +68,8 @@ class OpenAICompatAdapter:
             latency_ms=latency_ms,
             model_id=self.model_id,
             revision=self.revision,
+            cache_hit_tokens=int(usage.get("prompt_cache_hit_tokens", 0) or 0),
+            cache_miss_tokens=int(usage.get("prompt_cache_miss_tokens", 0) or 0),
             raw=None,  # 原始响应不落盘
         )
         self._cache.put(key, result)
