@@ -1,6 +1,6 @@
 # CN-JudBench（法衡）
 
-中国司法多维度大模型 / 司法 Agent 评测框架（设计文档 + 待落地 P0）。
+中国司法多维度大模型 / 司法 Agent 评测框架（P0a 地基已落地）。
 
 **目标**：测出模型在中国司法工作流里「哪一维能用、哪一维危险、是否稳定、代价多少」。  
 **分数**：百分制，保留两位小数（0.00–100.00）。  
@@ -20,20 +20,35 @@
 
 - [x] 设计与调研（v0.3.1，含外部审查修订）
 - [x] **P0a 实施文档**（`docs/impl-P0a.md`）
-- [ ] **P0a 代码** lawkb schema + 校验 + 1 个冒烟任务包
+- [x] **P0a 代码** lawkb 多版本解析 + 题面/谓词校验 + `cit_validity` 冒烟（60 项测试）
 - [ ] **P0b** FTP/PTP 执行器 + CiteGuard + API adapter
 - [ ] P1 Judge / 红线 / CI 门禁
 - [ ] P2 工具层 / Legal-GAIA
 
-## 如何跑评测（P0 落地后）
+## 如何跑（P0a 现状）
 
 ```bash
-# 示意：以实际 CLI 为准
-python -m cnjudbench.run --task cit_validity --model openai:gpt-4o --as-of 2024-06-01
-# 产出 reports/runs/<run_id>/summary.json（百分制两位小数）+ manifest.json
+# 环境：Python 3.11+，装依赖与包
+py -3.13 -m venv .venv && .venv/Scripts/python -m pip install -e ".[dev]"
+
+# 校验任务包与题面（schema + §4.2.1 适用面矩阵 + lawkb 完整性）
+python -m cnjudbench validate --items data/public --tasks tasks
+
+# 按 as_of 解析法条版本（附录 D.4：四态 + 条文文本）
+python -m cnjudbench resolve-law --law 刑法 --article 264 --as-of 2024-06-01
+
+# cit_validity 冒烟：金样期望 vs 解析器对照（不调用模型）
+python -m cnjudbench smoke-cit-validity
 ```
 
-当前仅有设计文档，**尚无可执行 runner**。
+模型侧 runner（`--model ...` → `reports/runs/<run_id>/summary.json` + manifest）
+属 **P0b**，尚未实现。
+
+## 测试
+
+```bash
+.venv/Scripts/python -m pytest -q
+```
 
 ## 如何加题
 
@@ -43,14 +58,16 @@ python -m cnjudbench.run --task cit_validity --model openai:gpt-4o --as-of 2024-
 4. 法条锚点写全称 + `as_of`，依赖 lawkb 多版本解析（附录 D）。  
 5. 通过 schema 校验与 Verified 状态机后再进 `active`。
 
-## 目录规划（P0 起）
+## 目录
 
 ```text
-lawkb/          # 法条时间轴多版本
-tasks/          # 任务包
-data/           # public / holdout / live
-adapters/ runner/ metrics/ judge/ reports/
-docs/           # 调研与校准集
+src/cnjudbench/  # 包：lawkb 解析 / schemas / validate / scale / smoke / cli
+lawkb/           # 法条时间轴多版本（生成脚本 scripts/build_min_lawkb.py）
+tasks/           # 任务包（现含 cit_validity）
+data/            # public / holdout（ignore） / live
+tests/           # pytest
+docs/            # 调研、实施文档与校准集
+adapters/ runner/ judge/ reports/   # P0b / P1 规划中
 ```
 
 ## 许可
