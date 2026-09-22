@@ -1,5 +1,5 @@
 task_id: gaia_fee_deadline
-capability: U
+capability: U/O/K
 interaction: L3a
 output_type: exact
 roles: [lawyer, judge]

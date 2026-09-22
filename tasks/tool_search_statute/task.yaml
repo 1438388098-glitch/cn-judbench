@@ -1,5 +1,5 @@
 task_id: tool_search_statute
-capability: R
+capability: R/U/G
 interaction: L2
 output_type: tool_call
 roles: [lawyer, judge]
