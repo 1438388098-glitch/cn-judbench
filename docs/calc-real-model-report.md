@@ -178,3 +178,14 @@ GLM 考生 3 个独立 run（runs/airac-k3-run{1,2,3}，25 题，EXAMINEE.md 落
 backlog）；a-019 为锚完整度波动；ah-005 为条号字段选择波动。金样侧修正
 一处：a-006 补 526（后履行抗辩权）为可接受条号（民法典 526 同步入库），
 修正后三 run 全 100——金样多解缺口与考生波动的区分以 k=3 交叉比对为准。
+
+## C7. 换答检测 guard（R21，管线加固）
+
+R14（a-010/a-011）与 R20（a-001/a-002）两起考生换答事故的同类根因：
+subagent 考生按落盘协议写答案时偶发文件对位错误。修复：回灌前机检 guard
+`scripts/check_answer_alignment.py`——扣除模板公共 bigram 后做
+prompt↔answer 差分 Dice，own 非最优且余量 ≥0.05 即嫌疑；双向确认
+（互为最优）为强信号。实测：run3 的 a-001/a-002 换答与 r2 的 a-010/a-011
+换答均命中（互确认成立），run2 与修正后 run 全放行。**正式跑分协议新增
+一步：file: 回灌前必须通过换答 guard，否则阻断。** 真实 run 三例：
+python scripts/check_answer_alignment.py --run-dir runs/airac-k3-run3  # → 换答嫌疑 2 项
