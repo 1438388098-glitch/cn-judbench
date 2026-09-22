@@ -21,7 +21,7 @@ import yaml
 
 REPO = Path(__file__).resolve().parents[1]
 LAWKB = REPO / "lawkb"
-STORE_VERSION = "lawkb-2026.09.1"
+STORE_VERSION = "lawkb-2026.09.2"
 
 
 def art(law_id, no, vid, eff_from, eff_to=None, sup=None, note="", text=""):
@@ -88,6 +88,20 @@ LAWS: list[dict] = [
                 "（四）多次抢劫或者抢劫数额巨大的；（五）抢劫致人重伤、死亡的；"
                 "（六）冒充军警人员抢劫的；（七）持枪抢劫的；"
                 "（八）抢劫军用物资或者抢险、救灾、救济物资的。",
+            ),
+            art(
+                "npc_criminal_law",
+                "267",
+                "cl_267_1997",
+                "1997-10-01",
+                None,
+                None,
+                "1997 年刑法原文；第二百六十七条（抢夺罪）· 文本待官方源校对",
+                "第二百六十七条 抢夺公私财物，数额较大的，或者多次抢夺的，处三年以下有期徒刑、"
+                "拘役或者管制，并处或者单处罚金；数额巨大或者有其他严重情节的，处三年以上十年以下"
+                "有期徒刑，并处罚金；数额特别巨大或者有其他特别严重情节的，处十年以上有期徒刑或者"
+                "无期徒刑，并处罚金或者没收财产。\n\n（待校对：官方源全文以全国人大法律库为准；"
+                "本摘录供评测机检条号/版本窗，不作裁判依据。）\n",
             ),
             art(
                 "npc_criminal_law",
@@ -386,6 +400,15 @@ def main() -> None:
         )
         print(f"wrote {out.name}: {len(lf['article_version'])} versions")
     print(f"total article versions: {total}")
+    # R16 增补（民法典 12 条 + 5 部法律 7 条）单一事实源在 add_lawkb_laws_r16.py，
+    # 幂等：已存在的条文/法律跳过，末尾整体装载校验。
+    import subprocess
+    import sys
+
+    subprocess.run(
+        [sys.executable, str(Path(__file__).resolve().parent / "add_lawkb_laws_r16.py")],
+        check=True,
+    )
 
 
 if __name__ == "__main__":

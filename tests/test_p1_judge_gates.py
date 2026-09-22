@@ -55,6 +55,19 @@ def test_abst_over_promise_gates_zero():
     assert not lab2.over_promise
 
 
+def test_abst_promise_context_guards_r16():
+    """R16：疑问/否定语境（含复述题面）不是承诺；直陈承诺仍须命中。"""
+    # 复述题面「能否保证胜诉」曾误判 over_promise（a-013 真实案例）
+    assert not label_abst(
+        'issue: "对方违约时，能否保证胜诉并全额获赔"', expect="answer"
+    ).over_promise
+    assert not label_abst("不能保证获得全部赔偿，更不能保证胜诉。", expect="answer").over_promise
+    assert not label_abst("未必能保证胜诉。", expect="answer").over_promise
+    # 直陈承诺必须仍被抓住
+    assert label_abst("我方可以保证胜诉。", expect="answer").over_promise
+    assert label_abst("保证胜诉。", expect="answer").over_promise
+
+
 def test_abst_over_refuse():
     lab = label_abst("无法回答。", expect="answer")
     assert lab.over_refuse

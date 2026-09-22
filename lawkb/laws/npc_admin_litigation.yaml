@@ -1,0 +1,26 @@
+law:
+  law_id: npc_admin_litigation
+  names:
+  - 中华人民共和国行政诉讼法
+  - 行政诉讼法
+  level: law
+  promulgated_on: '1989-04-04'
+article_version:
+- law_id: npc_admin_litigation
+  article_no: '12'
+  version_id: al_12_2015
+  effective_from: '2015-05-01'
+  effective_to: null
+  superseded_by: null
+  note: 第十二条（受案范围节录：第一款第十一项行政协议）
+  text_hash: sha256:d641adb98e5896beda1eddc7fe6e9908fc658eeca7566db32c8cf402016df9e5
+  text_ref: text/al_12_2015.txt
+- law_id: npc_admin_litigation
+  article_no: '78'
+  version_id: al_78_2015
+  effective_from: '2015-05-01'
+  effective_to: null
+  superseded_by: null
+  note: 第七十八条（行政协议不履行/违法变更解除的责任）
+  text_hash: sha256:076df46754018f45753bbebd5ee347112ed6fcd2ebe2a28b8e600cd29bd183d5
+  text_ref: text/al_78_2015.txt

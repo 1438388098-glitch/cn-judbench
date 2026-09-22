@@ -1,0 +1,26 @@
+law:
+  law_id: npc_civil_procedure
+  names:
+  - 中华人民共和国民事诉讼法
+  - 民事诉讼法
+  level: law
+  promulgated_on: '1991-04-09'
+article_version:
+- law_id: npc_civil_procedure
+  article_no: '35'
+  version_id: cproc_35_2021
+  effective_from: '2022-01-01'
+  effective_to: null
+  superseded_by: null
+  note: 第三十五条（协议管辖；2021年修正后编号，原2017版为第三十四条）
+  text_hash: sha256:221e807c65e07255b7e3beea1dab1dfb136695e4bca8de1d1eb6b2257721f169
+  text_ref: text/cproc_35_2021.txt
+- law_id: npc_civil_procedure
+  article_no: '234'
+  version_id: cproc_234_2021
+  effective_from: '2022-01-01'
+  effective_to: null
+  superseded_by: null
+  note: 第二百三十四条（案外人执行异议；2021年修正后编号，原2017版为第二百二十七条）
+  text_hash: sha256:650c862149b5629c78d1adc1d2a5a9a4aafd1e1c3ad56c5817c422791451bb64
+  text_ref: text/cproc_234_2021.txt

@@ -55,6 +55,25 @@ def _as_iso_date(v) -> str | None:
         return None
 
 
+def _acceptable_articles(gold) -> set[str]:
+    """R16 多解口径：gold.acceptable_articles → 可接受条号集合（与法名无关的数字集）。
+
+    条目形如 ``{"law": 法名, "article": 条号}``；缺省/格式异常返回空集（行为不变）。
+    """
+    if not isinstance(gold, dict):
+        return set()
+    from ..score.norm import article_set
+
+    raw = gold.get("acceptable_articles")
+    if not isinstance(raw, list):
+        return set()
+    out: set[str] = set()
+    for entry in raw:
+        if isinstance(entry, dict) and entry.get("article"):
+            out |= article_set(str(entry["article"]))
+    return out
+
+
 def statute(ctx: EvalContext, p, index: int) -> PredicateResult:
     """必引核验：输出引用须覆盖题面 law_anchors，且经三检 ok。
 
@@ -73,9 +92,22 @@ def statute(ctx: EvalContext, p, index: int) -> PredicateResult:
     covered = 0
     stale_hit = False
     same_law_other = 0
+    # R16 多解口径：同法可接受条号并入 anchor 命中集合（缺省时行为不变）
+    accept_pairs: list[tuple[str | None, str]] = []
+    gold = getattr(ctx.item, "gold", None)
+    if isinstance(gold, dict):
+        for entry in gold.get("acceptable_articles") or []:
+            if isinstance(entry, dict) and entry.get("law") and entry.get("article"):
+                accept_pairs.append((
+                    ctx.store.alias.get(normalize_law_name(str(entry["law"]))),
+                    normalize_article_no(str(entry["article"])),
+                ))
     for anchor in required:
         anchor_law_id = ctx.store.alias.get(normalize_law_name(anchor.law))
         anchor_ano = normalize_article_no(anchor.article)
+        anchor_accepts = {anchor_ano} | {
+            an for lid, an in accept_pairs if lid is not None and lid == anchor_law_id
+        }
         hit_exact = False
         hit_same_law = False
         for c, chk in zip(ctx.claims, ctx.checks):
@@ -83,7 +115,7 @@ def statute(ctx: EvalContext, p, index: int) -> PredicateResult:
             # 双方均须解析成功；双失败时 None==None 不得误判同法（P0-1）
             if anchor_law_id is None or claim_law_id is None or claim_law_id != anchor_law_id:
                 continue
-            if normalize_article_no(c.article_raw) != anchor_ano:
+            if normalize_article_no(c.article_raw) not in anchor_accepts:
                 if chk.ok:
                     hit_same_law = True
                 continue
@@ -168,9 +200,19 @@ def field(ctx: EvalContext, p, index: int) -> PredicateResult:
     detail = f"{path}: {got!r} vs {want!r}"
     if mode == "article_set":
         gs, ws = article_set(got), article_set(want)
-        ok = bool(ws) and ws <= gs
-        ratio = (len(gs & ws) / len(ws)) if ws else 0.0
-        detail = f"{path}: arts {sorted(gs)} ⊇ {sorted(ws)} (cov={ratio:.2f})"
+        acceptable = _acceptable_articles(ctx.item.gold)
+        if acceptable:
+            # 多解口径（R16）：金样主条号 ∪ acceptable_articles，命中任一即覆盖。
+            # 单金样条号 vs 事实多解（同一争点多条可引）会把正确专业作答误判 0。
+            union = ws | acceptable
+            hit = gs & union
+            ok = bool(hit)
+            ratio = 1.0 if hit else 0.0
+            detail = f"{path}: arts {sorted(gs)} ∩ {sorted(union)} (any-of={bool(hit)})"
+        else:
+            ok = bool(ws) and ws <= gs
+            ratio = (len(gs & ws) / len(ws)) if ws else 0.0
+            detail = f"{path}: arts {sorted(gs)} ⊇ {sorted(ws)} (cov={ratio:.2f})"
     elif mode == "severity":
         ok = got is not None and normalize_severity(got) == normalize_severity(want) and normalize_severity(want) != ""
         detail = f"{path}: sev {got!r}~{want!r} → {normalize_severity(got)!r}"

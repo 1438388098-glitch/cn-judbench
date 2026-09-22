@@ -1,0 +1,17 @@
+law:
+  law_id: npc_labor_contract
+  names:
+  - 中华人民共和国劳动合同法
+  - 劳动合同法
+  level: law
+  promulgated_on: '2007-06-29'
+article_version:
+- law_id: npc_labor_contract
+  article_no: '82'
+  version_id: lc_82_2008
+  effective_from: '2008-01-01'
+  effective_to: null
+  superseded_by: null
+  note: 第八十二条（未签书面劳动合同的二倍工资）
+  text_hash: sha256:37896a988f5e3a27afc8e3110d850058c923c1309b33aa5f3ccd175062104bab
+  text_ref: text/lc_82_2008.txt

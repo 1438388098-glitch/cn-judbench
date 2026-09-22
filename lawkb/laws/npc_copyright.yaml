@@ -1,0 +1,17 @@
+law:
+  law_id: npc_copyright
+  names:
+  - 中华人民共和国著作权法
+  - 著作权法
+  level: law
+  promulgated_on: '1990-09-07'
+article_version:
+- law_id: npc_copyright
+  article_no: '54'
+  version_id: cr_54_2020
+  effective_from: '2021-06-01'
+  effective_to: null
+  superseded_by: null
+  note: 第五十四条（侵权赔偿计算；2020年修正后编号，原2010版为第四十九条）
+  text_hash: sha256:347a6899545d9a82871b3acfa644b459775dde7285b3210586d9721bfcb5c670
+  text_ref: text/cr_54_2020.txt

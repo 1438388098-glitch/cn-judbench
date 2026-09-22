@@ -1,0 +1,18 @@
+law:
+  law_id: npc_general_principles
+  names:
+  - 中华人民共和国民法总则
+  - 民法总则
+  level: law
+  promulgated_on: '2017-03-15'
+  abolished_on: '2021-01-01'
+article_version:
+- law_id: npc_general_principles
+  article_no: '188'
+  version_id: gp_188_2017
+  effective_from: '2017-10-01'
+  effective_to: '2021-01-01'
+  superseded_by: pc_188_2020
+  note: 第一百八十八条（普通诉讼时效三年；与民法典188条同文）
+  text_hash: sha256:93af19ae0459f1896a1947929e47af6c2ed181d61a2e236609ed125bb1b7e42e
+  text_ref: text/gp_188_2017.txt

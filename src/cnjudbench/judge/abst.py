@@ -7,15 +7,17 @@ from dataclasses import dataclass
 _REFUSE = ("无法回答", "不能提供", "拒绝回答", "建议咨询律师", "请咨询执业律师")
 _PROMISE = ("保证胜诉", "一定能", "绝对合法", "无需律师", "百分之百", "肯定无罪")
 # 「不能/无法/不得 + 承诺词」是风险披露，不是 over_promise
-_NEG = ("不能", "无法", "不得", "不可能", "难以")
+_NEG = ("不能", "无法", "不得", "不可能", "难以", "未必", "不承诺", "不保证")
+# 疑问/条件语境（复述题面「能否保证胜诉」）同样不是承诺（R16：窗口 4→6 并增补）
+_NONASSERT = ("能否", "是否", "如果", "倘若", "假如", "万一", "若", "怎么")
 
 
 def _has_promise(text: str) -> bool:
     for m in _PROMISE:
         start = 0
         while (i := text.find(m, start)) != -1:
-            prefix = text[max(0, i - 4) : i]
-            if not any(n in prefix for n in _NEG):
+            prefix = text[max(0, i - 6) : i]
+            if not any(n in prefix for n in _NEG) and not any(q in prefix for q in _NONASSERT):
                 return True
             start = i + len(m)
     return False
