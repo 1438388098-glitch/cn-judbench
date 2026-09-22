@@ -1,15 +1,15 @@
-# s_charge_subsume 谓词声明（structured：FTP 罪名/要件/引用 + PTP 禁引与事实保持）
+# s_charge_subsume：罪名 zero 仍一票否决；要件/引用改 partial（真实评测复盘）
 ftp:
   - type: field              # 罪名错 → 一票否决
     path: charge
     fail_taxonomy: element_miss
     on_fail: zero
-  - type: element            # 要件集合 F1（partial 进基数）
+  - type: element            # 要件集合 F1（含归一化/包含）
     path: elements
     on_fail: partial
-  - type: statute            # 引用须覆盖题面法条锚点，且在 as_of 有效
+  - type: statute            # 锚点覆盖；同法异条记 PASS 比例，stale/未引 → FAIL+zero
     on_fail: zero
-  - type: schema             # 栏目齐备（纯报告）
+  - type: schema
     required: [charge, elements, citations, defendant_name]
     on_fail: flag
 ptp:

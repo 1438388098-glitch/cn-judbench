@@ -59,10 +59,12 @@ def field_keep(ctx: EvalContext, p, index: int) -> PredicateResult:
 
 
 def state(ctx: EvalContext, p, index: int) -> PredicateResult:
-    """终态子集匹配：expect 键值须悉数出现在 answer[path|全域]。
+    """终态子集匹配：expect 键值须悉数出现在 answer（键别名 + 归一化）。
 
     期望值来源：谓词 ``expect`` > ``item.state_goal``（τ-Jud 金样，去掉元键）。
     """
+    from ..score.norm import find_key, labels_match
+
     extra = p.model_extra or {}
     expect: dict = extra.get("expect") or {}
     if not expect and isinstance(ctx.item.state_goal, dict):
@@ -72,7 +74,20 @@ def state(ctx: EvalContext, p, index: int) -> PredicateResult:
         }
     actual = _walk(extra.get("path", ""), ctx.answer) if ctx.answer else None
     actual = actual if isinstance(actual, dict) else (ctx.answer if isinstance(ctx.answer, dict) else {})
-    missing = {k: v for k, v in expect.items() if actual.get(k) != v}
+    missing = {}
+    for k, v in expect.items():
+        got = find_key(actual, k) if isinstance(actual, dict) else None
+        if isinstance(v, list):
+            from ..score.norm import set_f1
+            f1, _, n = set_f1(got, v)
+            if n and f1 < 0.999:
+                missing[k] = v
+        elif got is None or not (got == v or labels_match(got, v)):
+            # severity 枚举
+            from ..score.norm import normalize_severity
+            if not (got is not None and normalize_severity(got) == normalize_severity(v)
+                    and normalize_severity(v) in ("high", "medium", "low")):
+                missing[k] = v
     ok = not missing
     return PredicateResult("ptp", index, "state", ok, 1.0 if ok else 0.0, p.on_fail,
                            detail=f"终态不符: {missing}" if missing else "终态一致",

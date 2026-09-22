@@ -60,7 +60,6 @@ def evaluate_predicates(
     ctx: EvalContext, preds: PredicatesFile
 ) -> tuple[list[PredicateResult], list[PredicateResult], list[PredicateResult]]:
     """返回 (ftp, ptp, diagnostic_ftp) 三组结果。"""
-    comps = list(ctx.task.components) if ctx.task.components else None
     ftp_results = _run_set(ctx, "ftp", preds.ftp, FTP_IMPLS, predicate_allowed)
     ptp_results = _run_set(ctx, "ptp", preds.ptp, PTP_IMPLS, ptp_allowed)
     diag = _run_set(ctx, "diagnostic_ftp", preds.diagnostic_ftp, FTP_IMPLS, predicate_allowed)
@@ -70,38 +69,47 @@ def evaluate_predicates(
 def compose_score(
     ftp_results: list[PredicateResult], ptp_results: list[PredicateResult]
 ) -> tuple[float, list[str]]:
-    """题分合成（§3.1 顺序，写死）。返回 (未舍入分, 失败 taxonomy 列表)。"""
+    """题分合成（§3.1 顺序，写死）。返回 (未舍入分, 失败 taxonomy 列表)。
+
+    - skipped 谓词不进基数（缺评 n/a，禁止 1.0/0.0 充数）；
+    - stale_statute / wrong_vintage → 本题 0.00（DoD 3a，优先于 cap）；
+    - Hall：fabricated_case 每处 −20.00，下限 0.00；
+    - taxonomy：失败与「PASS 但带 taxonomy」（如 wrong_article）均收集。
+    """
     taxonomy: list[str] = []
 
-    # 基数 = 非纯报告（on_fail != flag）的 FTP 命中比例均值 ×100
-    scored = [r for r in ftp_results if r.on_fail != "flag"]
+    # 基数 = 非 flag 且非 skipped 的 FTP 命中比例均值 ×100
+    scored = [r for r in ftp_results if r.on_fail != "flag" and not r.skipped]
     base = 100.0 * sum(r.pass_ratio for r in scored) / len(scored) if scored else 100.0
     final = base
 
     zero_trigger = False
-    for r in ftp_results:
-        if r.passed:
+    stale_trigger = False
+    hall_hits = 0
+    for r in list(ftp_results) + list(ptp_results):
+        if r.skipped:
             continue
         if r.failure_taxonomy:
             taxonomy.append(r.failure_taxonomy)
+            if r.failure_taxonomy == "stale_statute":
+                stale_trigger = True
+            if r.failure_taxonomy == "fabricated_case":
+                hall_hits += 1
+        if r.passed:
+            continue
         if r.on_fail == "zero":
             zero_trigger = True
         elif r.on_fail == "cap_50":
             final = min(final, 50.0)
-        # partial：比例已在基数中；flag：不改分
-
-    for r in ptp_results:
-        if r.passed:
-            continue
-        if r.failure_taxonomy:
-            taxonomy.append(r.failure_taxonomy)
-        if r.on_fail == "zero":
-            zero_trigger = True
-        elif r.on_fail == "cap_50":
-            final = min(final, 50.0)
-        elif r.on_fail == "partial":
+        elif r.on_fail == "partial" and r in ptp_results:
             final *= r.pass_ratio
+        # FTP partial：比例已在基数中；flag：不改分
 
-    if zero_trigger:
-        final = 0.0  # 一票否决优先于一切 cap/partial（DoD：zero 优先于 cap）
+    # Hall 题级扣分（§8.1 ②）：每处重大幻觉 −20.00，下限 0.00
+    if hall_hits and not zero_trigger:
+        final = max(0.0, final - 20.0 * hall_hits)
+
+    # stale/wrong_vintage 与假调用等 zero 一票否决（zero 优先于 cap）
+    if zero_trigger or stale_trigger:
+        final = 0.0
     return final, taxonomy

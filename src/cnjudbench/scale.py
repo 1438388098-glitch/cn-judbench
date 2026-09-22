@@ -37,5 +37,8 @@ def cap_at(score: float, cap: float = 50.0) -> float:
 
 
 def fmt2(x: float) -> str:
-    """固定两位小数字符串（ROUND_HALF_EVEN），报表唯一出口。"""
-    return str(Decimal(str(x)).quantize(Decimal("0.01"), rounding=ROUND_HALF_EVEN))
+    """固定两位小数字符串（ROUND_HALF_EVEN），报表唯一出口。非有限值拒绝。"""
+    d = Decimal(str(x))
+    if not d.is_finite():
+        raise ValueError(f"fmt2 仅接受有限数值：{x}")
+    return str(d.quantize(Decimal("0.01"), rounding=ROUND_HALF_EVEN))

@@ -35,6 +35,7 @@ class ToolLogEntry:
     ok: bool
     result: Any = None
     error: str | None = None
+    schema_ok: bool = True  # 仅 arg_schema/unknown_tool 前置检查决定；业务 tool_error 仍 True
 
 
 @dataclass
@@ -65,14 +66,17 @@ class ToolSandbox:
         impl = self._impls.get(name)
         if impl is None:
             entry.error = "unknown_tool"
+            entry.schema_ok = False
             self.log.append(entry)
             return entry
         schema = ARG_SCHEMAS[name]
         missing = [k for k in schema["required"] if k not in args]
         all_types = {**schema["required"], **schema["optional"]}
         badtype = [k for k, t in all_types.items() if k in args and not _type_ok(args[k], t)]
-        if missing or badtype:
-            entry.error = f"arg_schema: 缺 {missing} 错型 {badtype}"
+        extra = [k for k in args if k not in all_types]
+        if missing or badtype or extra:
+            entry.error = f"arg_schema: 缺 {missing} 错型 {badtype} 多余 {extra}"
+            entry.schema_ok = False
             self.log.append(entry)
             return entry
         try:
@@ -80,6 +84,8 @@ class ToolSandbox:
             entry.ok = True
         except Exception as e:  # noqa: BLE001 —— 工具内业务性失败（如负数金额）记档不抛
             entry.error = f"tool_error: {e}"
+            # schema 已过，业务失败不算参数 AST 非法
+            entry.schema_ok = True
         self.log.append(entry)
         return entry
 
@@ -88,7 +94,9 @@ class ToolSandbox:
 
 
 def _type_ok(value: Any, t: type) -> bool:
-    """JSON 数值宽松化：int 可充当 float（金额场景），bool 不算数。"""
-    if t is float and isinstance(value, int) and not isinstance(value, bool):
+    """JSON 数值宽松化：int 可充当 float（金额场景），bool 一律不算 int/float/str。"""
+    if isinstance(value, bool):
+        return t is bool
+    if t is float and isinstance(value, int):
         return True
     return isinstance(value, t)

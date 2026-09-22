@@ -19,11 +19,18 @@ SCHEMA_DIR = Path(__file__).parent.parent / "tools" / "schema"
 _TYPES = {"str": str, "int": int, "float": float, "list": list, "dict": dict}
 
 
+def _allowed_doc_types() -> set[str]:
+    return {p.stem for p in SCHEMA_DIR.glob("*.json")}
+
+
 def _load_schema(doc_type: str) -> dict:
-    path = SCHEMA_DIR / f"{doc_type}.json"
-    if not path.is_file():
+    # 白名单 stem，禁止路径穿越（../gold/cases 等）——P0-3
+    if doc_type not in _allowed_doc_types():
         raise ValueError(f"未知 doc_type: {doc_type!r}")
-    return json.loads(path.read_text(encoding="utf-8"))
+    path = (SCHEMA_DIR / f"{doc_type}.json").resolve()
+    if not path.is_relative_to(SCHEMA_DIR.resolve()):
+        raise ValueError(f"doc_type 越界: {doc_type!r}")
+    return json.loads(path.read_text(encoding="utf-8-sig"))
 
 
 def lint_document(*, store, doc_type: str, fields: dict) -> dict:

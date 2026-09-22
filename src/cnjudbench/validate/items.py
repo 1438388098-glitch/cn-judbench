@@ -19,7 +19,7 @@ def load_items_file(path: Path) -> list[tuple[int, Item]]:
     """读取一个 JSONL 文件；解析/校验失败直接抛 ValueError（带行号）。"""
     out: list[tuple[int, Item]] = []
     for lineno, line in enumerate(
-        path.read_text(encoding="utf-8").splitlines(), start=1
+        path.read_text(encoding="utf-8-sig").splitlines(), start=1
     ):
         if not line.strip():
             continue
@@ -89,7 +89,10 @@ def yaml_safe(path: Path):
 
 
 def validate_items_dir(items_path: Path, tasks_root: Path) -> list[str]:
-    """items_path 可为单个 .jsonl 或目录（递归取全部 .jsonl）。"""
+    """items_path 可为单个 .jsonl 或目录（递归取全部 .jsonl）。
+
+    跨文件合并校验：id / canary **全库唯一**（L0 防污染）。
+    """
     tasks, errors = load_tasks(tasks_root)
     files = (
         [items_path]
@@ -99,6 +102,24 @@ def validate_items_dir(items_path: Path, tasks_root: Path) -> list[str]:
     if not files:
         errors.append(f"未找到题面文件: {items_path}")
         return errors
+    global_ids: dict[str, str] = {}
+    global_canaries: dict[str, str] = {}
     for f in files:
         errors += validate_items_file(f, tasks)
+        try:
+            rows = load_items_file(f)
+        except ValueError:
+            continue
+        for _lineno, item in rows:
+            loc = f"{f.name}[{item.id}]"
+            if item.id in global_ids:
+                errors.append(f"{loc}: 题目 id 与 {global_ids[item.id]} 跨文件重复")
+            else:
+                global_ids[item.id] = loc
+            if item.canary in global_canaries:
+                errors.append(
+                    f"{loc}: canary {item.canary!r} 与 {global_canaries[item.canary]} 跨文件重复"
+                )
+            else:
+                global_canaries[item.canary] = loc
     return errors

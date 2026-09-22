@@ -36,14 +36,66 @@ def normalize_law_name(raw: str) -> str:
 
 
 def normalize_article_no(raw: str) -> str:
-    """条号规范化：去「第」前缀与「条」后缀，全角转半角；保留「之一」等。"""
-    s = raw.strip().translate(_FULL2HALF)
+    """条号归一：去「第/条」、中文数字→阿拉伯（第二百六十四条→264）、保留「之一」等后缀。"""
+    s = str(raw or "").strip().translate(_FULL2HALF)
     s = re.sub(r"\s+", "", s)
     if s.startswith("第"):
         s = s[1:]
-    if len(s) > 1 and s.endswith("条"):
+    if s.endswith("条"):
         s = s[:-1]
+    s = s.replace("条", "")  # 二百五十三条之一 → 二百五十三之一
+    m = re.search(r"(\d+(?:之一|之二|之三)?)", s)
+    if m:
+        return m.group(1)
+    m2 = re.search(r"([零〇一二两三四五六七八九十百千万]+(?:之一|之二|之三)?)", s)
+    if m2:
+        return _cn_article_to_int(m2.group(1))
     return s
+
+
+_CN_DIGIT = {"零": 0, "〇": 0, "一": 1, "二": 2, "两": 2, "三": 3, "四": 4,
+             "五": 5, "六": 6, "七": 7, "八": 8, "九": 9}
+
+
+def _cn_article_to_int(s: str) -> str:
+    """中文数字条号 → 阿拉伯（至万位）；「之一」等后缀原样保留。
+
+    例：第一千二百六十条→1260、第一千零一条→1001、第二百六十四条→264。
+    """
+    suffix = ""
+    for suf in ("之一", "之二", "之三"):
+        if s.endswith(suf):
+            suffix = suf
+            s = s[: -len(suf)]
+            break
+    n = 0
+    num = 0
+    i = 0
+    while i < len(s):
+        ch = s[i]
+        if ch in _CN_DIGIT:
+            num = _CN_DIGIT[ch]
+            i += 1
+        elif ch == "十":
+            n += (num or 1) * 10
+            num = 0
+            i += 1
+        elif ch == "百":
+            n += (num or 1) * 100
+            num = 0
+            i += 1
+        elif ch == "千":
+            n += (num or 1) * 1000
+            num = 0
+            i += 1
+        elif ch == "万":
+            n += (num or 1) * 10000
+            num = 0
+            i += 1
+        else:
+            return s + suffix
+    n += num
+    return f"{n}{suffix}" if n else (s + suffix)
 
 
 ResolveStatus = Literal[

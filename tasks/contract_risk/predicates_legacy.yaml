@@ -1,4 +1,5 @@
-# contract_risk 谓词：风险点 FTP（松匹配）+ 风险披露 + 引用合法
+# contract_risk 旧法语境（as_of < 2021-01-01）：允许援引当时《合同法》及解释
+# 不得套用「禁引合同法」PTP，否则正确援引旧法会被误 cap。
 ftp:
   - type: element
     path: risk_labels
@@ -16,7 +17,4 @@ ftp:
   - type: schema
     required: [risk_labels, max_severity, advice, citations]
     on_fail: flag
-ptp:
-  - type: must_not_statute
-    law: 中华人民共和国合同法
-    on_fail: cap_50
+ptp: []

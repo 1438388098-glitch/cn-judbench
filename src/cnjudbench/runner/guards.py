@@ -17,9 +17,10 @@ def assert_no_holdout(*paths: Path | str | None) -> None:
     for p in paths:
         if p is None:
             continue
-        parts = {part.lower() for part in Path(p).parts}
-        if "holdout" in parts:
-            raise HoldoutPathError(f"holdout 路径禁止进入评测输入: {p}")
+        # 任一路径段含 holdout 子串即拒（覆盖 holdout_backup / my-holdout-x，P1-6）
+        for part in Path(p).parts:
+            if "holdout" in part.lower():
+                raise HoldoutPathError(f"holdout 路径禁止进入评测输入: {p}")
 
 
 def assert_items_not_holdout(items: list) -> None:

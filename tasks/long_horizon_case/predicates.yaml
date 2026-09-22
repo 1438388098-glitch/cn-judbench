@@ -1,15 +1,17 @@
-# long_horizon：终态字段 + 阶段覆盖 + progress 诊断（structured 不用 progress_keyword）
+# long_horizon：终态字段 + 阶段覆盖（松匹配）+ progress 诊断
 ftp:
   - type: element
     path: phases_done
     on_fail: partial
   - type: field
     path: risk_level
+    match: severity
     on_fail: cap_50
     fail_taxonomy: element_miss
   - type: field
     path: matter_type
-    on_fail: zero
+    match: contains
+    on_fail: partial
     fail_taxonomy: element_miss
   - type: statute
     on_fail: partial

@@ -17,7 +17,8 @@ class PredicateResult:
     """单个谓词的执行结果（impl-P0b §3.1）。
 
     ``pass_ratio`` ∈ [0,1]：field/element 类按命中比例；全有全无类为 0/1。
-    ``failure_taxonomy`` 取 FRAMEWORK §5.2 标签，仅失败时非空。
+    ``failure_taxonomy`` 取 FRAMEWORK §5.2 标签：失败必填；PASS 但带
+    ``wrong_article``（同法异条）等归因时亦非空。``skipped=True`` 表示不机判。
     """
 
     set_name: str  # ftp | ptp | diagnostic_ftp
@@ -28,6 +29,7 @@ class PredicateResult:
     on_fail: str
     detail: str = ""
     failure_taxonomy: str | None = None
+    skipped: bool = False  # True=不机判/不进基数（如 gen claim 抽取降级、金样不可比）
 
     def __post_init__(self) -> None:
         if not 0.0 <= self.pass_ratio <= 1.0:

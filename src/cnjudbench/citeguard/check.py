@@ -58,7 +58,19 @@ def check_claim(claim: Claim, store: LawkbStore, as_of: str | None = None) -> Ci
 
     from datetime import date
 
-    result = resolve_article(claim.law_raw, claim.article_raw, date.fromisoformat(effective_as_of), store)
+    raw_as_of = str(effective_as_of).strip()
+    try:
+        as_of_date = date.fromisoformat(raw_as_of)
+    except ValueError:
+        # 真模型可能吐「2024年3月」等非 ISO——记失败，不得拖垮整卷
+        return CiteCheck(
+            claim=claim,
+            resolve_status="bad_as_of",
+            taxonomy="wrong_article",
+            note=f"as_of 非 ISO 日期: {raw_as_of!r}",
+        )
+
+    result = resolve_article(claim.law_raw, claim.article_raw, as_of_date, store)
     ambiguous = result.status == AMBIGUOUS
     unknown = result.status == "unknown_in_lawkb"
     exists = result.status == "ok"

@@ -69,10 +69,10 @@ class TaskRun:
 def load_task_package(task_dir: Path) -> JsonTask:
     """加载 task.yaml + predicates.yaml（pydantic 校验，失败即抛）。"""
     task = TaskManifest.model_validate(
-        yaml.safe_load((task_dir / "task.yaml").read_text(encoding="utf-8"))
+        yaml.safe_load((task_dir / "task.yaml").read_text(encoding="utf-8-sig"))
     )
     preds = PredicatesFile.model_validate(
-        yaml.safe_load((task_dir / "predicates.yaml").read_text(encoding="utf-8"))
+        yaml.safe_load((task_dir / "predicates.yaml").read_text(encoding="utf-8-sig"))
     )
     return task, preds
 
@@ -160,12 +160,30 @@ def evaluate_item(
     else:
         trajectory = None
 
-    # 2) claim 抽取 + CiteGuard 三检（claim 无 as_of 时回落题面 as_of）
+    # 2) claim 抽取 + CiteGuard 三检（claim.as_of 仅在可解析为 ISO 时优先，否则用题面）
     extraction = extract_claims(answer, task.output_type, completion.text)
+
+    def _as_of_for(claim_as_of: str | None) -> str:
+        if claim_as_of:
+            try:
+                from datetime import date as _date
+                _date.fromisoformat(str(claim_as_of).strip())
+                return str(claim_as_of).strip()
+            except ValueError:
+                pass  # 「2014年案发时…」等叙述 → 落回题面 as_of
+        return item.as_of.isoformat()
+
     checks: list[CiteCheck] = [
-        check_claim(c, store, as_of=c.as_of or item.as_of.isoformat()) for c in extraction.claims
+        check_claim(c, store, as_of=_as_of_for(c.as_of)) for c in extraction.claims
     ]
-    as_of_used = [item.as_of.isoformat()] + [c.as_of for c in extraction.claims if c.as_of]
+    # as_of_used 记实际生效日（ISO），避免叙述性 claim.as_of 污染 manifest（P2-8）
+    as_of_used = [item.as_of.isoformat()] + sorted(
+        {
+            _as_of_for(c.as_of)
+            for c in extraction.claims
+            if c.as_of and _as_of_for(c.as_of) != item.as_of.isoformat()
+        }
+    )
     text_hashes = [chk.text_hash for chk in checks if chk.ok and chk.text_hash]
 
     if any(chk.ambiguous for chk in checks):
@@ -193,6 +211,10 @@ def evaluate_item(
         return result(None, [], error=f"拒判: {e}", as_of_used=as_of_used, text_hashes=text_hashes,
                       answer_text=completion.text, contamination=contam, trajectory=trajectory,
                       abst_over_refuse=abst.over_refuse, abst_over_promise=abst.over_promise)
+    except Exception as e:  # noqa: BLE001 —— 单题兜底，禁止崩整卷
+        return result(None, [], error=f"谓词异常拒判: {e!r}", as_of_used=as_of_used, text_hashes=text_hashes,
+                      answer_text=completion.text, contamination=contam, trajectory=trajectory,
+                      abst_over_refuse=abst.over_refuse, abst_over_promise=abst.over_promise)
 
     score, taxonomy = compose_score(ftp_results, ptp_results)
     # P1 接线：红线 gate（over_promise → 一票否决；顺序：zero 优先于一切 cap）
@@ -217,16 +239,28 @@ def evaluate_item(
 def _resolve_predicates(item: Item, task_dir: Path, default: PredicatesFile) -> PredicatesFile:
     """按题分派谓词集：``item.predicates_ref``（L2/L3a 混合任务按题判分）。
 
-    解析顺序：cwd 相对 → 任务包根相对（``<tasks-root>/<ref>``）→ 任务包目录同名；
+    仅允许任务包目录内的相对文件名；禁止绝对路径与 ``..``（P0-5/T-P0-5）。
+    解析顺序：任务包目录相对 → 任务包目录同名 basename；
     均不存在 → 拒判级错误（不静默回落默认集，防止判分口径错位）。
     """
     ref = item.predicates_ref
     if not ref:
         return default
-    for cand in (Path(ref), task_dir / ref, task_dir / Path(ref).name):
-        if cand.is_file():
+    ref_path = Path(ref)
+    if ref_path.is_absolute() or ".." in ref_path.parts:
+        raise PredicateError(f"predicates_ref 禁止绝对路径或 ..: {ref}（题 {item.id}）")
+    task_root = task_dir.resolve()
+    candidates = (task_dir / ref, task_dir / Path(ref).name)
+    for cand in candidates:
+        try:
+            resolved = cand.resolve()
+        except OSError:
+            continue
+        if not resolved.is_relative_to(task_root):
+            continue
+        if resolved.is_file():
             return PredicatesFile.model_validate(
-                yaml.safe_load(cand.read_text(encoding="utf-8"))
+                yaml.safe_load(resolved.read_text(encoding="utf-8-sig"))
             )
     raise PredicateError(f"predicates_ref 不可解析: {ref}（题 {item.id}）")
 

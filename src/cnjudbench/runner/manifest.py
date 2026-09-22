@@ -15,7 +15,7 @@ from .evaluate import DISCLAIMER, TaskRun
 
 
 def harness_sha(repo_hint: Path | None = None) -> str:
-    """git 短 SHA；非 git 环境回退源码树 hash，保证字段恒非空。"""
+    """git 短 SHA；非 git 环境回退 "unknown"（manifest 必填非空占位）。"""
     try:
         return subprocess.run(
             ["git", "rev-parse", "--short", "HEAD"],
@@ -96,6 +96,13 @@ def trajectory_hash(trajectory: dict) -> str:
     return "sha256:" + hashlib.sha256(blob).hexdigest()
 
 
+def _safe_item_id(item_id: str) -> str:
+    """轨迹文件名白名单字符，防路径注入（P0-4）。"""
+    import re
+    cleaned = re.sub(r"[^\w.-]", "_", str(item_id))
+    return cleaned or "item"
+
+
 def write_run(out_dir: Path, manifest: dict, summary: dict,
               limits_text: str | None = None,
               trajectories: dict[str, dict] | None = None) -> Path:
@@ -112,7 +119,8 @@ def write_run(out_dir: Path, manifest: dict, summary: dict,
         items_dir = out_dir / "items"
         items_dir.mkdir(exist_ok=True)
         for item_id, traj in trajectories.items():
-            (items_dir / f"{item_id}.trajectory.json").write_text(
+            safe_id = _safe_item_id(item_id)
+            (items_dir / f"{safe_id}.trajectory.json").write_text(
                 json.dumps(traj, ensure_ascii=False, indent=2), encoding="utf-8"
             )
     return out_dir
