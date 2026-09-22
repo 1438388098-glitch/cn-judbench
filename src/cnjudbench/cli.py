@@ -35,7 +35,13 @@ from .report.writeup import limits_md
 from .runner.account import Accountant
 from .runner.evaluate import DISCLAIMER, TaskRun, load_task_package, run_task
 from .runner.guards import HoldoutPathError, assert_items_not_holdout, assert_no_holdout
-from .runner.manifest import build_manifest, item_content_hash, trajectory_hash, write_run
+from .runner.manifest import (
+    build_manifest,
+    item_content_hash,
+    item_line_hash,
+    trajectory_hash,
+    write_run,
+)
 from .runner.with_judge import apply_judge
 from .scale import fmt2
 from .smoke import format_report, run_smoke
@@ -288,6 +294,7 @@ def _execute_runs(args: argparse.Namespace, task_ids: list[str]) -> tuple[list[T
     runs: list[TaskRun] = []
     prompts: list[str] = []
     raw_lines: list[str] = []
+    item_hashes: dict[str, str] = {}
     all_items = []
     task_dirs: dict[str, Path] = {}
 
@@ -296,12 +303,15 @@ def _execute_runs(args: argparse.Namespace, task_ids: list[str]) -> tuple[list[T
         items_path = Path(args.items_root) / f"{tid}.jsonl"
         task, _ = load_task_package(task_dir)
         task_dirs[tid] = task_dir
-        for line in items_path.read_text(encoding="utf-8").splitlines():
+        for line in items_path.read_text(encoding="utf-8-sig").splitlines():
             if line.strip():
                 raw_lines.append(line)
         for _lineno, item in load_items_file(items_path):
             all_items.append(item)
             prompts.append(task.prompt_template.replace("{input}", item.input))
+        for _lineno, item in load_items_file(items_path):
+            raw = next((ln for ln in raw_lines if f'"{item.id}"' in ln or f"'{item.id}'" in ln), item.input)
+            item_hashes[item.id] = item_line_hash(item.id, raw)
         runs.append(
             run_task(
                 task_dir, items_path, factory, store,
@@ -329,6 +339,8 @@ def _execute_runs(args: argparse.Namespace, task_ids: list[str]) -> tuple[list[T
         item_count=sum(len(r.results) for r in runs),
         content_hash=item_content_hash(raw_lines),
         accountant=accountant,
+        user_seed=getattr(args, "user_seed", None),
+        item_hashes=item_hashes,
         trajectory_hashes={
             x.item_id: trajectory_hash(x.trajectory)
             for r in runs for x in r.results if x.trajectory is not None
@@ -396,6 +408,20 @@ def _cmd_run_generic(args: argparse.Namespace) -> int:
         written += f", {out_dir}/items/*.trajectory.json (×{len(trajectories)})"
     print(f"written: {written}")
     na = sum(1 for run in runs for r in run.results if r.score is None)
+    # 自动刷新可视化面板（可选；失败不影响评测结果）
+    try:
+        import subprocess
+        import sys as _sys
+
+        subprocess.run(
+            [_sys.executable, str(Path(__file__).resolve().parents[2] / "scripts" / "sync_dashboard.py"),
+             "--run", str(out_dir)],
+            check=False,
+            capture_output=True,
+            timeout=30,
+        )
+    except Exception:
+        pass
     return 1 if na else 0
 
 
@@ -516,6 +542,7 @@ def _cmd_run_dialog(args: argparse.Namespace) -> int:
             lawyer_baseline="未测",
         ),
         "score_time_auc_str": fmt2(st_auc) if st_auc is not None else "n/a",
+        "score_time_auc_note": "approx" if st_auc is not None else None,
         "disclaimer": DISCLAIMER,
     }
 
@@ -525,36 +552,49 @@ def _cmd_run_dialog(args: argparse.Namespace) -> int:
     (out_dir / "summary.json").write_text(
         json.dumps(summary, ensure_ascii=False, indent=2), encoding="utf-8"
     )
-    manifest = {
-        "run_id": run_id,
-        "kind": "tau_jud_dialog",
-        "model_id": args.model,
-        "user_seed": args.user_seed,
-        "model_seed": args.seed,
-        "user_script_id": script.script_id,
-        "k_pass": k,
-        "item_count": len(items),
-        "accounting": {
-            "prompt_tokens": accountant.prompt_tokens,
-            "completion_tokens": accountant.completion_tokens,
-            "p95_latency_ms": accountant.p95_latency_ms,
+    # §7.1：复用 build_manifest（harness/prompt/lawkb/slice 与 run 一致），并显式记 seeds
+    from .runner.evaluate import TaskRun
+    from .runner.manifest import build_manifest, item_line_hash, write_run
+
+    task_prompts = []
+    item_hashes = {}
+    raw_lines = []
+    for _ln, it in load_items_file(items_path):
+        task, _ = load_task_package(task_dir)
+        task_prompts.append(task.prompt_template.replace("{input}", it.input))
+        raw_lines.append(it.model_dump_json())
+        item_hashes[it.id] = item_line_hash(it.id, it.model_dump_json())
+    fake_run = TaskRun(task_id=args.task, results=[])
+    manifest = build_manifest(
+        runs=[fake_run],
+        store_version=store.store_version,
+        model_id=args.model,
+        revision=args.revision,
+        temperature=args.temperature,
+        seed=args.seed,
+        prompt_list=task_prompts,
+        item_count=len(items),
+        content_hash=item_content_hash(raw_lines),
+        accountant=accountant,
+        user_seed=args.user_seed,
+        item_hashes=item_hashes,
+        extra={
+            "kind": "tau_jud_dialog",
+            "model_seed": args.seed,
+            "user_script_id": script.script_id,
+            "k_pass": k,
         },
-        "disclaimer": DISCLAIMER,
-    }
-    (out_dir / "manifest.json").write_text(
-        json.dumps(manifest, ensure_ascii=False, indent=2), encoding="utf-8"
     )
-    items_dir = out_dir / "items"
-    items_dir.mkdir(exist_ok=True)
-    for key, payload in trajectories.items():
-        (items_dir / f"{key}.dialog.json").write_text(
-            json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8"
-        )
-    (out_dir / "limits.md").write_text(
-        f"# limits\n\n- user_seed={args.user_seed} / model_seed={args.seed}（分列）\n"
-        f"- pass^k 固定用户={fmt2(100 * pk_model)} / 换 persona={fmt2(100 * pk_user)}\n"
-        f"- 方差分解: {var}\n- 律师基线：未测\n\n{DISCLAIMER}\n",
-        encoding="utf-8",
+    write_run(
+        out_dir, manifest, summary,
+        limits_text=(
+            f"# limits\n\n- user_seed={args.user_seed} / model_seed={args.seed}（分列）\n"
+            f"- pass^k 固定用户={fmt2(100 * pk_model)} / 换 persona={fmt2(100 * pk_user)}\n"
+            f"- 方差分解: {var}\n- 律师基线：未测\n\n{DISCLAIMER}\n"
+        ),
+        trajectories={
+            f"{key}.dialog": payload for key, payload in trajectories.items()
+        } or None,
     )
 
     for it in items:
@@ -566,7 +606,7 @@ def _cmd_run_dialog(args: argparse.Namespace) -> int:
           f"swapped={summary['stability']['pass_k_swapped_persona_str']}")
     print(f"user_seed={args.user_seed} model_seed={args.seed}")
     print(DISCLAIMER)
-    print(f"written: {out_dir}/manifest.json, summary.json, limits.md, items/*.dialog.json (×{len(trajectories)})")
+    print(f"written: {out_dir}/manifest.json, summary.json, limits.md")
     return 0 if mean is not None else 1
 
 

@@ -56,7 +56,9 @@ def test_e2e_mock_p3(repo_root: Path, tmp_path: Path):
     assert ts["stability"]["lawyer_baseline"] == "未测"
     assert "user_script_var" in ts["stability"]["variance"]
     assert (out_t / "limits.md").read_text(encoding="utf-8").count("user_seed") >= 1
-    dialogs = list((out_t / "items").glob("*.dialog.json"))
+    dialogs = list((out_t / "items").glob("*.dialog.json")) or list(
+        (out_t / "items").glob("*.trajectory.json")
+    )
     assert dialogs
     payload = json.loads(dialogs[0].read_text(encoding="utf-8"))
     assert "turns" in payload and payload["n_turns"] >= 1

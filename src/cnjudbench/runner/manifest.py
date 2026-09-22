@@ -31,6 +31,12 @@ def item_content_hash(raw_lines: list[str]) -> str:
     return "sha256:" + hashlib.sha256(joined).hexdigest()
 
 
+def item_line_hash(item_id: str, raw_line: str) -> str:
+    """单题 content hash（§7.1 每题可复现）。"""
+    blob = f"{item_id}\n{raw_line}".encode("utf-8")
+    return "sha256:" + hashlib.sha256(blob).hexdigest()
+
+
 def prompts_hash(prompts: list[str]) -> str:
     joined = "".join(prompts).encode("utf-8")
     return "sha256:" + hashlib.sha256(joined).hexdigest()
@@ -50,6 +56,9 @@ def build_manifest(
     accountant: Accountant,
     repo_hint: Path | None = None,
     trajectory_hashes: dict[str, str] | None = None,
+    user_seed: int | None = None,
+    item_hashes: dict[str, str] | None = None,
+    extra: dict | None = None,
 ) -> dict:
     as_of_used = sorted({x for r in runs for x in r.as_of_used})
     manifest = {
@@ -68,11 +77,13 @@ def build_manifest(
             "temperature": temperature,
             "seed": seed,
         },
+        "user_seed": user_seed,
         "prompt_hash": prompts_hash(prompt_list),
         "dataset": {
             "task_ids": [r.task_id for r in runs],
             "item_count": item_count,
             "item_content_hash": content_hash,
+            "item_hashes": item_hashes or {},
         },
         "accounting": {
             "prompt_tokens": accountant.prompt_tokens,
@@ -87,6 +98,8 @@ def build_manifest(
     }
     if trajectory_hashes:
         manifest["tools"] = {"trajectory_hashes": trajectory_hashes}
+    if extra:
+        manifest.update(extra)
     return manifest
 
 

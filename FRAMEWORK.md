@@ -522,11 +522,30 @@ L4 的「律师 2h/8h 基线」成本与工作产品归属重，**个人项目�
 ```text
 statute | must_not_statute | element | field | field_keep | amount
 | deadline | schema | lint | state | risk_disclosure | refuse | no_fabrication
-| progress_keyword | custom_script
+| progress_keyword | tool_sequence | tool_ast | fake_tool | custom_script
 ```
 
 字段：`type, match|path|law|article|…, as_of?, on_fail: zero|cap_50|partial|flag`。  
 **新建谓词必须同时更新 §4.2 适用面矩阵**。
+
+**工具轨迹三谓词**（与 §4.2.1 一致）：
+
+| 谓词 | 集合 | 默认 on_fail | 语义 |
+|---|---|---|---|
+| `fake_tool` | FTP | `zero` | 该调未调 / 虚构调用 / 调未注册工具 / 只叙述不调用 |
+| `tool_sequence` | PTP | `partial` | 期望工具子集覆盖（按**调用名**计，不论业务成败） |
+| `tool_ast` | PTP | `partial` | 参数 schema 合法率（`schema_ok`；业务 `tool_error` 不算参数非法） |
+
+**on_fail 策略表（红线 / 结构分档）**：
+
+| 档 | 典型谓词 | 值 | 含义 |
+|---|---|---|---|
+| 红线一票否决 | `fake_tool`、`must_not_statute`（禁引刑事依据）、危险承诺 gate | `zero` | 本题 0.00 |
+| 引用时效 | statute 解析为 stale/wrong_vintage | **合成器写死 0.00** | 不下放任务包 |
+| 强结构字段 | `field(charge/status/answer)`、schema 缺栏可配 | `zero` 或 `cap_50` | 结论错即重扣 |
+| 连续可补 | `element`、`risk_labels`、`tool_sequence`、`tool_ast` | `partial` | 比例进基数或乘法链 |
+| 风险披露 | `risk_disclosure` | 推荐 `cap_50`（作结果保证仍走 gate zero） | 缺披露≠编造 |
+| 纯报告 | `progress_keyword`、诊断项 | `flag` | 不改分 |
 
 ---
 
