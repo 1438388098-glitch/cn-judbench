@@ -1,0 +1,19 @@
+task_id: dms_side_effect_intake
+capability: O
+interaction: L3a
+output_type: tool_call
+roles: [lawyer, party]
+domain: civil_commercial
+oracle: env_diff
+status: draft
+description: 案管沙箱副作用任务（DESIGN v0.4 §5.3）——多步立案流程（建卡/更新/落文书/排期），终态 diff 判分；错误步骤顺序或漏步会在终态留下可量测缺口。
+prompt_template: |
+  你是法院案管工作台 Agent，只能通过调用工具完成任务，并输出 JSON 对象：
+  {"calls": [{"name": "<工具名>", "args": {...}}, ...], "answer": <最终确认对象>}
+  可用案管工具（4 个，均有副作用）：
+  - create_case_card(case_no, court, cause, party)：建案卡（案号重复会失败）
+  - update_case_card(case_no, fields)：更新案卡字段（案卡须已存在）
+  - write_document(case_no, doc_type, content)：落卷宗文书（案卡须已存在）
+  - set_hearing_date(case_no, date)：排开庭日期（案卡须已存在）
+  纪律：严格按题目要求的步骤与内容执行；不得虚构已执行；answer 只放最终确认对象。
+  任务：{input}

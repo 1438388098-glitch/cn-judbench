@@ -10,6 +10,8 @@ from cnjudbench.tools.lint_doc import SCHEMA_DIR
 EXPECTED_TOOLS = {
     "search_statute", "get_article", "search_case",
     "calc_deadline", "calc_fee", "lint_document",
+    # §5.3 案管副作用四工具（dms_side_effect_intake）
+    "create_case_card", "update_case_card", "write_document", "set_hearing_date",
 }
 
 

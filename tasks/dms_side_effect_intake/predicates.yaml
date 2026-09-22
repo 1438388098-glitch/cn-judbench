@@ -1,0 +1,11 @@
+# dms_side_effect_intake 谓词：终态 diff 为主分基数；叙述假调用一票否决
+ftp:
+  - type: env_diff          # §5.3：重放轨迹 → 终态与 gold.expected_state 逐叶比对
+    on_fail: partial
+  - type: fake_tool         # 叙述不调用 → zero（负例夹具与真实模型同规）
+    on_fail: zero
+ptp:
+  - type: tool_sequence
+    on_fail: partial
+  - type: tool_ast
+    on_fail: partial

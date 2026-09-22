@@ -26,6 +26,7 @@ FTP_IMPLS = {
     "refuse": ftp.refuse,
     "status_ladder": ftp.status_ladder,
     "unit_tests": ftp.unit_tests,
+    "env_diff": ftp.env_diff,
     "fake_tool": fake_tool,
 }
 

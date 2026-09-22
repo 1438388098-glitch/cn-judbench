@@ -501,3 +501,55 @@ def unit_tests(ctx: EvalContext, p, index: int) -> PredicateResult:
         detail=f"隐藏单测 {passed}/{total}",
         failure_taxonomy=None if ok else "wrong_answer",
     )
+
+
+def env_diff(ctx: EvalContext, p, index: int) -> PredicateResult:
+    """案管副作用终态 diff（DESIGN v0.4 §5.3，dms_side_effect_intake 主分）。
+
+    在空白案管状态上**重放**本题工具轨迹（ctx.tool_log），终态快照与金样
+    ``gold.expected_state`` 逐叶比对；ratio = 命中叶数 / 金样叶数（on_fail=partial
+    进基数）。无金样或零调用均如实给 0/跳过，不静默放行。
+    """
+    from ..tools import dms as _dms
+
+    want = ctx.item.gold.get("expected_state") if isinstance(ctx.item.gold, dict) else None
+    if not isinstance(want, dict) or not want:
+        return PredicateResult("ftp", index, "env_diff", True, 1.0, p.on_fail,
+                               detail="gold 无 expected_state：跳过机判（n/a）",
+                               skipped=True)
+    state = _dms.default_state()
+    n_calls = 0
+    for entry in ctx.tool_log:
+        name = getattr(entry, "name", None) or (entry.get("name") if isinstance(entry, dict) else None)
+        args = getattr(entry, "args", None) or (entry.get("args") if isinstance(entry, dict) else None)
+        if name in _dms.DMS_TOOLS:
+            _dms.apply(state, name, args)
+            n_calls += 1
+
+    def leaves(obj, prefix=()):
+        if isinstance(obj, dict):
+            for k, v in obj.items():
+                yield from leaves(v, prefix + (k,))
+        else:
+            yield prefix, obj
+
+    got = dict(state)
+    total = matched = 0
+    for path, wv in leaves(want):
+        total += 1
+        node = got
+        try:
+            for k in path[:-1]:
+                node = node[k]
+            if node.get(path[-1]) == wv:
+                matched += 1
+        except (KeyError, TypeError, AttributeError):
+            pass
+    ratio = (matched / total) if total else 0.0
+    ok = total > 0 and matched == total
+    pass_ratio = ratio if p.on_fail == "partial" else (1.0 if ok else 0.0)
+    return PredicateResult(
+        "ftp", index, "env_diff", ok, pass_ratio, p.on_fail,
+        detail=f"终态 diff {matched}/{total}（重放 {n_calls} 个案管调用）",
+        failure_taxonomy=None if ok else "env_state_mismatch",
+    )

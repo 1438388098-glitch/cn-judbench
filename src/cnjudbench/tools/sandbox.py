@@ -15,7 +15,7 @@ from dataclasses import asdict, dataclass, field
 from typing import Any, Callable
 
 from ..lawkb.store import LawkbStore
-from . import cases, deadline, fee, lint_doc, statutes
+from . import cases, deadline, dms, fee, lint_doc, statutes
 
 # 参数 schema（required 必填；optional 类型约束选填，如 days/type 二选一）
 ARG_SCHEMAS: dict[str, dict[str, dict[str, type]]] = {
@@ -25,6 +25,12 @@ ARG_SCHEMAS: dict[str, dict[str, dict[str, type]]] = {
     "calc_deadline": {"required": {"start": str}, "optional": {"days": int, "type": str}},
     "calc_fee": {"required": {"amount": float}, "optional": {"type": str}},
     "lint_document": {"required": {"doc_type": str, "fields": dict}, "optional": {}},
+    "create_case_card": {"required": {"case_no": str, "court": str, "cause": str, "party": str},
+                         "optional": {}},
+    "update_case_card": {"required": {"case_no": str, "fields": dict}, "optional": {}},
+    "write_document": {"required": {"case_no": str, "doc_type": str, "content": str},
+                       "optional": {}},
+    "set_hearing_date": {"required": {"case_no": str, "date": str}, "optional": {}},
 }
 
 
@@ -45,6 +51,7 @@ class ToolSandbox:
     store: LawkbStore
     log: list[ToolLogEntry] = field(default_factory=list)
     _impls: dict[str, Callable[..., Any]] = field(default_factory=dict, init=False)
+    _dms_state: dict = field(default_factory=dms.default_state, init=False)
 
     def __post_init__(self) -> None:
         self._impls = {
@@ -54,6 +61,12 @@ class ToolSandbox:
             "calc_deadline": deadline.calc_deadline,
             "calc_fee": fee.calc_fee,
             "lint_document": lint_doc.lint_document,
+            # §5.3 案管副作用工具：共享可变状态，env_diff 以终态 diff 判分
+            # （统一调用约定 store=... 由闭包吞掉，状态取沙箱实例）
+            "create_case_card": lambda store=None, **kw: dms.create_case_card(self._dms_state, **kw),
+            "update_case_card": lambda store=None, **kw: dms.update_case_card(self._dms_state, **kw),
+            "write_document": lambda store=None, **kw: dms.write_document(self._dms_state, **kw),
+            "set_hearing_date": lambda store=None, **kw: dms.set_hearing_date(self._dms_state, **kw),
         }
 
     @property
@@ -91,6 +104,11 @@ class ToolSandbox:
 
     def dump(self) -> list[dict]:
         return [asdict(e) for e in self.log]
+
+    def dms_snapshot(self) -> dict:
+        """案管状态深拷贝快照（§5.3 env_diff 用）。"""
+        import copy
+        return copy.deepcopy(self._dms_state)
 
 
 def _type_ok(value: Any, t: type) -> bool:
