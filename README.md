@@ -19,6 +19,7 @@
 | [docs/impl-P1.md](docs/impl-P1.md) | **P1 实施文档**（Judge / 红线 / 门禁） |
 | [docs/impl-P1-rest.md](docs/impl-P1-rest.md) | **P1 收尾**（Judge 进 runner / CI 门禁） |
 | [docs/impl-P2.md](docs/impl-P2.md) | **P2 实施文档**（工具沙箱 / Tool-Bench / Legal-GAIA） |
+| [docs/impl-P3.md](docs/impl-P3.md) | **P3 实施文档**（τ-Jud / 合同轨 / IRAC / Long-Horizon） |
 
 ## 项目状态
 
@@ -31,9 +32,9 @@
 - [x] **P1 代码** Judge/Abst/红线/诊断掉分/bootstrap/$/solve/canary（114 项测试）
 - [x] **P1 收尾代码** `--with-judge` 进 runner + 机检/Judge 分列 + limits.md + holdout 守卫 + CI 门禁（133 项测试，`scripts/ci_gate` 全绿）
 - [x] **P2 代码** 6 工具沙箱 + Legal-Tool-Bench（L2 19 题，假调用零分）+ Legal-GAIA 精品 10 题（L3a exact + progress）+ 轨迹 hash 进 manifest（156 项测试）
-- [ ] P3 τ-Jud / 整案长程
+- [x] **P3 代码** τ-Jud（user_script + 终态 F1 + Proto + pass^k 双列/方差分解）+ 合同轨 + IRAC + Long-Horizon + `run-dialog`（175 项测试）
 
-## 如何跑（P2 现状）
+## 如何跑（P3 现状）
 
 ```bash
 # 环境：Python 3.11+，装依赖与包
@@ -63,6 +64,17 @@ python -m cnjudbench run-all --tasks u_element_extract --model mock:gold \
 python -m cnjudbench run --task tool_search_statute --model mock:tools --out reports/runs/t1
 python -m cnjudbench run --task gaia_fee_deadline --model mock:gold --out reports/runs/g1
 #   产出 items/<id>.trajectory.json（工具轨迹），hash 进 manifest.tools.trajectory_hashes
+
+# P3：合同轨 / IRAC / Long-Horizon（L1/L4 机检）
+python -m cnjudbench run --task contract_risk --model mock:gold --out reports/runs/c1
+python -m cnjudbench run --task a_irac_reason --model mock:gold --out reports/runs/a1
+python -m cnjudbench run --task long_horizon_case --model mock:gold --out reports/runs/l4
+
+# P3：τ-Jud 多轮（run-dialog）——user_seed / model_seed 分列，pass^k 固定用户 vs 换 persona
+python -m cnjudbench run-dialog --task tau_jud_intake --model mock:dialog \
+  --user-seed 42 --k-pass 3 --out reports/runs/tau1
+#   summary.stability：pass_k_fixed_user / pass_k_swapped_persona / variance（model|user_script|judge）
+#   律师基线缺失时写「未测」，禁止编造对照
 
 # CI 门禁（validate + pytest + mock run-all + 产物断言 + 复跑翻转率=0）
 bash scripts/ci_gate.sh          # Windows: powershell -File scripts/ci_gate.ps1
