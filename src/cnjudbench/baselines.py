@@ -189,11 +189,26 @@ def rules_answer(item: Item) -> str:
         dates = _extract_dates(text)
         return json.dumps({"answer": dates[-1] if dates else "", "steps": []}, ensure_ascii=False)
     if t == "composite" and item.task_id == "calc_fail_to_pass":
-        # 法条解析器规则：题面标的额 → 分段累进受理费（与 hidden test 同一法条公式）
+        # 法条解析器规则：三族公式（§6.3 rules = 法条解析器 + 模板）
         m = re.search(r"标的额\s*(\d[\d,]*)\s*元", text)
-        if m:
+        if m:  # 诉讼费族：分段累进
             return json.dumps({"answer": _fee_rule(float(m.group(1).replace(",", ""))),
                                "work": {"formula_id": "fee_tiered_2007"}}, ensure_ascii=False)
+        m = re.search(r"本金\s*(\d[\d,]*)\s*元[，,].*?年利率\s*([\d.]+)%[，,].*?(\d+)\s*天",
+                      text)
+        if m:  # 利息族：单利 365 基准
+            principal = float(m.group(1).replace(",", ""))
+            rate, days = float(m.group(2)), int(m.group(3))
+            return json.dumps({"answer": round(principal * (rate / 100.0) * days / 365.0, 2),
+                               "work": {"formula_id": "simple_interest_365"}},
+                              ensure_ascii=False)
+        m = re.search(r"开始日为\s*(\d{4}-\d{2}-\d{2}).*?届满日为\s*(\d{4}-\d{2}-\d{2})", text)
+        if m:  # 期间族：届满日 − 开始日的自然日差（起算日不计入）
+            from datetime import date as _d
+
+            delta = (_d.fromisoformat(m.group(2)) - _d.fromisoformat(m.group(1))).days
+            return json.dumps({"answer": delta,
+                               "work": {"formula_id": "period_days"}}, ensure_ascii=False)
         return json.dumps({"answer": 0, "work": {"formula_id": "fee_tiered_2007"}},
                           ensure_ascii=False)
     return json.dumps({"refuse": False, "note": "rules"}, ensure_ascii=False)

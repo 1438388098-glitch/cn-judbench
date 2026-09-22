@@ -22,6 +22,10 @@ def check(answer: dict) -> tuple[int, int]  # (passed, total)
 - 期望值在**生成期**由独立脚本按上述规则计算后硬编码（判分路径不读 gold，防金样泄漏）；
 - 容差：相对误差 ≤0.5% 或绝对误差 ≤1 元（`_close`）；
 - `work.formula_id` 核对规则标识，防止数值碰巧命中而规则错误。
+- **规范标识（题面 prompt_template 必须枚举告知，v0.4.1 教训）**：
+  `fee_tiered_2007` / `simple_interest_365` / `period_days`。
+  初版未在题面告知规范标识，GLM 数值全对却 11/12 因自由文本标识被记半分——
+  属 oracle 公平性缺陷而非模型缺陷，已修复并复测（见 docs/calc-hidden-test-report.md）。
 
 ## 一致性金样锁
 

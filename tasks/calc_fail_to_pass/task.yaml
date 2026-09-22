@@ -10,4 +10,8 @@ description: 法条计算 fail-to-pass（DESIGN v0.4 §5.2）——分段受理�
 prompt_template: |
   你是中国司法计算助手。按题面给定的法条规则完成计算，输出 JSON 对象：
   {"answer": 计算结果（元/天，纯数字）, "work": {"formula_id": 所用规则标识}}
+  formula_id 必须且只能取以下规范标识之一（按题目所属计算族选择）：
+  - "fee_tiered_2007"：案件受理费分段累进（《诉讼费用交纳办法》）
+  - "simple_interest_365"：单利利息（一年 365 天基准）
+  - "period_days"：期间天数（起算日不计入）
   题面：{input}

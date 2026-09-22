@@ -1,6 +1,6 @@
 # CN-JudBench（法衡）
 
-中国司法多维度大模型 / 司法 Agent 评测框架（P0a 地基 + P0b 机检 runner 已落地）。
+中国司法多维度大模型 / 司法 Agent 评测框架（**v0.4**：Sprint A 计分架构 + 统计协议 + 隐藏单测 oracle 已落地）。
 
 **目标**：测出模型在中国司法工作流里「哪一维能用、哪一维危险、是否稳定、代价多少」。  
 **分数**：百分制，保留两位小数（0.00–100.00）。  
@@ -10,7 +10,9 @@
 
 | 文件 | 说明 |
 |---|---|
-| [FRAMEWORK.md](FRAMEWORK.md) | 框架设计定稿 **v0.3.1**（能力维、谓词、lawkb、指标、防作弊） |
+| [FRAMEWORK.md](FRAMEWORK.md) | 框架设计定稿 **v0.4**（§14：v0.3.1→v0.4 差异清单） |
+| [docs/DESIGN-benchmark-optimization-v0.4.md](docs/DESIGN-benchmark-optimization-v0.4.md) | 优化设计（对标映射 + Sprint A/B/C） |
+| [docs/paper-outline.md](docs/paper-outline.md) | 论文骨架与差距清单 |
 | [index.html](index.html) | 设计文档可读版（浏览器预览） |
 | [docs/research-notes.md](docs/research-notes.md) | 第一轮调研：中文法律评测 |
 | [docs/research-notes-round2.md](docs/research-notes-round2.md) | 第二轮调研：coding / agent / 工程硬化 |
@@ -33,6 +35,10 @@
 - [x] **P1 收尾代码** `--with-judge` 进 runner + 机检/Judge 分列 + limits.md + holdout 守卫 + CI 门禁（133 项测试，`scripts/ci_gate` 全绿）
 - [x] **P2 代码** 6 工具沙箱 + Legal-Tool-Bench（L2 19 题，假调用零分）+ Legal-GAIA 精品 10 题（L3a exact + progress）+ 轨迹 hash 进 manifest（156 项测试）
 - [x] **P3 代码** τ-Jud（user_script + 终态 F1 + Proto + pass^k 双列/方差分解）+ 合同轨 + IRAC + Long-Horizon + `run-dialog`（175 项测试）
+- [x] **v0.4 Sprint A** safety/capability 分列 + status_ladder/金额阶梯/must_not + partial-only 基数 + over_refuse×0.50
+- [x] **v0.4 统计协议** bootstrap CI / pass^k 组合语义 / report.csv / 正式分 provisional 门禁 / n-gram 污染双检 / random·rules 基线同管线
+- [x] **v0.4 新任务** calc_fail_to_pass 43 题（隐藏单测 oracle，三族：受理费/单利利息/期间）+ u_element hard 子集 28 题（GLM 实测 82.1%，见 docs/u-hard-subset-report.md）
+- [ ] 待办：DS v0.4 复跑（密钥）· holdout 冻结执行（协议已备）· 人评 κ 试点（方案已备）
 
 ## 如何跑（P3 现状）
 
