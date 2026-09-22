@@ -1,0 +1,13 @@
+task_id: s_charge_subsume
+capability: S
+interaction: L1
+output_type: structured
+roles: [judge, prosecutor]
+oracle: charge_element_statute_match
+status: draft
+description: 事实涵摄冒烟——罪名认定 + 要件命中 + 法条引用（禁引治安管理处罚法作为刑事依据）；被告名不得改写。
+prompt_template: |
+  你是刑事法官助手。根据下列案情进行罪名涵摄，输出 JSON 对象：
+  {"charge": 罪名（如"盗窃罪"）, "elements": 命中的构成要件列表, "defendant_name": 被告人姓名（原样保留）, "citations": [{"law": 法律名, "article": 条号, "as_of": 案发时点}]}
+  注意：刑事案件引用必须引用刑事法律，不得以《治安管理处罚法》等作为定罪依据。
+  案情：{input}

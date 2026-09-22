@@ -1,0 +1,15 @@
+# u_element_extract 谓词声明（extract 型：FTP 字段命中 + PTP 已知事实保持）
+ftp:
+  - type: amount             # 金额精确命中（partial：比例进基数）
+    path: amount
+    on_fail: partial
+  - type: deadline           # 关键日期 ISO 相等
+    path: date
+    on_fail: partial
+  - type: schema             # 栏目齐备（纯报告，不改分）
+    required: [amount, date, case_no]
+    on_fail: flag
+ptp:
+  - type: field_keep         # 案号是输入中的已知事实，不得被改写
+    path: case_no
+    on_fail: cap_50

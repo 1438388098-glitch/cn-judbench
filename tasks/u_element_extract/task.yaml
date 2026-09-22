@@ -1,0 +1,12 @@
+task_id: u_element_extract
+capability: U
+interaction: L1
+output_type: extract
+roles: [lawyer]
+oracle: field_match_partial
+status: draft
+description: 文理与要素抽取冒烟——案情三要素（金额/关键日期/案号）；已知事实（案号）不得改写。
+prompt_template: |
+  你是法律文书要素抽取助手。从下列案情中抽取三要素，输出 JSON 对象：
+  {"amount": 涉案金额（元，纯数字）, "date": 关键日期（YYYY-MM-DD，取约定的还款/履行/作案日）, "case_no": 案号（原样保留，不得改写）}
+  案情：{input}

@@ -1,0 +1,21 @@
+# s_charge_subsume 谓词声明（structured：FTP 罪名/要件/引用 + PTP 禁引与事实保持）
+ftp:
+  - type: field              # 罪名错 → 一票否决
+    path: charge
+    fail_taxonomy: element_miss
+    on_fail: zero
+  - type: element            # 要件集合 F1（partial 进基数）
+    path: elements
+    on_fail: partial
+  - type: statute            # 引用须覆盖题面法条锚点，且在 as_of 有效
+    on_fail: zero
+  - type: schema             # 栏目齐备（纯报告）
+    required: [charge, elements, citations, defendant_name]
+    on_fail: flag
+ptp:
+  - type: must_not_statute   # 禁引：治安处罚不是刑事定罪依据
+    law: 治安管理处罚法
+    on_fail: cap_50
+  - type: field_keep         # 被告人是输入已知事实，不得改写
+    path: defendant_name
+    on_fail: cap_50
