@@ -59,9 +59,17 @@ def field_keep(ctx: EvalContext, p, index: int) -> PredicateResult:
 
 
 def state(ctx: EvalContext, p, index: int) -> PredicateResult:
-    """终态子集匹配：expect 键值须悉数出现在 answer[path|全域]。"""
+    """终态子集匹配：expect 键值须悉数出现在 answer[path|全域]。
+
+    期望值来源：谓词 ``expect`` > ``item.state_goal``（τ-Jud 金样，去掉元键）。
+    """
     extra = p.model_extra or {}
     expect: dict = extra.get("expect") or {}
+    if not expect and isinstance(ctx.item.state_goal, dict):
+        expect = {
+            k: v for k, v in ctx.item.state_goal.items()
+            if k not in ("expect", "progress", "calls", "negative", "citations", "law_anchors")
+        }
     actual = _walk(extra.get("path", ""), ctx.answer) if ctx.answer else None
     actual = actual if isinstance(actual, dict) else (ctx.answer if isinstance(ctx.answer, dict) else {})
     missing = {k: v for k, v in expect.items() if actual.get(k) != v}

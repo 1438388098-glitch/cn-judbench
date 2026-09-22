@@ -2,5 +2,14 @@
 
 from .item import Item
 from .task import Predicate, PredicatesFile, TaskManifest
+from .user_script import Persona, UserScript, assert_no_gold_leak
 
-__all__ = ["Item", "Predicate", "PredicatesFile", "TaskManifest"]
+__all__ = [
+    "Item",
+    "Predicate",
+    "PredicatesFile",
+    "TaskManifest",
+    "Persona",
+    "UserScript",
+    "assert_no_gold_leak",
+]

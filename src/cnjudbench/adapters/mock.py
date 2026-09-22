@@ -103,3 +103,31 @@ def mock_tools_adapter(item: Item, store: LawkbStore) -> MockAdapter:
     payload = json.dumps({"calls": g.get("calls") or [], "answer": g.get("answer")},
                          ensure_ascii=False)
     return MockAdapter(lambda _prompt: payload, model_id="mock:tools")
+
+
+def mock_dialog_adapter(
+    item: Item, store: LawkbStore, *, leak_gold_on_turn1: bool = False
+) -> MockAdapter:
+    """mock:dialog：多轮 τ-Jud 冒烟——中间轮不吐 gold，终轮输出最终案卡。
+
+    ``leak_gold_on_turn1=True`` 供负例测试（首句泄露 gold 字面）。
+    """
+    card = gold_answer(item, store)
+    if isinstance(item.gold, dict) and item.state_goal:
+        # 终案卡 = gold 全文（含 risk_note/advice）∪ state_goal 目标字段
+        card = {**item.gold, **item.state_goal}
+    payload = json.dumps(card, ensure_ascii=False)
+
+    def respond(prompt: str) -> str:
+        if leak_gold_on_turn1 and "【模拟当事人" in prompt and "【请输出最终案卡 JSON】" not in prompt:
+            # 负例：把某个 gold 字面塞进「模型」首答，供 leak 测试对照（用户侧仍禁泄）
+            for v in (item.state_goal or {}).values():
+                if isinstance(v, str) and len(v) >= 2:
+                    return f"您好，关于{v}我先记下来。"
+                if isinstance(v, list) and v:
+                    return f"您好，关于{v[0]}我先记下来。"
+        if "【请输出最终案卡 JSON】" in prompt:
+            return payload
+        return "已记录。请继续补充关键事实；我会在整理后给出最终案卡。"
+
+    return MockAdapter(respond, model_id="mock:dialog")

@@ -22,6 +22,8 @@ FTP_IMPLS = {
     "schema": ftp.schema_lint,
     "lint": ftp.schema_lint,
     "progress_keyword": ftp.progress_keyword,
+    "risk_disclosure": ftp.risk_disclosure,
+    "refuse": ftp.refuse,
     "fake_tool": fake_tool,
 }
 

@@ -77,6 +77,26 @@ def validate_task_dir(task_dir: Path) -> list[str]:
             epreds.diagnostic_ftp, task.output_type, comps, f"{extra.name}:diagnostic_ftp"
         )
 
+    # P3：L3b 任务包必须带 user_scripts/，且通过 UserScript schema + 禁泄 gold
+    if task.interaction == "L3b":
+        us_dir = task_dir / "user_scripts"
+        if not us_dir.is_dir() or not list(us_dir.glob("*.yaml")):
+            errors.append(f"{tid}: L3b 任务包缺少 user_scripts/*.yaml")
+        else:
+            from ..schemas.user_script import UserScript, assert_no_gold_leak
+
+            for us_path in sorted(us_dir.glob("*.yaml")):
+                try:
+                    script = UserScript.model_validate(
+                        yaml.safe_load(us_path.read_text(encoding="utf-8"))
+                    )
+                except Exception as e:  # noqa: BLE001
+                    errors.append(f"{tid}: {us_path.name} 校验失败: {e}")
+                    continue
+                if not script.personas or not script.sampling:
+                    errors.append(f"{tid}: {us_path.name} 缺 personas/sampling")
+                # tone 不得塞 gold 指令以外的泄题字面（宽松：至少结构合法）
+
     return errors
 
 

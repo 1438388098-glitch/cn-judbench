@@ -17,12 +17,13 @@ holdout 路径/题面进入评测输入（守卫拒读）→ 2。
 from __future__ import annotations
 
 import argparse
+import json
 import sys
 from dataclasses import asdict
 from datetime import date
 from pathlib import Path
 
-from .adapters.mock import mock_gold_adapter, mock_tools_adapter
+from .adapters.mock import mock_dialog_adapter, mock_gold_adapter, mock_tools_adapter
 from .adapters.openai_compat import OpenAICompatAdapter
 from .judge import MockJudge, load_rubric
 from .judge.openai_judge import OpenAIJudge
@@ -89,6 +90,21 @@ def _build_parser() -> argparse.ArgumentParser:
         e.add_argument("--blend", choices=("parallel", "weighted"), default="parallel",
                        help="默认 parallel 分列不混分；weighted 显式 0.7/0.3 加权")
 
+    d = sub.add_parser("run-dialog", help="τ-Jud 多轮会话（user_seed / model_seed 分列 + pass^k）")
+    d.add_argument("--task", required=True)
+    d.add_argument("--model", default="mock:dialog", help="mock:dialog / mock:gold / openai:<model>")
+    d.add_argument("--items-root", default="data/public")
+    d.add_argument("--tasks-root", default="tasks")
+    d.add_argument("--lawkb", default=DEFAULT_LAWKB)
+    d.add_argument("--out", default=None)
+    d.add_argument("--base-url", default=None)
+    d.add_argument("--revision", default=None)
+    d.add_argument("--temperature", type=float, default=0.0)
+    d.add_argument("--seed", type=int, default=None, help="model_seed")
+    d.add_argument("--user-seed", type=int, default=42, help="模拟用户种子（与 model seed 分列）")
+    d.add_argument("--user-script", default=None, help="缺省取任务包 user_scripts/ 下第一份")
+    d.add_argument("--k-pass", type=int, default=3, help="同题复跑次数（pass^k）")
+
     return p
 
 
@@ -147,12 +163,16 @@ def _make_adapter_factory(args: argparse.Namespace, store: LawkbStore):
         return lambda item: mock_gold_adapter(item, store)
     if args.model == "mock:tools":
         return lambda item: mock_tools_adapter(item, store)
+    if args.model == "mock:dialog":
+        return lambda item: mock_dialog_adapter(item, store)
     if args.model.startswith("openai:"):
         adapter = OpenAICompatAdapter(
             args.model.split(":", 1)[1], base_url=args.base_url, revision=args.revision
         )
         return lambda item: adapter
-    raise SystemExit(f"未知模型规格: {args.model!r}（支持 mock:gold / mock:tools / openai:<model>）")
+    raise SystemExit(
+        f"未知模型规格: {args.model!r}（支持 mock:gold / mock:tools / mock:dialog / openai:<model>）"
+    )
 
 
 def _make_judge(args: argparse.Namespace):
@@ -379,6 +399,177 @@ def _cmd_run_generic(args: argparse.Namespace) -> int:
     return 1 if na else 0
 
 
+def _cmd_run_dialog(args: argparse.Namespace) -> int:
+    """τ-Jud 多轮：终态 F1 × Proto gate，pass^k 双列 + 方差分解（impl-P3 §2/§6）。"""
+    import yaml as _yaml
+
+    from .dialog.session import dump_dialog, run_dialog
+    from .metrics.variance import decompose_variance, format_stability, score_time_auc
+    from .schemas.user_script import UserScript
+
+    try:
+        assert_no_holdout(args.items_root, args.tasks_root, args.lawkb)
+    except HoldoutPathError as e:
+        print(f"HOLDOUT GUARD: {e}")
+        return 2
+
+    store = _load_store(args.lawkb)
+    task_dir = Path(args.tasks_root) / args.task
+    items_path = Path(args.items_root) / f"{args.task}.jsonl"
+    if not items_path.is_file():
+        print(f"DIALOG FAIL: 题面不存在 {items_path}")
+        return 1
+
+    us_dir = task_dir / "user_scripts"
+    if args.user_script:
+        us_path = Path(args.user_script)
+    else:
+        cands = sorted(us_dir.glob("*.yaml")) if us_dir.is_dir() else []
+        if not cands:
+            print(f"DIALOG FAIL: 未找到 user_scripts（{us_dir}）")
+            return 1
+        us_path = cands[0]
+    script = UserScript.model_validate(_yaml.safe_load(us_path.read_text(encoding="utf-8")))
+
+    factory = _make_adapter_factory(args, store)
+    accountant = Accountant()
+    items = [it for _ln, it in load_items_file(items_path)]
+    assert_items_not_holdout(items)
+
+    from .dialog.session import DialogResult
+
+    # 两套复跑：固定 user_seed（模型稳定度） vs 轮换 user_seed（交互稳定度）
+    fixed_runs: dict[str, list[float]] = {it.id: [] for it in items}
+    swap_runs: dict[str, list[float]] = {it.id: [] for it in items}
+    last: dict[str, DialogResult] = {}
+    trajectories: dict[str, dict] = {}
+    model_scores: list[float] = []
+    user_scores: list[float] = []
+
+    for item in items:
+        for k in range(max(1, args.k_pass)):
+            r_fix = run_dialog(
+                item, script, factory(item),
+                user_seed=args.user_seed, model_seed=args.seed,
+                temperature=args.temperature, accountant=accountant,
+            )
+            if r_fix.score is not None:
+                fixed_runs[item.id].append(r_fix.score)
+                model_scores.append(r_fix.score)
+            last[f"{item.id}#f{k}"] = r_fix
+            trajectories[f"{item.id}.f{k}"] = dump_dialog(r_fix)
+
+            r_swap = run_dialog(
+                item, script, factory(item),
+                user_seed=args.user_seed + 1 + k, model_seed=args.seed,
+                temperature=args.temperature, accountant=accountant,
+            )
+            if r_swap.score is not None:
+                swap_runs[item.id].append(r_swap.score)
+                user_scores.append(r_swap.score)
+            last[f"{item.id}#s{k}"] = r_swap
+            trajectories[f"{item.id}.s{k}"] = dump_dialog(r_swap)
+
+        # 主展示列 = 固定 user_seed 的第一次
+        last[item.id] = last[f"{item.id}#f0"]
+
+    from .metrics.cost import pass_at_k as _pak
+
+    def _bool_runs(scores: list[float], k: int) -> list[list[bool]]:
+        return [[s >= 60.0 for s in sc[:k]] for sc in scores.values()]
+
+    k = max(1, args.k_pass)
+    pk_model = _pak(_bool_runs(fixed_runs, k), k=k)
+    pk_user = _pak(_bool_runs(swap_runs, k), k=k)
+    var = decompose_variance(model_scores=model_scores, user_scores=user_scores)
+
+    # score–time：若有进度点则算 AUC，否则 n/a（不编造）
+    st_points = [
+        (1.0, (r.state_f1 if r.state_f1 is not None else 0.0))
+        for r in last.values() if isinstance(r, DialogResult) and not r.item_id.endswith("0")
+    ]
+    st_auc = score_time_auc([(0.0, 0.0), (1.0, sum(x[1] for x in st_points) / max(1, len(st_points)))] ) if st_points else None
+
+    scores = [last[it.id].score for it in items if last[it.id].score is not None]
+    mean = sum(scores) / len(scores) if scores else None
+    summary = {
+        "task_id": args.task,
+        "model_id": args.model,
+        "user_seed": args.user_seed,
+        "model_seed": args.seed,
+        "k_pass": k,
+        "n_items": len(items),
+        "mean_str": fmt2(mean) if mean is not None else "n/a",
+        "items": [
+            {
+                "id": it.id,
+                "score": last[it.id].display,
+                "state_f1": fmt2(100.0 * last[it.id].state_f1),
+                "proto_redline": last[it.id].proto.redline,
+                "taxonomy": last[it.id].taxonomy,
+                "n_turns": last[it.id].n_turns,
+            }
+            for it in items
+        ],
+        "stability": format_stability(
+            pass_k_model=pk_model, pass_k_user=pk_user, variance=var,
+            lawyer_baseline="未测",
+        ),
+        "score_time_auc_str": fmt2(st_auc) if st_auc is not None else "n/a",
+        "disclaimer": DISCLAIMER,
+    }
+
+    run_id = f"dialog-{args.task}-{args.user_seed}"
+    out_dir = Path(args.out) if args.out else Path("reports/runs") / run_id
+    out_dir.mkdir(parents=True, exist_ok=True)
+    (out_dir / "summary.json").write_text(
+        json.dumps(summary, ensure_ascii=False, indent=2), encoding="utf-8"
+    )
+    manifest = {
+        "run_id": run_id,
+        "kind": "tau_jud_dialog",
+        "model_id": args.model,
+        "user_seed": args.user_seed,
+        "model_seed": args.seed,
+        "user_script_id": script.script_id,
+        "k_pass": k,
+        "item_count": len(items),
+        "accounting": {
+            "prompt_tokens": accountant.prompt_tokens,
+            "completion_tokens": accountant.completion_tokens,
+            "p95_latency_ms": accountant.p95_latency_ms,
+        },
+        "disclaimer": DISCLAIMER,
+    }
+    (out_dir / "manifest.json").write_text(
+        json.dumps(manifest, ensure_ascii=False, indent=2), encoding="utf-8"
+    )
+    items_dir = out_dir / "items"
+    items_dir.mkdir(exist_ok=True)
+    for key, payload in trajectories.items():
+        (items_dir / f"{key}.dialog.json").write_text(
+            json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8"
+        )
+    (out_dir / "limits.md").write_text(
+        f"# limits\n\n- user_seed={args.user_seed} / model_seed={args.seed}（分列）\n"
+        f"- pass^k 固定用户={fmt2(100 * pk_model)} / 换 persona={fmt2(100 * pk_user)}\n"
+        f"- 方差分解: {var}\n- 律师基线：未测\n\n{DISCLAIMER}\n",
+        encoding="utf-8",
+    )
+
+    for it in items:
+        r = last[it.id]
+        tax = f"\t{','.join(r.taxonomy)}" if r.taxonomy else ""
+        print(f"{args.task}\t{it.id}\t{r.display}\tF1={fmt2(100 * r.state_f1)}{tax}")
+    print(f"{args.task} mean: {summary['mean_str']} (n={len(items)})")
+    print(f"pass^k fixed_user={summary['stability']['pass_k_fixed_user_str']} "
+          f"swapped={summary['stability']['pass_k_swapped_persona_str']}")
+    print(f"user_seed={args.user_seed} model_seed={args.seed}")
+    print(DISCLAIMER)
+    print(f"written: {out_dir}/manifest.json, summary.json, limits.md, items/*.dialog.json (×{len(trajectories)})")
+    return 0 if mean is not None else 1
+
+
 def main(argv: list[str] | None = None) -> int:
     try:
         sys.stdout.reconfigure(encoding="utf-8", errors="replace")
@@ -391,6 +582,7 @@ def main(argv: list[str] | None = None) -> int:
         "smoke-cit-validity": cmd_smoke,
         "run": _cmd_run_generic,
         "run-all": _cmd_run_generic,
+        "run-dialog": _cmd_run_dialog,
     }
     return handlers[args.cmd](args)
 
