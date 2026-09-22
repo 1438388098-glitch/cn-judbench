@@ -10,7 +10,8 @@
 
 | 文件 | 说明 |
 |---|---|
-| [FRAMEWORK.md](FRAMEWORK.md) | 框架设计定稿 **v0.3**（能力维、谓词、lawkb、指标、防作弊） |
+| [FRAMEWORK.md](FRAMEWORK.md) | 框架设计定稿 **v0.3.1**（能力维、谓词、lawkb、指标、防作弊） |
+| [index.html](index.html) | 设计文档可读版（浏览器预览） |
 | [docs/research-notes.md](docs/research-notes.md) | 第一轮调研：中文法律评测 |
 | [docs/research-notes-round2.md](docs/research-notes-round2.md) | 第二轮调研：coding / agent / 工程硬化 |
 
@@ -36,7 +37,7 @@ python -m cnjudbench.run --task cit_validity --model openai:gpt-4o --as-of 2024-
 
 1. 在 `tasks/<task_id>/` 建任务三件套：`task.yaml` + `predicates.yaml` + `reference.md`（主观另加 `rubric.yaml`）。  
 2. 题面放 `data/public|holdout|live/*.jsonl`，字段见 FRAMEWORK 附录 C。  
-3. 谓词必须符合附录 §4.2 的 **output_type 适用面**；`hcut` 只能是 `Cit/Abst/Hall/Cons/Proto`。  
+3. 谓词必须符合 §4.2 的 **output_type 闭合枚举与适用面**；`composite` 必填 `components`；`hcut` 只能是 `Cit/Abst/Hall/Cons/Proto`。  
 4. 法条锚点写全称 + `as_of`，依赖 lawkb 多版本解析（附录 D）。  
 5. 通过 schema 校验与 Verified 状态机后再进 `active`。
 

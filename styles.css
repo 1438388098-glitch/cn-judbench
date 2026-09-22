@@ -1,0 +1,301 @@
+/* CN-JudBench design doc — print-research / legal-desk aesthetic */
+:root {
+  --bg: #f6f4ef;
+  --paper: #fffcf7;
+  --ink: #1c1b19;
+  --muted: #5c574f;
+  --line: #d9d2c5;
+  --accent: #8b1e1e;
+  --accent-soft: #f3e4e2;
+  --ok: #2f5d3a;
+  --chip: #ebe6dc;
+  --mono: "SF Mono", "Cascadia Code", Consolas, monospace;
+  --sans: -apple-system, "PingFang SC", "Microsoft YaHei", "Noto Sans SC", sans-serif;
+  --serif: "Songti SC", "SimSun", "Noto Serif SC", Georgia, serif;
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  font-family: var(--sans);
+  color: var(--ink);
+  background: var(--bg);
+  line-height: 1.7;
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  min-height: 100vh;
+}
+
+.nav {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow: auto;
+  padding: 1.5rem 1.1rem;
+  border-right: 1px solid var(--line);
+  background: var(--paper);
+}
+.brand {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--line);
+}
+.brand-mark {
+  width: 2.4rem;
+  height: 2.4rem;
+  border: 1.5px solid var(--accent);
+  color: var(--accent);
+  display: grid;
+  place-items: center;
+  font-family: var(--serif);
+  font-size: 1.15rem;
+  font-weight: 600;
+}
+.brand-sub {
+  font-size: 0.75rem;
+  color: var(--muted);
+  letter-spacing: 0.04em;
+}
+#toc a {
+  display: block;
+  color: var(--muted);
+  text-decoration: none;
+  font-size: 0.88rem;
+  padding: 0.35rem 0.5rem;
+  border-left: 2px solid transparent;
+}
+#toc a:hover,
+#toc a.active {
+  color: var(--accent);
+  border-left-color: var(--accent);
+  background: var(--accent-soft);
+}
+.nav-note {
+  margin-top: 2rem;
+  font-size: 0.75rem;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.main {
+  max-width: 52rem;
+  margin: 0 auto;
+  padding: 2.5rem 2rem 4rem;
+}
+.hero {
+  padding-bottom: 2rem;
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 2rem;
+}
+.eyebrow {
+  font-size: 0.8rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin: 0 0 0.75rem;
+}
+h1 {
+  font-family: var(--serif);
+  font-weight: 600;
+  font-size: clamp(1.6rem, 3vw, 2.15rem);
+  line-height: 1.35;
+  margin: 0 0 1rem;
+}
+.lede {
+  color: var(--muted);
+  font-size: 1.02rem;
+  max-width: 40rem;
+}
+.score-pill {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 0.65rem 1rem;
+  align-items: baseline;
+  margin-top: 1.25rem;
+  padding: 0.75rem 1rem;
+  background: var(--paper);
+  border: 1px solid var(--line);
+}
+.score-label {
+  font-size: 0.75rem;
+  color: var(--muted);
+  letter-spacing: 0.08em;
+}
+.score-range {
+  font-family: var(--mono);
+  font-size: 1.15rem;
+  color: var(--accent);
+  font-weight: 600;
+}
+.score-meta {
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+section {
+  margin: 2.5rem 0;
+  scroll-margin-top: 1rem;
+}
+h2 {
+  font-family: var(--serif);
+  font-size: 1.35rem;
+  margin: 0 0 0.85rem;
+  padding-bottom: 0.4rem;
+  border-bottom: 1px solid var(--line);
+}
+h3 {
+  font-size: 0.95rem;
+  margin: 0 0 0.4rem;
+}
+p { margin: 0.5rem 0 0.85rem; }
+.note {
+  font-size: 0.88rem;
+  color: var(--muted);
+}
+code {
+  font-family: var(--mono);
+  font-size: 0.86em;
+  background: var(--chip);
+  padding: 0.08em 0.35em;
+}
+
+.map-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+.map-card {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  padding: 0.85rem 1rem;
+}
+.map-card h3 {
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: var(--muted);
+}
+.map-card p {
+  margin: 0.25rem 0 0;
+  font-family: var(--mono);
+  color: var(--ok);
+}
+.map-card.danger p { color: var(--accent); }
+
+.pyramid {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  align-items: stretch;
+  margin: 1rem 0;
+}
+.pyr {
+  border: 1px solid var(--line);
+  background: var(--paper);
+  padding: 0.65rem 1rem;
+  font-size: 0.9rem;
+  text-align: center;
+}
+.pyr b { color: var(--accent); margin-right: 0.4rem; }
+.pyr.l4 { width: 55%; margin-left: auto; margin-right: auto; }
+.pyr.l3b { width: 68%; margin-left: auto; margin-right: auto; }
+.pyr.l3a { width: 80%; margin-left: auto; margin-right: auto; }
+.pyr.l2 { width: 90%; margin-left: auto; margin-right: auto; }
+.pyr.l1 { width: 100%; }
+.pyr.base {
+  width: 100%;
+  background: var(--chip);
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+.table-wrap { overflow-x: auto; margin: 0.75rem 0; }
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+  background: var(--paper);
+}
+th, td {
+  border: 1px solid var(--line);
+  padding: 0.5rem 0.65rem;
+  text-align: left;
+}
+th {
+  background: var(--chip);
+  font-weight: 600;
+  font-size: 0.8rem;
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin: 0.75rem 0;
+}
+.chip {
+  background: var(--chip);
+  border: 1px solid var(--line);
+  padding: 0.25rem 0.65rem;
+  font-size: 0.85rem;
+}
+.chips.mono .chip { font-family: var(--mono); font-size: 0.8rem; }
+.chip.accent {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: var(--accent-soft);
+}
+.chip.cit { color: var(--accent); }
+.chip.hall { color: var(--accent); }
+.chip.abst { color: var(--ok); }
+.chip.proto { color: var(--ok); }
+
+.steps {
+  padding-left: 1.2rem;
+}
+.steps li { margin: 0.35rem 0; }
+
+.two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+.two-col article {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  padding: 1rem 1.1rem;
+}
+
+.ethics {
+  margin: 0.75rem 0;
+  padding: 1rem 1.15rem;
+  border-left: 3px solid var(--accent);
+  background: var(--accent-soft);
+  font-family: var(--serif);
+}
+
+.foot {
+  margin-top: 3rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+
+@media (max-width: 860px) {
+  body { grid-template-columns: 1fr; }
+  .nav {
+    position: relative;
+    height: auto;
+    border-right: none;
+    border-bottom: 1px solid var(--line);
+  }
+  #toc { display: flex; flex-wrap: wrap; gap: 0.25rem; }
+  .two-col { grid-template-columns: 1fr; }
+  .pyr.l4, .pyr.l3b, .pyr.l3a, .pyr.l2 { width: 100%; }
+}
