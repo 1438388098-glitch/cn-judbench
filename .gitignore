@@ -1,0 +1,22 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.env
+*.local
+
+# 评测产物与缓存
+reports/runs/
+.cache/
+*.log
+
+# 私有 holdout 永不入库
+data/holdout/
+lawkb/private/
+
+# 系统与编辑器
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
