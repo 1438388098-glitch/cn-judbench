@@ -36,6 +36,15 @@ def validate_task_dir(task_dir: Path) -> list[str]:
     if task.task_id != tid:
         errors.append(f"{tid}: task_id={task.task_id!r} 与目录名不一致")
 
+    # 公平性（v0.4）：answer_enums 声明的枚举值必须逐字出现在 prompt_template，
+    # 否则考生不知道合法取值集（calc formula_id 教训的固化）。
+    for field_name, values in (task.answer_enums or {}).items():
+        for v in values:
+            if str(v) not in task.prompt_template:
+                errors.append(
+                    f"{tid}: answer_enums.{field_name} 值 {v!r} 未在 prompt_template 声明"
+                    "（公平性：考生须知必须覆盖判分枚举）")
+
     for fname in ("reference.md", "README.md"):
         if not (task_dir / fname).is_file():
             errors.append(f"{tid}: 缺少 {fname}")

@@ -542,6 +542,13 @@ def env_diff(ctx: EvalContext, p, index: int) -> PredicateResult:
         else:
             yield prefix, obj
 
+    # events 按多重集比较（排序后整叶比）：排期执行顺序不扣分，重复排期仍失配
+    for ev_state in (want, state):
+        if isinstance(ev_state.get("events"), list):
+            ev_state["events"] = sorted(
+                _json.dumps(e, ensure_ascii=False, sort_keys=True)
+                for e in ev_state["events"] if not isinstance(e, str))
+
     got = dict(state)
     total = matched = 0
     for path, wv in leaves(want):

@@ -7,11 +7,15 @@ roles: [lawyer]
 oracle: fail_to_pass
 status: draft
 description: 法条计算 fail-to-pass（DESIGN v0.4 §5.2）——分段受理费/利息/期间计算，隐藏单测 oracle（容差 0.5%/1 元），无关键词。
+answer_enums:
+  formula_id: [fee_tiered_2007, simple_interest_365, period_days, compound_interest_semiannual, fee_preservation_2007]
 prompt_template: |
   你是中国司法计算助手。按题面给定的法条规则完成计算，输出 JSON 对象：
   {"answer": 计算结果（元/天，纯数字）, "work": {"formula_id": 所用规则标识}}
   formula_id 必须且只能取以下规范标识之一（按题目所属计算族选择）：
   - "fee_tiered_2007"：案件受理费分段累进（《诉讼费用交纳办法》）
   - "simple_interest_365"：单利利息（一年 365 天基准）
-  - "period_days"：期间天数（起算日不计入）
+  - "period_days"：期间计算（起算日不计入；含天数或节假日顺延后的届满日）
+  - "compound_interest_semiannual"：半年复利（每半年计息一次的复利终值利息额）
+  - "fee_preservation_2007"：财产保全申请费分段（《诉讼费用交纳办法》第十四条）
   题面：{input}

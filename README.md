@@ -37,7 +37,7 @@
 - [x] **P3 代码** τ-Jud（user_script + 终态 F1 + Proto + pass^k 双列/方差分解）+ 合同轨 + IRAC + Long-Horizon + `run-dialog`（175 项测试）
 - [x] **v0.4 Sprint A** safety/capability 分列 + status_ladder/金额阶梯/must_not + partial-only 基数 + over_refuse×0.50
 - [x] **v0.4 统计协议** bootstrap CI / pass^k 组合语义 / report.csv / 正式分 provisional 门禁 / n-gram 污染双检 / random·rules 基线同管线
-- [x] **v0.4 新任务** calc_fail_to_pass 43 题（隐藏单测 oracle，三族：受理费/单利利息/期间）+ u_element hard 子集 28 题（GLM 实测 82.1%，见 docs/u-hard-subset-report.md）+ dms_side_effect_intake 13 题（env_diff 终态 diff；state0 预置「在办案件」与双卡分心）+ tool_fault_recovery 8 题（§5.4 四型故障注入，recovery×final，recovery% 进 report.csv）
+- [x] **v0.4 新任务** calc_fail_to_pass 46 题（隐藏单测 oracle，五公式：受理费/单利/期间/半年复利/保全费，hard 变体考节假日顺延与封顶规则）+ u_element hard 子集 28 题（GLM 实测 82.1%，见 docs/u-hard-subset-report.md）+ dms_side_effect_intake 13 题（env_diff 终态 diff；state0 预置「在办案件」与双卡分心）+ tool_fault_recovery 8 题（§5.4 四型故障注入，recovery×final，recovery% 进 report.csv）
 - [x] **v0.4 翻转实证** GLM 考生模式 k=3 复测：逐对题级翻转 6/11≈55% ≫ 5% 门禁（docs/u-hard-subset-report.md 追加节）→ 单样本 run 一律 provisional，主表强制 pass^k
 - [ ] 待办：DS v0.4 复跑（密钥）· holdout 冻结执行（协议已备）· 人评 κ 试点（方案已备）
 
@@ -104,6 +104,9 @@ python -m cnjudbench run-all --tasks u_element_extract --model mock:gold   --ngr
 
 # 4) 论文表生成：正式表（T-main）只收 provisional=false，其余进附录 T-provisional
 python scripts/make_paper_tables.py --runs reports/runs --out docs/paper-tables.md
+
+# 4b) pass^k 多 run 聚合（组合语义 + bootstrap CI + flip 门禁提示，同模型 ≥k 个 run）
+python scripts/aggregate_passk.py --runs reports/runs/ds-a reports/runs/ds-b reports/runs/ds-c   --threshold 100 --out docs/passk-ds.md
 
 # 5) 案管副作用任务（env_diff 终态 diff；d-101..104 为 state0 预置在办案件，d-104 双卡分心）
 python -m cnjudbench run-all --tasks dms_side_effect_intake --model mock:tools --out reports/runs/dms1

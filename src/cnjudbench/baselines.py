@@ -136,7 +136,7 @@ def random_answer(item: Item) -> str:
     if t == "composite":  # calc_fail_to_pass：形状合规、内容（数值+规则标识）随机
         return json.dumps({"answer": int(r.uniform(1, 1e6)),
                            "work": {"formula_id": r.choice(
-                               ["fee_tiered_2007", "interest_statutory", "period_cpm"])},
+                               ["fee_tiered_2007", "simple_interest_365", "period_days"])},
                           }, ensure_ascii=False)
     return json.dumps({"refuse": False, "note": "random"}, ensure_ascii=False)
 

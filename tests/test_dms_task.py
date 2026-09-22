@@ -104,3 +104,34 @@ def test_env_diff_state0_and_distractor():
     bad_args[0]["case_no"] = "（2024）京0105民初805号"  # 误伤分心卡
     r = run([SimpleNamespace(name=c["name"], args=a) for c, a in zip(gold["calls"], bad_args)])
     assert 0.0 < r.pass_ratio < 1.0 and r.failure_taxonomy == "env_state_mismatch"
+
+def test_env_diff_events_order_and_duplicate():
+    """events 多重集语义：执行顺序不同不扣分；重复排期（multiset 多出）扣分。"""
+    import copy
+    from types import SimpleNamespace
+
+    from cnjudbench.predicates.base import EvalContext
+    from cnjudbench.predicates.ftp import env_diff
+    from cnjudbench.schemas.item import Item
+    from cnjudbench.schemas.task import PredicatesFile
+
+    items = {i["id"]: i for i in _items()}
+    it = Item.model_validate(items["d-102"])  # 排期 + 落文书
+    gold = it.gold
+    pf = PredicatesFile.model_validate(
+        {"ftp": [{"type": "env_diff", "on_fail": "partial"}]})
+    spec = pf.ftp[0]
+
+    def run(calls):
+        entries = [SimpleNamespace(name=c["name"], args=c["args"]) for c in calls]
+        ctx = EvalContext(task=None, item=it, answer=None, answer_text="",
+                          claims=[], claim_status="ok",
+                          store=LawkbStore.load(REPO / "lawkb"), tool_log=entries)
+        return env_diff(ctx, spec, 0)
+
+    reordered = [gold["calls"][1], gold["calls"][0]]  # 先落文书后排期
+    assert run(reordered).pass_ratio == 1.0
+
+    dup = copy.deepcopy(gold["calls"]) + [gold["calls"][0]]  # 排期重复执行
+    r = run(dup)
+    assert r.pass_ratio < 1.0 and r.failure_taxonomy == "env_state_mismatch"

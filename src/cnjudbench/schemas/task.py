@@ -72,6 +72,9 @@ class TaskManifest(BaseModel):
     domain: DomainLiteral | None = None
     oracle: str = Field(min_length=1)
     prompt_template: str = Field(min_length=1)
+    # 公平性声明（v0.4）：谓词判分引用的作答枚举（如 formula_id 取值）必须在此
+    # 列出，且每个枚举值字面出现在 prompt_template 中——考生须知与判分口径一致。
+    answer_enums: dict[str, list[str]] | None = None
     status: VerifiedStateLiteral = "draft"
     description: str = ""
 

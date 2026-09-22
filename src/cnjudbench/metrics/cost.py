@@ -21,11 +21,10 @@ def pass_at_k(per_item_runs: list[list[bool]], k: int = 5) -> float:
     return ok / denom
 
 
-def pass_power_k(per_item_runs: list[list[bool]], k: int = 3) -> float:
-    """组合语义 pass^k（DESIGN v0.4 §6.2 正式口径，主表用）。
+def pass_power_k_per_item(per_item_runs: list[list[bool]], k: int = 3) -> list[float]:
+    """组合语义 pass^k 的题级贡献明细：C(通过数, k) / C(n, k)。
 
-    从每题 n(≥k) 次独立试次中**无放回任取** k 次均通过的概率：
-    题级贡献 = C(通过数, k) / C(n, k)，整体取题间均值。
+    试次数 < k 的题不计入（返回列表短于输入）。
     """
     if k <= 0:
         raise ValueError("k 必须 > 0")
@@ -38,6 +37,16 @@ def pass_power_k(per_item_runs: list[list[bool]], k: int = 3) -> float:
             continue
         c = sum(1 for x in runs if x)
         per_item.append(comb(c, k) / comb(n, k))
+    return per_item
+
+
+def pass_power_k(per_item_runs: list[list[bool]], k: int = 3) -> float:
+    """组合语义 pass^k（DESIGN v0.4 §6.2 正式口径，主表用）。
+
+    从每题 n(≥k) 次独立试次中**无放回任取** k 次均通过的概率：
+    题级贡献 = C(通过数, k) / C(n, k)，整体取题间均值。
+    """
+    per_item = pass_power_k_per_item(per_item_runs, k)
     if not per_item:
         return 0.0
     return sum(per_item) / len(per_item)
