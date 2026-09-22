@@ -1,7 +1,8 @@
-# CN-JudBench 数据集卡片（Dataset Card, v0.4）
+# CN-JudBench 数据集卡片（Dataset Card, v0.4.1）
 
-- 快照：2026-09-23 · public split 共 **254 题**（holdout/live 冻结见 docs/holdout-live-protocol.md，本卡不含）
-- 口径：题面 schema/适用面校验 `python -m cnjudbench validate` 全过（12 任务包）
+- 快照：2026-09-23 · public split 共 **260 题**（holdout/live 冻结见 docs/holdout-live-protocol.md，本卡不含）
+- 口径：题面 schema/适用面校验 `python -m cnjudbench validate` 全过（12 任务包）；
+  金样自检基线 random 9.03 / rules 29.25 / mock:gold 8 包全 100（reports/runs/baseline-v041）
 
 ## 1. 动机与用途
 
@@ -9,7 +10,7 @@
 oracle 硬度阶梯（隐藏单测 > 状态 diff > exact > 受约束 F1 > Judge）支持论文级
 可复现对比。**不得用于司法裁判、合规放行或当事人决策。**
 
-## 2. 任务包构成（12 包 / 251 题）
+## 2. 任务包构成（12 包 / 260 题）
 
 | 任务包 | L 层 | oracle | 题数 | 主要能力维 |
 |---|---|---|---|---|
@@ -22,7 +23,7 @@ oracle 硬度阶梯（隐藏单测 > 状态 diff > exact > 受约束 F1 > Judge�
 | dms_side_effect_intake | L3a | **env_diff 终态 diff**（state0 预置 4 题 + 半角镜像 3 题） | 16 | O |
 | tool_fault_recovery | L2 | **fault_recovery**（recovery×final） | 8 | O |
 | contract_risk | L1 | must_not/风险披露 | 17 | C |
-| a_irac_reason | L1 | 结构化 IRAC | 19 | A |
+| a_irac_reason | L1 | 结构化 IRAC（含 hard 6 题：竞合/保证期间/表见代理/溯及力等） | 25 | A |
 | tau_jud_intake | L3b | 终态 F1 + Proto（多轮） | 12 | C |
 | long_horizon_case | L4 | score–time 多日流程 | 9 | O |
 | （另：dms/fault 冒烟与负例夹具见 reference.md） | | | | |
@@ -32,7 +33,7 @@ oracle 硬度阶梯（隐藏单测 > 状态 diff > exact > 受约束 F1 > Judge�
 - **8 科目全覆盖**：每任务包在 民商事/刑事/合同合规/劳动/家事/知产/行政/执行
   至少各 1 题（validate 网格强制）；民商事为天然大头（诉讼费/利息/期间类计算
   题集中在民商事）。
-- **难度**：1–4 级作者标注（1 基础 7 题 / 2 基础-中 84 / 3 中 100 / 4 难 63）；
+- **难度**：1–4 级作者标注（1 基础 7 题 / 2 基础-中 84 / 3 中 100 / 4 难 69）；
   实证重标（difficulty_emp，按通过率分带）工具已备（scripts/calibrate_difficulty.py），
   待真实模型数据冻结后回写。
 - **来源**：synthetic（结构化生成，参数化题目+程序化金样）为主；
@@ -57,12 +58,17 @@ oracle 硬度阶梯（隐藏单测 > 状态 diff > exact > 受约束 F1 > Judge�
 
 1. 合成题为主：语言风格较真实裁判文书规整；真实卷宗纳入需走 holdout 冻结协议。
 2. u_element hard 子集对高档模型已近饱和（GLM 实测 82.1% 满分），中间带验收
-   应以中档模型为主（见 docs/u-hard-subset-report.md）。
+   应以中档模型为主（见 docs/u-hard-subset-report.md）；a_irac 同样对头部模型
+   饱和（hard 复合争点 6/6 满分）——单步识别题无法恢复区分度，true-hard 需
+   「要素不点名」事实链题（docs/calc-real-model-report.md §C4）。
 3. d-fake-001 类负例夹具对真实模型无区分度（功能为 harness 自检）。
 4. 单法官域（劳动/家事等）题量仅满足域覆盖网格，分域细分排名不具统计力
    （§6.1 n 规则：单维 n<50 不排名）。
 5. fault 任务 final_exact 口径公平性修正进行中
    （docs/fault-dms-real-model-report.md 发现 2/3）。
+6. lawkb 为节录口径（12 法 50 版本）：statute 类谓词的判别力受库覆盖约束，
+   库外条文分列 unknown_in_lawkb、不记幻觉；扩库准入见 anchor×as_of 审计
+   （docs/calc-real-model-report.md §C5）。
 
 ## 7. 许可与引用
 

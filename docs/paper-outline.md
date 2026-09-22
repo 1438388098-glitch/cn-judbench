@@ -1,25 +1,26 @@
-# CN-JudBench（法衡）论文骨架 v2
+# CN-JudBench（法衡）论文骨架 v3
 
-> 状态：v1 + R6-R11 实证整合 · 2026-09-23 · 数据截至 v0.4 全链路（269 tests）
-> 定位：法律领域 LLM 评测基准的方法论论文（评测资源 + 评测协议双贡献）
+> 状态：v2 + R16-R18 效度审计整合 · 2026-09-23 · 数据截至 v0.4.1（283 tests · 260 题 12 包 · lawkb 12 法 50 版本）
+> 定位：法律领域 LLM 评测基准的方法论论文（评测资源 + 评测协议 + 测量效度三贡献）
 > 本文件不构成法律意见。
 
 ## 0. 标题候选
 
 1. **CN-JudBench: A Hardness-Laddered Benchmark for Chinese Judicial LLM Evaluation**
    （中文工作名：法衡：面向中国司法场景的硬度阶梯式大模型评测基准）
-2. Beyond Keyword Matching: Oracle Hardness Ladders and Safety-Capability Separation for Legal Benchmarks
+2. Beyond Keyword Matching: Oracle Hardness Ladders, Safety-Capability Separation, and Gold-Quality Audits for Legal Benchmarks
 3. 法衡：一个可防刷榜、可对标的中文司法大模型评测
 
 ## 1. 摘要骨架（150 词）
 
-- **问题**：现有中文法律评测（法考题选择/关键词匹配）对头部模型饱和（我们实测同代两强模型总分差 <1 分、r=0.91），且夹具/红线混入主分、无 CI、无污染控制。
+- **问题**：现有中文法律评测（法考题选择/关键词匹配）对头部模型饱和（我们实测同代两强模型总分差 <1 分、r=0.91），且夹具/红线混入主分、无 CI、无污染控制；金样与基线自身的缺陷会把「金样-模型的分歧」误当成「模型能力差」。
 - **贡献**：
-  C1 六能力维 × 9 任务包的中文司法基准（104+ 题，公开/holdout 双库 + 法条版本库 lawkb）；
+  C1 六能力维 × 12 任务包的中文司法基准（**260 题**，公开/holdout 双库 + 法条版本库 lawkb v0.4.1：12 法 50 版本含废止窗口）；
   C2 **oracle 硬度阶梯**（隐藏单测/状态终态 > 环境 diff > 精确计算 > 受约束抽取 F1 > Judge 辅列）；
   C3 **中间带原则 + 安全/能力分列**（夹具出主分；谎言 ok=0 档位化）；
-  C4 论文级统计协议（bootstrap CI、flip 门禁、组合 pass^k、random/rules 双基线、污染四级）。
-- **结果**：v0.4 口径下基线锚点（random/rules）与模型分层可分；区分度诊断驱动的改版使 contract 包 mean↓36 分、sd↑。
+  C4 论文级统计协议（bootstrap CI、flip 门禁、组合 pass^k、random/rules 双基线、污染四级）；
+  C5 **测量效度审计协议**（金样逐题法学复核消融、基线泄题扫描、公平性契约 answer_enums——三者均为可复用的基准工程方法学）。
+- **结果**：金样质量消融显示同份答案重判分差达 **55.26 分**（31.58→86.84）；基线泄题修复使 random 从 96→12（曾高于真实考生 90）；v0.4.1 口径下 random 9.03 / rules 29.25 与模型分层可分。
 
 ## 2. 相关工作对比表（§Related Work 主表素材）
 
@@ -36,7 +37,7 @@
 ## 3. 方法章骨架
 
 ### 3.1 任务与能力维
-六维 K/U/R/S/A/G/O/C 映射 9 任务包（口径、题量、样例）；法条版本库 lawkb（as_of 时点解析）。
+六维 K/U/R/S/A/G/O/C 映射 12 任务包 260 题（口径、题量、样例）；法条版本库 lawkb（as_of 时点解析 + 废止窗口 + 人工校对纪律，v0.4.1：12 法 50 版本）。
 
 ### 3.2 Oracle 硬度阶梯（C2）
 `隐藏单测/精确计算 > 环境终态 > 结构化 exact > 受约束 F1 > Judge（辅列）`；
@@ -50,20 +51,29 @@
 ### 3.4 统计协议（C4）
 bootstrap CI（1000 次）、flip 门禁（机检>5% 不进榜）、组合 pass^k、random/rules 基线、n<50 不排名、预注册比较单元（六包 grand）。
 
+### 3.5 测量效度审计协议（C5，新）
+基准发布前的三道自检（全部已实装为脚本/测试，可被其他基准复用）：
+1. **金样自证**：mock:gold 必须全满分——金样无法自证即金样 bug（R18 抓出 lh-06）；
+2. **基线泄题扫描**：random/rules 不得引用 law_anchors 等判分锚（题面不可见）——R17 抓出 a_irac 双基线 96 分高于真实考生 90 的泄题；
+3. **金样消融**：同份考生答案在 gold 修正前后重判——分差即「金样错误污染量」（R16：a_irac 31.58→86.84）。
+配套：answer_enums 公平性契约（validate 强制）、over_promise 否定/疑问语境豁免、金样法学逐题复核记录（scripts/fix_*_r1*.py 注释即审计底稿）。
+
 ## 4. 实验章骨架（待补数字的槽位标 ⬜）
 
 | 表 | 内容 | 状态 |
 |---|---|---|
-| T1 主表 | cap±CI / hard±CI / safety / solve% / $/solve / flip% × 模型 | GLM v0.4 ✅ · DS v0.4 ⬜（密钥阻塞）· mock:gold/random/rules ✅ |
+| T1 主表 | cap±CI / hard±CI / safety / solve% / $/solve / flip% × 模型（基线列=v0.4.1 重出口径） | GLM v0.4 ✅ · DS v0.4 ⬜（密钥阻塞）· v0.4.1 基线表 ✅（random 9.03/rules 29.25/gold 100×8 包） |
 | T2 区分度 | 同题模型 r、|Δ|≥15 题数、SE/包 | DS×GLM v0.3 已有；v0.4 ⬜ |
 | T3 消融 | v0.3 vs v0.4 口径（门禁出基数/夹具出主分/收紧） | GLM 64.39→57.19 ✅ |
 | T4 安全 | 应拒正确率、over_promise 率、canary | GLM safety=0.00 ✅ |
+| T5 效度审计 | 金样消融（31.58→86.84）、基线泄题（96→12）、lh-06 自证修复 | R16-R18 ✅（§E11-E13） |
 | T5 成本 | $/solve、p95、质量-成本前沿 | DS $0.0036/solve ✅ |
 | T6 人评 | κ≥0.7 子样本 human ceiling | ⬜ Sprint C |
 
 ## 5. 讨论与 Limitations
-- 题量（105→Sprint B 后 ~200）与单语言限制；难度实证标定依赖模型池（mock:gold+DS+GLM 三点）；
-- Judge 自评家族偏差；u_element 头部饱和的 hard 子集路线。
+- 题量（260 题、12 包）与单语言限制；难度实证标定依赖模型池（mock:gold+DS+GLM 三点）；
+- Judge 自评家族偏差；u_element/a_irac 头部饱和 → true-hard 需「要素不点名」事实链题（E12 负结果）与 oracle 阶梯；
+- lawkb 收录为节录口径（人工校对纪律），未覆盖全部引用法的全部条文——unknown_in_lawkb 分列不记幻觉，但 statute 谓词的判别力受库覆盖约束（E11）。
 
 ## 6. 投稿目标（按匹配度）
 1. **ACL/EMNLP（资源与评测 Track）** —— 基准+协议双贡献主投；
@@ -71,12 +81,15 @@ bootstrap CI（1000 次）、flip 门禁（机检>5% 不进榜）、组合 pass^
 3. 法学期刊（《法学研究》数字化/AI 法治方向或 JLE/Law & AI 类）—— 双界认可的第二落点；
 4. Workshop 预热：NLP4PI / LegalNLP / LeXFile。
 
-## 7. 落地差距清单（R11 后状态）
+## 7. 落地差距清单（R19 后状态）
 1. ⬜ DS v0.4 复跑（密钥）→ T1/T2 完整（export → subagent/API → file: 回灌 → aggregate_passk 全链路已跑通；**转存必须程序化**——人工摘录会系统性压缩答案致分数失真，见 calc-real-model-report.md §C）；
 2. ✅ ~~u_element hard 子集~~ 28 题落地；GLM 实测 82.1% 满分——**饱和结论转为论文素材**（头部模型在格式保真维仍系统性失分，见 E4）；
 3. ✅ ~~holdout 冻结~~ 工具+协议文已备（freeze_holdout.py --apply 双审待执行）；live 流程文已备；
 4. ⬜ 人评 κ 试点（协议+κ 工具已备，待招募）；
-5. ✅ ~~calc_fail_to_pass~~ 46 题落地（五公式含 hard 变体）+ dms 16 题（env_diff）+ fault 8 题（故障恢复）。
+5. ✅ ~~calc_fail_to_pass~~ 46 题落地（五公式含 hard 变体）+ dms 16 题（env_diff）+ fault 8 题（故障恢复）；
+6. ✅ ~~测量效度审计~~ 三道自检落地（金样自证/基线泄题扫描/金样消融，见 §3.5、E11-E13）；
+7. ⬜ lawkb 惰性锚补库（cf 的诉讼费办法13条等 7 包；当前零扣分，R19+ 逐题法学复核后入库，准入=E14 审计脚本）；
+8. ⬜ a_irac true-hard 变体（E12 负结果后需「要素不点名」的事实链题，属 Sprint C）。
 
 ## 8. R6-R11 新增实证（v1 骨架后补，均可直接进实验章）
 
@@ -103,5 +116,36 @@ fault 8 题四型注入 × 四恢复形态；recovery×final（answer.status 单
 f-002/004 保留 0 分为真实判罚）。
 
 ### 数据集卡片
-dataset-card.md（254 题 12 包）已具备 NeurIPS D&B 提交要件：构成/网格/金样
+dataset-card.md（260 题 12 包）已具备 NeurIPS D&B 提交要件：构成/网格/金样
 隔离/防污染/局限/许可。
+
+## 9. R16-R18 效度审计实证（v2 骨架后补，支撑 T5）
+
+### E11 金样质量消融（ headline 实验）
+a_irac 19 题逐题法学复核：约 10 题 gold 主条号错误（如未签劳动合同双倍工资
+挂民法典509，正解劳动合同法82）。**同份考生答案**修正前后重判：
+31.58 → 76.32（条号+any-of）→ 86.84（含 over_promise 语境豁免修复）。
+金样错误时「模型分」测的是金样与模型的分歧，不是能力——单金样条号 vs
+事实多解（acceptable_articles any-of 口径）是中文法律评测的普遍隐患。
+配套发现：lawkb 库存不足时 anchor 三检必败（a-007/009 的正解从未能得分），
+法条库覆盖率是 statute 类谓词的前提设施。
+
+### E12 IRAC 饱和负结果（反例，支撑 C2 必要性）
+6 道复合争点 hard 题（difficulty=4：请求权竞合/保证期间/表见代理/定金违约金
+不可抗力/溯及力/工程价款优先权）对 GLM 考生 6/6 满分——题面只要点名学说
+要素，头部模型即命中正解条号。**开放式问法无法恢复区分度，判别力必须来自
+oracle 硬度阶梯**（calc 隐藏单测、dms 状态终态、fault 故障注入）——这是
+「为什么需要硬度阶梯」的最直接实证。
+
+### E13 基线泄题审计（防刷榜协议补全）
+random/rules 的 structured 兜底曾直接引用 item.law_anchors（statute 谓词的
+判分锚，题面不可见）→ a_irac 双基线 96 分、高于真实考生 90。修复（域内
+随机池/题面正则）后 12 分。教训：**基线也是被评对象**，其输入可见性与考生
+必须同构，否则「防刷榜」本身被刷。回归测试已锁死
+（test_baselines_never_cite_scoring_anchors）。
+
+### E14 anchor×as_of 全库时效审计（数据质量协议）
+逐题 resolve_article 扫描 12 包 260 题，分层处置：cit/fault stale 锚系考点
+保留；7 包库外锚经核实为惰性元数据（无 statute 谓词，零扣分）；真实金样
+bug 仅 lh-06（继承题挂未生效的民法典509 → 继承法10 带废止窗口修正）。
+审计脚本化后可入 CI，作为 lawkb 扩库（R19+）的准入门。
