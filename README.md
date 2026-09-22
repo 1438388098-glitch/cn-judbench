@@ -1,6 +1,6 @@
 # CN-JudBench（法衡）
 
-中国司法多维度大模型 / 司法 Agent 评测框架（P0a 地基已落地）。
+中国司法多维度大模型 / 司法 Agent 评测框架（P0a 地基 + P0b 机检 runner 已落地）。
 
 **目标**：测出模型在中国司法工作流里「哪一维能用、哪一维危险、是否稳定、代价多少」。  
 **分数**：百分制，保留两位小数（0.00–100.00）。  
@@ -23,11 +23,11 @@
 - [x] **P0a 实施文档**（`docs/impl-P0a.md`）
 - [x] **P0a 代码** lawkb 多版本解析 + 题面/谓词校验 + `cit_validity` 冒烟（60 项测试）
 - [x] **P0b 实施文档**（`docs/impl-P0b.md`）
-- [ ] **P0b 代码** FTP/PTP 执行器 + CiteGuard + API adapter
+- [x] **P0b 代码** FTP/PTP 执行器 + CiteGuard + API adapter（104 项测试）
 - [ ] P1 Judge / 红线 / CI 门禁
 - [ ] P2 工具层 / Legal-GAIA
 
-## 如何跑（P0a 现状）
+## 如何跑（P0b 现状）
 
 ```bash
 # 环境：Python 3.11+，装依赖与包
@@ -41,10 +41,15 @@ python -m cnjudbench resolve-law --law 刑法 --article 264 --as-of 2024-06-01
 
 # cit_validity 冒烟：金样期望 vs 解析器对照（不调用模型）
 python -m cnjudbench smoke-cit-validity
+
+# 机检跑分（P0b）：离线金样 Mock 或 OpenAI-compat 端点
+python -m cnjudbench run --task cit_validity --model mock:gold --out reports/runs/smoke-cit
+python -m cnjudbench run-all --tasks cit_validity,u_element_extract,s_charge_subsume --model mock:gold
+#   --model openai:<model> --base-url … 走真 API（密钥仅经 OPENAI_API_KEY / CNJUD_API_KEY 环境变量）
+# 产出 reports/runs/<run_id>/summary.json + manifest.json（百分制两位小数；目录已 gitignore）
 ```
 
-模型侧 runner（`--model ...` → `reports/runs/<run_id>/summary.json` + manifest）
-属 **P0b**，尚未实现。
+Mock（`mock:gold`）零网络、确定性，CI 只跑 Mock；真 API 冒烟为可选步骤。
 
 ## 测试
 
@@ -63,13 +68,13 @@ python -m cnjudbench smoke-cit-validity
 ## 目录
 
 ```text
-src/cnjudbench/  # 包：lawkb 解析 / schemas / validate / scale / smoke / cli
+src/cnjudbench/  # 包：lawkb 解析 / schemas / validate / scale / smoke / predicates / citeguard / adapters / runner / cli
 lawkb/           # 法条时间轴多版本（生成脚本 scripts/build_min_lawkb.py）
-tasks/           # 任务包（现含 cit_validity）
+tasks/           # 任务包（cit_validity / u_element_extract / s_charge_subsume）
 data/            # public / holdout（ignore） / live
 tests/           # pytest
 docs/            # 调研、实施文档与校准集
-adapters/ runner/ judge/ reports/   # P0b / P1 规划中
+reports/runs/    # 每次评测的 manifest + summary（gitignore）
 ```
 
 ## 许可
