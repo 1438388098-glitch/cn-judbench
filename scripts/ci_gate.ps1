@@ -1,4 +1,4 @@
-# CI 门禁（impl-P1-rest §5）PowerShell 版：validate → pytest → mock run-all → 断言 → 翻转率。
+﻿# CI 门禁（impl-P1-rest §5）PowerShell 版：validate → pytest → mock run-all → 断言 → 翻转率。
 # 任一步失败即 exit 1。CI 只跑 Mock，不烧真 API、不需要任何密钥。
 $ErrorActionPreference = "Stop"
 Set-Location (Join-Path $PSScriptRoot "..")
@@ -18,7 +18,7 @@ Invoke-Step "[1/6] validate" @("-m", "cnjudbench", "validate", "--items", "data/
 Invoke-Step "[2/6] pytest" @("-m", "pytest", "-q")
 Invoke-Step "[3/6] run-all (mock:gold, with-judge)" @(
     "-m", "cnjudbench", "run-all",
-    "--tasks", "cit_validity,u_element_extract,s_charge_subsume",
+    "--tasks", "cit_validity,u_element_extract,s_charge_subsume,a_irac_reason",
     "--model", "mock:gold", "--with-judge", "--judge", "mock",
     "--out", "reports/runs/ci"
 )

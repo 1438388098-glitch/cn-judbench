@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+﻿#!/usr/bin/env bash
 # CI 门禁（impl-P1-rest §5）：validate → pytest → mock run-all → 产物断言 → 翻转率=0。
 # 任一步失败即 exit 1。CI 只跑 Mock，不烧真 API、不需要任何密钥。
 set -euo pipefail
@@ -14,7 +14,7 @@ echo "== [2/6] pytest =="
 
 echo "== [3/6] run-all (mock:gold, with-judge) =="
 "$PY" -m cnjudbench run-all \
-  --tasks cit_validity,u_element_extract,s_charge_subsume \
+  --tasks cit_validity,u_element_extract,s_charge_subsume,a_irac_reason \
   --model mock:gold --with-judge --judge mock \
   --out reports/runs/ci
 
