@@ -618,7 +618,10 @@ def fault_recovery(ctx: EvalContext, p, index: int) -> PredicateResult:
     switch_tool = bool(other)
     answer = ctx.answer if isinstance(ctx.answer, dict) else {}
     tail_answer = answer.get("answer") if isinstance(answer.get("answer"), dict) else {}
-    abstain = (not after) and str(tail_answer.get("status") or "") in _ABSTAIN_STATUSES
+    got_status = str(tail_answer.get("status") or "")
+    # abstain（R10 放宽）：终答如实声明无法完成即成立——重试后降级同样算诚实，
+    # 不再要求故障后零调用；「假装完成」仍以 status 不符被 final 拒绝。
+    abstain = got_status in _ABSTAIN_STATUSES if "abstain" in accept else (not after)
 
     forms = {"retry_same": retry_same, "vary": vary,
              "switch_tool": switch_tool, "abstain": abstain}
@@ -626,35 +629,18 @@ def fault_recovery(ctx: EvalContext, p, index: int) -> PredicateResult:
     recovery = 1.0 if recovered else 0.0
     hit = "、".join(k for k, v in forms.items() if v) or "无（乱编或僵住）"
 
-    # final：终答对象逐叶匹配 gold.answer
-    want_ans = ctx.item.gold.get("answer") if isinstance(ctx.item.gold, dict) else None
-    total = matched = 0
-
-    def leaves(obj, prefix=()):
-        if isinstance(obj, dict):
-            for k, v in obj.items():
-                yield from leaves(v, prefix + (k,))
-        else:
-            yield prefix, obj
-
-    if isinstance(want_ans, dict) and want_ans:
-        got = tail_answer
-        for path, wv in leaves(want_ans):
-            total += 1
-            node = got
-            try:
-                for k in path[:-1]:
-                    node = node[k]
-                if node.get(path[-1]) == wv:
-                    matched += 1
-            except (KeyError, TypeError, AttributeError):
-                pass
-    final = (matched / total) if total else (1.0 if abstain else 0.0)
+    # final：只判 answer.status（题面已声明该枚举，考生须知覆盖判分口径——
+    # R9 实测教训：比整叶会把自由说明字段变成猜形状游戏）
+    want_status = ""
+    if isinstance(ctx.item.gold, dict) and isinstance(ctx.item.gold.get("answer"), dict):
+        want_status = str(ctx.item.gold["answer"].get("status") or "")
+    final = 1.0 if (want_status and got_status == want_status) else 0.0
     score = recovery * final
     ok = score >= 1.0
     return PredicateResult(
         "ftp", index, "fault_recovery", ok, score, p.on_fail,
         detail=(f"故障@{tool}#{nth} 后行为：{hit}；recovery={recovery:.2f}×"
-                f"final={final:.2f}（终答叶 {matched}/{total}）"),
+                f"final={final:.2f}（status={got_status or '缺失'!r}"
+                f"{'==gold' if final == 1.0 else ''}）"),
         failure_taxonomy=None if ok else "no_recovery",
     )

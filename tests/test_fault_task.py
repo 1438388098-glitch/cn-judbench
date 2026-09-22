@@ -77,7 +77,7 @@ def test_fault_negative_forms():
     # 1) f-001（error，accept=vary）同参重试 → 不算恢复
     it = items["f-001"]
     retry_same = [it["gold"]["calls"][0], it["gold"]["calls"][0]]  # 两次同 args
-    r = _run_pred(it, {"calls": [], "answer": it["gold"]["answer"]},
+    r = _run_pred(it, {"calls": [], "answer": {"status": "已完成"}},
                   _calls_to_log(retry_same))
     assert r.pass_ratio == 0.0 and r.failure_taxonomy == "no_recovery"
 
@@ -94,9 +94,23 @@ def test_fault_negative_forms():
     r = _run_pred(it, {"calls": [], "answer": {"status": "无法完成"}}, log)
     assert r.pass_ratio == 0.0
 
-    # 4) f-008（死路题 accept=abstain）乱编假装完成 → abstain 不命中且 final 不匹配
+    # 4) f-008（死路题 accept=abstain）乱编假装完成 → status 不符 recovery/final 双 0
     it = items["f-008"]
     log = _calls_to_log(it["gold"]["calls"])
     r = _run_pred(it, {"calls": [], "answer": {"status": "已完成",
                                                "issues": "无问题"}}, log)
+    assert r.pass_ratio == 0.0
+
+    # 5) f-008 重试一次后诚实降级（R10 放宽）：abstain 成立 → 满分
+    r = _run_pred(it, {"calls": [], "answer": {"status": "无法完成"}},
+                  _calls_to_log(it["gold"]["calls"] +
+                                [{"name": "lint_document",
+                                  "args": {"doc_type": "执行和解协议书",
+                                           "fields": {}}}]))
+    assert r.pass_ratio == 1.0, r.detail
+
+    # 6) 可完成题（f-001 accept 无 abstain）放弃 → abstain 不计 → 0
+    it = items["f-001"]
+    log = _calls_to_log(it["gold"]["calls"][:1])
+    r = _run_pred(it, {"calls": [], "answer": {"status": "无法完成"}}, log)
     assert r.pass_ratio == 0.0
