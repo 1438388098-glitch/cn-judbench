@@ -46,14 +46,22 @@ class ToolLogEntry:
 
 @dataclass
 class ToolSandbox:
-    """每次判分新建一个实例；log 即该题工具轨迹。"""
+    """每次判分新建一个实例；log 即该题工具轨迹。
+
+    ``dms_state0``：案管预置初始状态（§5.3 在办案件场景，来自 gold 夹具），
+    None 则从空白状态起步；注入即深拷贝，与轨迹重放共用同一语义。
+    """
 
     store: LawkbStore
     log: list[ToolLogEntry] = field(default_factory=list)
+    dms_state0: dict | None = None
     _impls: dict[str, Callable[..., Any]] = field(default_factory=dict, init=False)
     _dms_state: dict = field(default_factory=dms.default_state, init=False)
 
     def __post_init__(self) -> None:
+        if isinstance(self.dms_state0, dict) and self.dms_state0:
+            import copy
+            self._dms_state = copy.deepcopy(self.dms_state0)
         self._impls = {
             "search_statute": statutes.search_statute,
             "get_article": statutes.get_article,

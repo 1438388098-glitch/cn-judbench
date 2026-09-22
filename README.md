@@ -37,7 +37,8 @@
 - [x] **P3 代码** τ-Jud（user_script + 终态 F1 + Proto + pass^k 双列/方差分解）+ 合同轨 + IRAC + Long-Horizon + `run-dialog`（175 项测试）
 - [x] **v0.4 Sprint A** safety/capability 分列 + status_ladder/金额阶梯/must_not + partial-only 基数 + over_refuse×0.50
 - [x] **v0.4 统计协议** bootstrap CI / pass^k 组合语义 / report.csv / 正式分 provisional 门禁 / n-gram 污染双检 / random·rules 基线同管线
-- [x] **v0.4 新任务** calc_fail_to_pass 43 题（隐藏单测 oracle，三族：受理费/单利利息/期间）+ u_element hard 子集 28 题（GLM 实测 82.1%，见 docs/u-hard-subset-report.md）
+- [x] **v0.4 新任务** calc_fail_to_pass 43 题（隐藏单测 oracle，三族：受理费/单利利息/期间）+ u_element hard 子集 28 题（GLM 实测 82.1%，见 docs/u-hard-subset-report.md）+ dms_side_effect_intake 13 题（env_diff 终态 diff；state0 预置「在办案件」与双卡分心）
+- [x] **v0.4 翻转实证** GLM 考生模式 k=3 复测：逐对题级翻转 6/11≈55% ≫ 5% 门禁（docs/u-hard-subset-report.md 追加节）→ 单样本 run 一律 provisional，主表强制 pass^k
 - [ ] 待办：DS v0.4 复跑（密钥）· holdout 冻结执行（协议已备）· 人评 κ 试点（方案已备）
 
 ## 如何跑（P3 现状）
@@ -88,6 +89,27 @@ python scripts/flip_rate_check.py --tasks cit_validity --model mock:gold   # API
 ```
 
 Mock（`mock:gold`）零网络、确定性，CI 只跑 Mock；真 API 冒烟为可选步骤。
+
+# v0.4：答案回灌与统计协议
+# 1) 回灌判分（不调 API）：导出题面 → 外部生成 answers/<item_id>.txt → file: 模型官方判分
+python scripts/export_prompts.py --tasks u_element_extract --run-dir runs/u1
+#   （答案放 runs/u1/answers/ 后）
+python -m cnjudbench run-all --tasks u_element_extract --model file:runs/u1 --out reports/runs/u1-scored
+
+# 2) 翻转率门禁（同一模型两跑，API 建议 max-flip 0.05；超门禁 → provisional，不进正式表）
+python scripts/flip_rate_check.py --tasks u_element_extract --model openai:<model> --max-flip 0.05
+
+# 3) n-gram 污染双检（对全部题面扫描与语料重叠比，报告入 summary.contamination）
+python -m cnjudbench run-all --tasks u_element_extract --model mock:gold   --ngram-corpus docs/corpus.txt --ngram-size 8 --out reports/runs/n1
+
+# 4) 论文表生成：正式表（T-main）只收 provisional=false，其余进附录 T-provisional
+python scripts/make_paper_tables.py --runs reports/runs --out docs/paper-tables.md
+
+# 5) 案管副作用任务（env_diff 终态 diff；d-101..104 为 state0 预置在办案件，d-104 双卡分心）
+python -m cnjudbench run-all --tasks dms_side_effect_intake --model mock:tools --out reports/runs/dms1
+
+# 6) 人评一致性（加权 κ + bootstrap CI + 与机检 spearman）
+python scripts/kappa.py --ratings ratings.csv --machine machine.csv
 
 ## 测试
 

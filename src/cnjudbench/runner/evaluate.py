@@ -160,8 +160,11 @@ def evaluate_item(
     # P1 接线：Abst 双标签 + canary 一级扫描（对原始输出，含解析失败路径）
     abst = label_abst(completion.text, expect="answer")
     contam = scan_output(item.id, completion.text, canary=item.canary)
-    # P2：tool_call 任务——沙箱随题建，调用日志即轨迹
-    sandbox = ToolSandbox(store) if task.output_type == "tool_call" else None
+    # P2：tool_call 任务——沙箱随题建，调用日志即轨迹；
+    #     gold.initial_state 为案管预置环境（§5.3 在办案件），随题注入
+    _state0 = item.gold.get("initial_state") if isinstance(item.gold, dict) else None
+    sandbox = (ToolSandbox(store, dms_state0=_state0)
+               if task.output_type == "tool_call" else None)
 
     # 1) 答案解析（structured/extract 须为 JSON；容忍 ```json 围栏）。
     #    tool_call 任务解析失败不提前返回：让 fake_tool/终答谓词照常判

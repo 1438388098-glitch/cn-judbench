@@ -53,4 +53,54 @@ def test_dms_diff_mock_tools_end_to_end(tmp_path, monkeypatch):
     by_id = {i["id"]: i for i in s["tasks"]["dms_side_effect_intake"]["items"]}
     for i in range(1, 9):
         assert by_id[f"d-{i:03d}"]["score"] == "100.00", f"d-{i:03d}"
+    for iid in ("d-101", "d-102", "d-103", "d-104"):  # §5.3 在办案件（state0 预置）
+        assert by_id[iid]["score"] == "100.00", iid
     assert float(by_id["d-fake-001"]["score"]) == 0.00  # 叙述不调用：fake_tool+终态空
+
+
+def test_sandbox_state0_injection():
+    """gold.initial_state 注入沙箱：跳过建卡直接 update 成功，快照含分心卡。"""
+    items = {i["id"]: i for i in _items()}
+    s0 = items["d-104"]["gold"]["initial_state"]
+    sandbox = ToolSandbox(LawkbStore.load(REPO / "lawkb"), dms_state0=s0)
+    ok, err, _ = apply(sandbox.dms_snapshot(), "noop", None)  # 只为证明快照可读
+    entry = sandbox.execute("update_case_card",
+                            {"case_no": "（2024）京0105民初804号",
+                             "fields": {"close_reason": "调解结案"}})
+    assert entry.ok, entry.error
+    snap = sandbox.dms_snapshot()
+    assert snap["cards"]["（2024）京0105民初804号"]["close_reason"] == "调解结案"
+    assert "（2024）京0105民初805号" in snap["cards"]  # 预置分心卡保留
+
+
+def test_env_diff_state0_and_distractor():
+    """env_diff 从 initial_state 起步：正确轨迹满分；误伤分心卡按叶比例扣分。"""
+    import copy
+    from types import SimpleNamespace
+
+    from cnjudbench.predicates.base import EvalContext
+    from cnjudbench.predicates.ftp import env_diff
+    from cnjudbench.schemas.task import PredicatesFile
+
+    items = {i["id"]: i for i in _items()}
+    it = items["d-104"]
+    gold = it["gold"]
+    from cnjudbench.schemas.item import Item
+
+    pf = PredicatesFile.model_validate({"ftp": [{"type": "env_diff", "on_fail": "partial"}]})
+    spec = pf.ftp[0]
+    it = Item.model_validate(it)
+
+    def run(entries):
+        ctx = EvalContext(task=None, item=it, answer=None, answer_text="",
+                          claims=[], claim_status="ok",
+                          store=LawkbStore.load(REPO / "lawkb"), tool_log=entries)
+        return env_diff(ctx, spec, 0)
+
+    good = [SimpleNamespace(name=c["name"], args=c["args"]) for c in gold["calls"]]
+    assert run(good).pass_ratio == 1.0
+
+    bad_args = [dict(c["args"]) for c in gold["calls"]]
+    bad_args[0]["case_no"] = "（2024）京0105民初805号"  # 误伤分心卡
+    r = run([SimpleNamespace(name=c["name"], args=a) for c, a in zip(gold["calls"], bad_args)])
+    assert 0.0 < r.pass_ratio < 1.0 and r.failure_taxonomy == "env_state_mismatch"

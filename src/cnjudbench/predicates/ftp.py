@@ -506,10 +506,13 @@ def unit_tests(ctx: EvalContext, p, index: int) -> PredicateResult:
 def env_diff(ctx: EvalContext, p, index: int) -> PredicateResult:
     """案管副作用终态 diff（DESIGN v0.4 §5.3，dms_side_effect_intake 主分）。
 
-    在空白案管状态上**重放**本题工具轨迹（ctx.tool_log），终态快照与金样
-    ``gold.expected_state`` 逐叶比对；ratio = 命中叶数 / 金样叶数（on_fail=partial
-    进基数）。无金样或零调用均如实给 0/跳过，不静默放行。
+    在案管初始状态（gold.initial_state 预置，缺省空白）上**重放**本题工具轨迹
+    （ctx.tool_log），终态快照与金样 ``gold.expected_state`` 逐叶比对；
+    ratio = 命中叶数 / 金样叶数（on_fail=partial 进基数）。无金样或零调用均
+    如实给 0/跳过，不静默放行。
     """
+    import copy
+
     from ..tools import dms as _dms
 
     want = ctx.item.gold.get("expected_state") if isinstance(ctx.item.gold, dict) else None
@@ -517,7 +520,8 @@ def env_diff(ctx: EvalContext, p, index: int) -> PredicateResult:
         return PredicateResult("ftp", index, "env_diff", True, 1.0, p.on_fail,
                                detail="gold 无 expected_state：跳过机判（n/a）",
                                skipped=True)
-    state = _dms.default_state()
+    state0 = ctx.item.gold.get("initial_state") if isinstance(ctx.item.gold, dict) else None
+    state = copy.deepcopy(state0) if isinstance(state0, dict) and state0 else _dms.default_state()
     n_calls = 0
     for entry in ctx.tool_log:
         name = getattr(entry, "name", None) or (entry.get("name") if isinstance(entry, dict) else None)
