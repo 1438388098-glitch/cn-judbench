@@ -59,6 +59,19 @@ def validate_items_file(path: Path, tasks: dict[str, TaskManifest]) -> list[str]
                 f"{prefix}: output_type={item.output_type!r} 与任务 {task.task_id!r}"
                 f" 声明的 {task.output_type!r} 不一致"
             )
+        # 公平性（R38/E16）：refuse 协议一致性——判分走 refuse 谓词文件的题，
+        # state_goal.expect 必须为 refuse（渲染器据此输出拒绝协议题面）；
+        # 反之 expect=refuse 的题不得指向常规判分文件，否则题面契约与判分口径脱节。
+        ref_refuse = bool(item.predicates_ref) and item.predicates_ref.endswith("refuse.yaml")
+        goal_refuse = isinstance(item.state_goal, dict) and item.state_goal.get("expect") == "refuse"
+        if ref_refuse and not goal_refuse:
+            errors.append(
+                f"{prefix}: predicates_ref 指向 refuse 判分文件但 state_goal.expect != 'refuse'"
+                "（公平性：考生须知必须覆盖判分口径）")
+        if goal_refuse and not ref_refuse:
+            errors.append(
+                f"{prefix}: state_goal.expect == 'refuse' 但 predicates_ref 非 refuse 判分文件"
+                "（公平性：拒绝协议题面须配套 refuse 判分）")
     return errors
 
 
