@@ -263,8 +263,15 @@ def test_u_element_distractor_invariants():
     items = [json.loads(l) for l in
              (REPO / "data" / "public" / "u_element_extract.jsonl").read_text(
                  encoding="utf-8-sig").splitlines() if l.strip()]
-    assert len(items) == 19
-    for it in items:
+    # 原 19 题干扰注入批 + hard 批（v1 8 + v2 10 + v3 6）
+    assert len(items) == 43
+    assert len({it["id"] for it in items}) == len(items)
+    assert len({it["canary"] for it in items}) == len(items)
+    assert all(set(it["gold"]) == {"amount", "date", "case_no"} for it in items)
+    assert len([it for it in items if it.get("difficulty", 0) >= 3]) == 28
+    injected = [it for it in items if it["id"] <= "u-019"]
+    assert len(injected) == 19
+    for it in injected:
         text, gold = it["input"], it["gold"]
         assert text.count("【另案信息】") == 1, it["id"]
         # gold 案号在全文只出现一次（干扰案号必须可区分）
@@ -275,6 +282,10 @@ def test_u_element_distractor_invariants():
         amounts.discard(int(gold["amount"]))
         assert len(amounts) >= 2, it["id"]
         assert it["id"].startswith("u-")
+    # hard 批：干扰混在本案事实内（无注入标记），但 gold 案号仍须在全文唯一
+    for it in items:
+        if it["id"] > "u-019":
+            assert it["input"].count(str(it["gold"]["case_no"])) == 1, it["id"]
 
 
 def test_u_element_role_all_capability():

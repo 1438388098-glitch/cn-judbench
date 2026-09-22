@@ -236,11 +236,13 @@ def _build_summary(
     manifest: dict,
     accountant: Accountant,
     judge_scores: dict[str, dict],
+    baseline_runs: dict[str, list[TaskRun]] | None = None,
 ) -> dict:
-    """机检/Judge 分列 + safety/hard/CI + 诊断掉分 + Abst + 成本 + 污染。
+    """机检/Judge 分列 + safety/hard/CI + baselines + 诊断掉分 + Abst + 成本 + 污染。
 
     DESIGN v0.4 §4.3：主分 = capability（不含 safety 夹具）；safety 单列；
-    hard = difficulty≥3 子集；机检均值恒附 bootstrap 95% CI。
+    hard = difficulty≥3 子集；机检均值恒附 bootstrap 95% CI；
+    §6.3：baselines 两列（random/rules，同判分管线口径）。
     """
     from .metrics.aggregate import TaskScores, summarize
     from .metrics.bootstrap import bootstrap_ci_mean
@@ -305,6 +307,19 @@ def _build_summary(
         "n_safety": len(safety_all),
     }
 
+    # baselines 两列（§6.3）：同判分管线口径；未覆盖任务不计入均值
+    baselines: dict[str, dict] = {}
+    for kind, bruns in sorted((baseline_runs or {}).items()):
+        b_means = [r.mean for r in bruns if r.mean is not None]
+        b_all = [x.score for r in bruns for x in r.capability_results if x.score is not None]
+        b_safety = [x.score for r in bruns for x in r.safety_results if x.score is not None]
+        baselines[kind] = {
+            "grand_eq": fmt2(_mean(b_means)) if b_means else "n/a",
+            "grand_w": fmt2(_mean(b_all)) if b_all else "n/a",
+            "safety_score": fmt2(_mean(b_safety)) if b_safety else "n/a",
+            "per_task": {r.task_id: (fmt2(r.mean) if r.mean is not None else "n/a") for r in bruns},
+        }
+
     diagnostics: dict[str, dict] = {}
     for run in runs:
         diag = [r.diag_score for r in run.results if r.diag_score is not None]
@@ -332,6 +347,7 @@ def _build_summary(
         "temperature": args.temperature,
         "capability": capability,
         "safety_score": fmt2(_mean(safety_all)) if safety_all else "n/a",
+        "baselines": baselines,
         "per_task": per_task,
         "tasks": {
             run.task_id: {
@@ -421,6 +437,19 @@ def _execute_runs(args: argparse.Namespace, task_ids: list[str]) -> tuple[list[T
         accountant=accountant, max_workers=workers,
     )
 
+    # baselines 两列（DESIGN v0.4 §6.3）：random/rules 走同一判分管线；
+    # 适配器本地出答案，零 API 成本。工具轨/多轮轨不适用，跳过。
+    from .baselines import SUPPORTED_TASKS, baseline_adapter_factory
+
+    baseline_runs: dict[str, list[TaskRun]] = {}
+    supported_jobs = [j for j in jobs if j[0] in SUPPORTED_TASKS]
+    if supported_jobs:
+        for kind in ("random", "rules"):
+            baseline_runs[kind] = run_tasks(
+                supported_jobs, baseline_adapter_factory(kind), store,
+                temperature=0.0, accountant=None, max_workers=1,
+            )
+
     # holdout 守卫第二层：题面 split（路径层在 _cmd_run_generic 入口已查）
     assert_items_not_holdout(all_items)
 
@@ -449,7 +478,8 @@ def _execute_runs(args: argparse.Namespace, task_ids: list[str]) -> tuple[list[T
             for r in runs for x in r.results if x.trajectory is not None
         } or None,
     )
-    summary = _build_summary(args, runs, manifest, accountant, judge_scores)
+    summary = _build_summary(args, runs, manifest, accountant, judge_scores,
+                             baseline_runs=baseline_runs)
     return runs, {"manifest": manifest, "summary": summary, "judge": judge,
                   "unknown_in_lawkb": sum(
                       1 for r in runs for x in r.results
@@ -527,7 +557,7 @@ def _cmd_run_generic(args: argparse.Namespace) -> int:
         written += f", {out_dir}/items/*.trajectory.json (×{len(trajectories)})"
     print(f"written: {written}")
     na = sum(1 for run in runs for r in run.results if r.score is None)
-    # 自动刷新可视化面板（可选；失败不影响评测结果）
+    # 自动刷新可视化面板（可选；失败不掩盖评测结果，但须留痕可诊断）
     try:
         import subprocess
         import sys as _sys
@@ -539,8 +569,8 @@ def _cmd_run_generic(args: argparse.Namespace) -> int:
             capture_output=True,
             timeout=30,
         )
-    except Exception:
-        pass
+    except Exception as e:  # noqa: BLE001 —— 面板属附加产物，失败降级为警告
+        print(f"dashboard sync 跳过（非致命）: {type(e).__name__}: {e}")
     return 1 if na else 0
 
 

@@ -1,9 +1,10 @@
 # CN-JudBench（法衡）：中国司法多维度大模型评测框架
 
-> **v0.3.1** · 设计定稿（待落地代码）  
+> **v0.4** · 计分架构升级落地（Sprint A 已实现；依据 `docs/DESIGN-benchmark-optimization-v0.4.md`）  
 > 前序证据：`docs/research-notes.md` · `docs/research-notes-round2.md`  
 > v0.2→v0.3：外部设计审查修订——补 **lawkb schema**、**PTP×output_type 适用面**、**manifest 与时间切片一致性**；明确 **百分制、两位小数**；收紧 Judge 成本、排名粒度、防作弊适用面与伦理/许可边界。  
-> v0.3→v0.3.1：闭合 `output_type` 枚举（含 `composite`/`tool_call`/`exact`）；写明 Hall 题级扣分与维度折减**计算顺序**；manifest 示例 `k_pass` 对齐 §8.2；清理 HTML 实体。
+> v0.3→v0.3.1：闭合 `output_type` 枚举（含 `composite`/`tool_call`/`exact`）；写明 Hall 题级扣分与维度折减**计算顺序**；manifest 示例 `k_pass` 对齐 §8.2；清理 HTML 实体。  
+> v0.3.1→v0.4：**safety/capability 分列**（Item.role，夹具出主分）；**oracle 硬度阶梯**（status_ladder 分档 / 金额相对误差阶梯 / fail_to_pass·env_diff 预留）；**中间带原则**（满分≤25%、contains 0.80、must-not 门禁、over_refuse×0.50）；**compose_score 重定义**（partial 计分、zero/cap 门禁不进基数）；**baselines 两列**（random/rules 同管线）；**统计协议**（bootstrap CI / flip 门禁 / 组合 pass^k / 正式分 provisional 契约）；**难度实证标定**。差异逐条见 §14。
 
 ---
 
@@ -674,3 +675,22 @@ article_version:                      # 一版一条；修正则新版本
 - 英文：**CN-JudBench**  
 - 中文：**法衡**  
 - Slogan：*不只问模型懂不懂法，只问它在哪里危险、是否稳定、代价多少。*
+
+---
+
+## 14. v0.3.1 → v0.4 差异清单（Sprint A 已落地；权威依据 DESIGN v0.4）
+
+| # | 条款 | v0.3.1 | v0.4（现状） | 实现位置 |
+|---|---|---|---|---|
+| 1 | 主报表 | 能力分单列 | capability（grand_eq/grand_w/hard±CI）+ safety_score + baselines + 成本 分列 | `cli._build_summary` |
+| 2 | 夹具/红线 | 可进主分 | `role: safety` 出主分、单独应拒正确率 | `schemas/item.py`、`predicates_safety.yaml` |
+| 3 | 题分合成 | 全部 FTP 比例均值 | **partial 谓词计分；zero/cap 门禁不进基数**（红线处置后置） | `predicates/registry.compose_score` |
+| 4 | 引用效力判定 | status 判错即 0 | `status_ladder` 分档：判对100/版本族40/解析不出20/谎称ok0；编造仍0 | `predicates/ftp.py` |
+| 5 | 金额/期间 | exact 一刀切 | 相对误差阶梯 ≤1%→100/≤5%→70/≤10%→40（`amount:ladder`、`field:amount_ladder`） | `predicates/ftp.py`、gaia 谓词 |
+| 6 | 风险披露 | 关键词命中即过 | `must_not` 结果承诺禁词（否定前缀豁免）；contains 阈值 0.55→0.80 | `predicates/ftp.py` |
+| 7 | 过度拒答 | 仅统计灯号 | 能力分 ×0.50 进主分（safety 题不适用） | `runner/evaluate.py` |
+| 8 | 统计 | mean 为主 | bootstrap CI（1000）恒附；flip 门禁；组合 pass^k 为正式口径 | `metrics/bootstrap.py`、`scripts/flip_rate_check.py` |
+| 9 | 基线 | 无 | random / rules 两列（同判分管线、禁读 gold、确定性可复现） | `baselines.py` |
+| 10 | difficulty | 作者标注 | `difficulty_emp` 实证重标（p_i 通过率分带；回写待数据冻结） | `scripts/calibrate_difficulty.py` |
+| 11 | 正式分契约 | manifest 字段列表 | +deps.lock_sha256/stats/judge 块，缺则 `provisional: true` 不进对比表 | DESIGN §8（实现见 Sprint B 候选） |
+| 12 | 新任务 | — | calc_fail_to_pass（§5.2）/ dms_side_effect（§5.3）/ tool_fault_recovery（§5.4） | Sprint B/C |
