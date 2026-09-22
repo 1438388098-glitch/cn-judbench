@@ -69,3 +69,16 @@ tests/test_lawkb_alias_r29.py 与 test_risk_default_marks_accept_hedge_formula_r
   a-008 = 拒绝措辞风格 run 间波动触发承诺守卫（待 k=3 逐字审计，可能残留匹配敏感）。
 - 结论：单样本 96.88/92.19 vs 组合 87.50——**修复后的公平管线上门禁依然按设计
   生效**；pass^k 纪律对「好看的单样本分」的免疫力得到第二次实证。
+
+## R44 修复后管线正式 k=3（2026-09-23 早，首批过门禁 run 组）
+
+- runs：reports/runs/airac-refuse-r38-fixed + runs/airac-k2-run2 + runs/airac-k3-fixed-run3
+  （三个独立样本，各 32/32 落盘、guard 全过；均值 96.88 / 92.19 / 93.75）
+- **grand pass^3 = 87.50 [75.00, 96.88]**（bootstrap 95%，n=1000，seed=42）
+- **逐对题级翻转率 = 3/64 = 4.7% ≤ 5%——a_irac 首个满足翻转门禁的 run 组**
+- 非满分变动项：a-003（100/50/100，条号选择精度——引盗窃解释 vs 刑法264，真区分）；
+  a-008（100/0/0，拒绝措辞风格 run 间波动踩中承诺守卫，k=3 下 pass^3=0，
+  属「高能力但表达不稳定」型诚实扣分）
+- 口径提醒：过翻转门禁 ≠ 自动进 T-main——正式分还需 deps/CI 锁与
+  Judge 列要求（a_irac 无 rubric，Judge 列 n/a），provisional 判定以
+  assert_run_gate 输出为准。
