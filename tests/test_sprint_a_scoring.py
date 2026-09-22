@@ -132,6 +132,17 @@ def test_risk_must_not_blocks_promise(store):
     assert good.passed
 
 
+def test_risk_default_marks_accept_hedge_formula_r32(store):
+    """R32：默认关键词表接受免责式对冲句（ah-104 实测漏检回归）。"""
+    spec = {"type": "risk_disclosure", "on_fail": "zero"}
+    item = mk_item(gold={})
+    hedge = "本结论系基于假定事实的法律分析，不构成对个案裁判结果的绝对保证。"
+    assert run_pred(store, spec, {"advice": hedge}, item=item).passed
+    # 显式 match 覆盖默认表时不放水
+    spec2 = {"type": "risk_disclosure", "match": ["风险"], "on_fail": "zero"}
+    assert not run_pred(store, spec2, {"advice": hedge}, item=item).passed
+
+
 # ---------- contains 收紧 ----------
 
 def test_contains_threshold_tightened(store):
