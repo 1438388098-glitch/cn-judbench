@@ -148,6 +148,11 @@ def build_payload(summary: dict, summary_path: Path) -> dict:
             "abst": summary.get("abst") or {},
             "diagnostics": summary.get("diagnostics") or {},
             "n_items": sum((t.get("n") or 0) for t in tasks),
+            # DESIGN v0.4 §9：capability 分列（含 hard 子集）、safety、baselines、provisional
+            "capability": summary.get("capability") or {},
+            "safety_score": summary.get("safety_score") or "n/a",
+            "baselines": summary.get("baselines") or {},
+            "provisional": summary.get("provisional", True),
         },
         "disclaimer": summary.get("disclaimer")
         or "本评测不构成法律意见，不得用于司法裁判、合规放行或当事人决策。",

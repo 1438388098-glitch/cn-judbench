@@ -2,18 +2,18 @@
 
 from __future__ import annotations
 
-from ..metrics.cost import pass_at_k
+from ..metrics.cost import pass_power_k
 from ..scale import fmt2
 
 
 def pass_k_fixed_user(per_item_runs: list[list[bool]], k: int = 3) -> float:
-    """固定 user_seed 的 pass^k：模型稳定度。"""
-    return pass_at_k(per_item_runs, k=k)
+    """固定 user_seed 的 pass^k：模型稳定度（组合语义，DESIGN §6.2 主表口径）。"""
+    return pass_power_k(per_item_runs, k=k)
 
 
 def pass_k_swapped_persona(per_item_runs: list[list[bool]], k: int = 3) -> float:
-    """换 persona 种子的 pass^k：交互稳定度。"""
-    return pass_at_k(per_item_runs, k=k)
+    """换 persona 种子的 pass^k：交互稳定度（组合语义，DESIGN §6.2 主表口径）。"""
+    return pass_power_k(per_item_runs, k=k)
 
 
 def _var(xs: list[float]) -> float:

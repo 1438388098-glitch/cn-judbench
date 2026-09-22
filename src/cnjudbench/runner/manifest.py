@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import platform
 import subprocess
 import uuid
 from datetime import datetime, timezone
@@ -42,6 +43,30 @@ def prompts_hash(prompts: list[str]) -> str:
     return "sha256:" + hashlib.sha256(joined).hexdigest()
 
 
+_LOCK_FILENAMES = ("uv.lock", "poetry.lock", "requirements.lock.txt", "requirements-freeze.txt")
+
+
+def deps_lock_sha256(repo_hint: Path | None = None) -> str | None:
+    """DESIGN v0.4 §8：依赖锁指纹（uv.lock / poetry.lock / requirements 冻结件之一）。
+
+    都不存在 → None，触发 provisional（产物不得进对外对比表）。"""
+    repo = repo_hint or Path.cwd()
+    for name in _LOCK_FILENAMES:
+        p = repo / name
+        if p.is_file():
+            return "sha256:" + hashlib.sha256(p.read_bytes()).hexdigest()
+    return None
+
+
+def mark_provisional(deps_block: dict, stats_block: dict, *, formal_board: bool = True) -> bool:
+    """缺 ``deps.lock_sha256`` 或（正式榜要求时）``stats.flip_rate`` → provisional。"""
+    if not deps_block.get("lock_sha256"):
+        return True
+    if formal_board and stats_block.get("flip_rate") is None:
+        return True
+    return False
+
+
 def build_manifest(
     *,
     runs: list[TaskRun],
@@ -59,6 +84,9 @@ def build_manifest(
     user_seed: int | None = None,
     item_hashes: dict[str, str] | None = None,
     extra: dict | None = None,
+    judge_block: dict | None = None,
+    stats_block: dict | None = None,
+    baselines_block: dict | None = None,
 ) -> dict:
     as_of_used = sorted({x for r in runs for x in r.as_of_used})
     manifest = {
@@ -90,6 +118,18 @@ def build_manifest(
     }
     if trajectory_hashes:
         manifest["tools"] = {"trajectory_hashes": trajectory_hashes}
+    # DESIGN v0.4 §8 正式分契约：deps/judge/stats/baselines/human_eval + provisional 门禁
+    deps_block = {"lock_sha256": deps_lock_sha256(repo_hint), "python": platform.python_version()}
+    stats_block = {"ci95": None, "flip_rate": None, "n_replicates": 1, **(stats_block or {})}
+    manifest["deps"] = deps_block
+    manifest["judge"] = {
+        "enabled": False, "model_id": None, "mode": None, "k_pass": None, "prompt_hash": None,
+        **(judge_block or {}),
+    }
+    manifest["stats"] = stats_block
+    manifest["baselines"] = baselines_block or {"random": None, "rules": None}
+    manifest["human_eval"] = None
+    manifest["provisional"] = mark_provisional(deps_block, stats_block)
     if extra:
         manifest.update(extra)
     return manifest

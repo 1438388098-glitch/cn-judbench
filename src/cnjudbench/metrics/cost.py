@@ -4,7 +4,11 @@ from __future__ import annotations
 
 
 def pass_at_k(per_item_runs: list[list[bool]], k: int = 5) -> float:
-    """同题 k 次全过比例；runs[i] 为第 i 题各次是否通过。"""
+    """序列语义 pass^k（兼容口径）：同题前 k 次全过比例；runs[i] 为第 i 题各次是否通过。
+
+    DESIGN v0.4 §6.2：序列语义仅限 stability 展示，**不进主表**；主表用
+    :func:`pass_power_k`（组合语义）。
+    """
     if k <= 0:
         raise ValueError("k 必须 > 0")
     ok = 0
@@ -15,6 +19,28 @@ def pass_at_k(per_item_runs: list[list[bool]], k: int = 5) -> float:
             ok += 1
     denom = sum(1 for r in per_item_runs if len(r) >= k) or 1
     return ok / denom
+
+
+def pass_power_k(per_item_runs: list[list[bool]], k: int = 3) -> float:
+    """组合语义 pass^k（DESIGN v0.4 §6.2 正式口径，主表用）。
+
+    从每题 n(≥k) 次独立试次中**无放回任取** k 次均通过的概率：
+    题级贡献 = C(通过数, k) / C(n, k)，整体取题间均值。
+    """
+    if k <= 0:
+        raise ValueError("k 必须 > 0")
+    from math import comb
+
+    per_item: list[float] = []
+    for runs in per_item_runs:
+        n = len(runs)
+        if n < k:
+            continue
+        c = sum(1 for x in runs if x)
+        per_item.append(comb(c, k) / comb(n, k))
+    if not per_item:
+        return 0.0
+    return sum(per_item) / len(per_item)
 
 
 def dollar_per_solve(est_cost_usd: float, scores: list[float], threshold: float = 60.0) -> float | None:

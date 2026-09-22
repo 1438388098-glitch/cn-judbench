@@ -99,6 +99,10 @@ def _build_parser() -> argparse.ArgumentParser:
                        help="单次 API 超时秒（思考模型建议 ≥180）")
         e.add_argument("--provider", default=None,
                        help="提供商（configs/providers.yaml：deepseek / zhipu …）")
+        # L2 污染检测（DESIGN v0.4 §7）：题面 vs 参考语料 n-gram 重叠
+        e.add_argument("--ngram-corpus", default=None,
+                       help="参考语料文件（空行分篇文本）；不传则 contamination.ngram_overlap=n/a")
+        e.add_argument("--ngram-size", type=int, default=8, help="字符 n-gram 长度")
         # P1 收尾：Judge / 混分开关
         e.add_argument("--with-judge", action="store_true", help="启用 Judge 后处理（机检/Judge 分列）")
         e.add_argument("--judge", default="mock",
@@ -345,6 +349,8 @@ def _build_summary(
         "created_at": manifest["created_at"],
         "model_id": args.model,
         "temperature": args.temperature,
+        # DESIGN v0.4 §8：provisional 产物不得进对外对比表
+        "provisional": manifest.get("provisional", True),
         "capability": capability,
         "safety_score": fmt2(_mean(safety_all)) if safety_all else "n/a",
         "baselines": baselines,
@@ -460,6 +466,21 @@ def _execute_runs(args: argparse.Namespace, task_ids: list[str]) -> tuple[list[T
         judge_scores = apply_judge(runs, judge, rubrics, accountant=accountant, k_pass=args.k_pass)
 
     accountant.stop_timer()
+    # DESIGN v0.4 §8：stats/judge 块进 manifest；provisional 由缺件情况自动判定
+    from .metrics.bootstrap import bootstrap_ci_mean
+
+    cap_scores = [x.score for r in runs for x in r.results
+                  if x.role == "capability" and x.score is not None]
+    cap_ci = bootstrap_ci_mean(cap_scores) if len(cap_scores) >= 2 else None
+
+    def _runs_grand(rs: list[TaskRun]) -> float | None:
+        means = [r.mean for r in rs if r.mean is not None]
+        return sum(means) / len(means) if means else None
+
+    judge_block = None
+    if judge is not None:
+        judge_block = {"enabled": True, "model_id": judge.judge_id, "mode": "k_pass",
+                       "k_pass": args.k_pass, "prompt_hash": judge.prompt_hash}
     manifest = build_manifest(
         runs=runs,
         store_version=store.store_version,
@@ -473,6 +494,10 @@ def _execute_runs(args: argparse.Namespace, task_ids: list[str]) -> tuple[list[T
         accountant=accountant,
         user_seed=getattr(args, "user_seed", None),
         item_hashes=item_hashes,
+        judge_block=judge_block,
+        stats_block={"ci95": cap_ci, "flip_rate": None, "n_replicates": 1},
+        baselines_block={kind: fmt2(_runs_grand(baseline_runs[kind]))
+                         for kind in ("random", "rules")} if baseline_runs else None,
         trajectory_hashes={
             x.item_id: trajectory_hash(x.trajectory)
             for r in runs for x in r.results if x.trajectory is not None
@@ -480,6 +505,19 @@ def _execute_runs(args: argparse.Namespace, task_ids: list[str]) -> tuple[list[T
     )
     summary = _build_summary(args, runs, manifest, accountant, judge_scores,
                              baseline_runs=baseline_runs)
+    # L2 n-gram 污染双检（DESIGN v0.4 §7）：给了语料才实测，否则诚实 n/a
+    corpus_ref = getattr(args, "ngram_corpus", None)
+    if corpus_ref:
+        from .contamination.ngram import load_corpus_ngrams, scan_items_overlap
+
+        rep = scan_items_overlap(
+            [(it.id, it.input) for it in all_items],
+            load_corpus_ngrams(corpus_ref, n=args.ngram_size), n=args.ngram_size)
+        summary.setdefault("contamination", {})["ngram_overlap"] = {
+            **rep.as_dict(),
+            "max_overlap_str": f"{rep.max_overlap:.4f}",
+            "mean_overlap_str": f"{rep.mean_overlap:.4f}",
+        }
     return runs, {"manifest": manifest, "summary": summary, "judge": judge,
                   "unknown_in_lawkb": sum(
                       1 for r in runs for x in r.results
@@ -523,6 +561,49 @@ def _print_runs(runs: list[TaskRun], artifacts: dict) -> None:
     print(DISCLAIMER)
 
 
+def _write_report_csv(out_dir: Path, summary: dict, manifest: dict) -> None:
+    """DESIGN v0.4 §9：导出 report.csv（论文表直贴，列 = §6.1 主表模板 + provisional）。"""
+    import csv
+
+    ci = manifest.get("stats", {}).get("ci95") or {}
+    cap = summary.get("capability", {})
+    solve = solved = 0
+    for task in summary.get("tasks", {}).values():
+        for it in task.get("items", []):
+            if it.get("role") == "safety" or it.get("score") in (None, "n/a"):
+                continue
+            solve += 1
+            solved += 1 if float(it["score"]) >= 60.0 else 0
+    cap_str = cap.get("grand_eq", "n/a")
+    if ci.get("ci95_low") is not None:
+        cap_str = f"{ci['point']:.2f} [{ci['ci95_low']:.2f},{ci['ci95_high']:.2f}]"
+    hard_str = cap.get("hard", "n/a")
+    if cap.get("hard_ci95"):
+        lo, hi = cap["hard_ci95"]
+        hard_str = f"{cap['hard']} [{lo},{hi}]"
+    ledger = summary.get("cost", {})
+    row = {
+        "模型": summary.get("model_id", "n/a"),
+        "rev": f"{manifest.get('harness_sha', 'unknown')}"
+               f"/{manifest.get('model', {}).get('revision') or '-'}",
+        "cap±CI": cap_str,
+        "hard±CI": hard_str,
+        "safety": summary.get("safety_score", "n/a"),
+        "solve%": (f"{100.0 * solved / solve:.2f}" if solve else "n/a"),
+        "e2e%": "n/a", "fail2pass%": "n/a", "recovery%": "n/a",  # 工具轨未跑不编造
+        "$/solve": (ledger.get("dollar_per_solve") or "n/a"),
+        "p95": (f"{manifest.get('accounting', {}).get('p95_latency_ms')}" if
+                manifest.get("accounting", {}).get("p95_latency_ms") is not None else "n/a"),
+        "flip%": "n/a",  # 单跑不测翻转；复跑走 scripts/flip_rate_check.py
+        "provisional": manifest.get("provisional", True),
+    }
+    path = out_dir / "report.csv"
+    with path.open("w", encoding="utf-8-sig", newline="") as f:
+        w = csv.DictWriter(f, fieldnames=list(row))
+        w.writeheader()
+        w.writerow(row)
+
+
 def _cmd_run_generic(args: argparse.Namespace) -> int:
     # 提供商配置：base_url / 默认思考与超时 / 价目键（用户显式参数优先）
     if getattr(args, "model", "") and not str(args.model).startswith(("mock:", "file:")):
@@ -551,6 +632,7 @@ def _cmd_run_generic(args: argparse.Namespace) -> int:
     write_run(out_dir, artifacts["manifest"], artifacts["summary"],
               limits_text=_limits_text(args, artifacts),
               trajectories=trajectories or None)
+    _write_report_csv(out_dir, artifacts["summary"], artifacts["manifest"])
     _print_runs(runs, artifacts)
     written = f"{out_dir}/manifest.json, {out_dir}/summary.json, {out_dir}/limits.md"
     if trajectories:
@@ -650,14 +732,14 @@ def _cmd_run_dialog(args: argparse.Namespace) -> int:
         last[item.id] = last[f"{item.id}#f0"]
 
     accountant.stop_timer()
-    from .metrics.cost import pass_at_k as _pak
+    from .metrics.cost import pass_power_k as _ppk
 
     def _bool_runs(scores: list[float], k: int) -> list[list[bool]]:
         return [[s >= 60.0 for s in sc[:k]] for sc in scores.values()]
 
     k = max(1, args.k_pass)
-    pk_model = _pak(_bool_runs(fixed_runs, k), k=k)
-    pk_user = _pak(_bool_runs(swap_runs, k), k=k)
+    pk_model = _ppk(_bool_runs(fixed_runs, k), k=k)
+    pk_user = _ppk(_bool_runs(swap_runs, k), k=k)
     var = decompose_variance(model_scores=model_scores, user_scores=user_scores)
 
     # score–time：若有进度点则算 AUC，否则 n/a（不编造）
