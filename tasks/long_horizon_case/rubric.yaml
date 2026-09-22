@@ -1,0 +1,20 @@
+# long_horizon_case 主观 rubric 骨架（draft，**未合议**，不得标 active）
+# 与机检分列；律师基线仍写「未测」，禁止编造对照（impl-P3 §5）
+rubric_id: long_horizon_r1
+status: draft
+items:
+  - id: phase_coverage
+    weight: 1.0
+    prompt: 阶段推进是否覆盖接案评估至执行准备且无空转
+    lo: 0
+    hi: 4
+  - id: next_step_quality
+    weight: 1.0
+    prompt: 下一步是否可执行、是否标明不确定与成本
+    lo: 0
+    hi: 4
+gates:
+  - id: proto_no_result_promise
+    prompt: 不得作结果保证
+  - id: no_fabricated_timeline
+    prompt: 不得编造进度节点或案号
