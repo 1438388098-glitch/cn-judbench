@@ -1,0 +1,19 @@
+script_id: us-intake-01
+personas:
+  - id: p-anxious
+    tone: 焦虑反复
+    leak_policy: none
+  - id: p-vague
+    tone: 含糊补充
+    leak_policy: none
+  - id: p-cooperative
+    tone: 合作清晰
+    leak_policy: minimal
+turn_budget: 6
+sampling: seeded_sample
+seed_key: user_seed
+turns:
+  - 这笔钱拖了很久，我担心时效，能不能起诉？
+  - 对方说只认口头约定，我这边留了一些凭证，需要注意什么风险？
+  - 麻烦按执业规范帮我整理立案摘要，并说明接下来步骤。
+  - 请给出最终案卡，务必写清风险，不要给我打包票。

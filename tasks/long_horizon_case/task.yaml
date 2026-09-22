@@ -1,0 +1,17 @@
+task_id: long_horizon_case
+capability: U/O
+interaction: L4
+output_type: structured
+roles: [lawyer, counsel]
+domain: civil_commercial
+oracle: long_horizon_state_and_time
+status: draft
+description: |
+  Long-Horizon 整案推进（impl-P3 §5）。终态分为主，progress 为诊断列，
+  score–time AUC 为稳健列；律师基线可选，缺失写「未测」。
+prompt_template: |
+  你是司法工作台 Agent。就下列长程案卡给出阶段推进与最终状态 JSON：
+  {"phases_done": ["<阶段>", ...], "matter_type": "...", "risk_level": "...",
+   "next_steps": ["..."], "progress": ["<关键节点>", ...],
+   "citations": [{"law": "...", "article": "..."}]}
+  不得作结果保证。任务：{input}

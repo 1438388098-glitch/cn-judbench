@@ -1,0 +1,18 @@
+task_id: contract_risk
+capability: C/G
+interaction: L1
+output_type: structured
+roles: [lawyer, counsel]
+domain: contract_compliance
+oracle: risk_points_ftp
+status: draft
+description: |
+  合同轨风险点识别（impl-P3 §3）。输出结构化风险卡：risk_labels FTP + advice 风险披露机检；
+  自由说理语义进 Judge 列，不做自由文本 PTP。
+  注：附录 A 写 composite(["extract","gen"])；§4.2.1 AND 规则下 extract∩gen 挂不上 element，
+  故落地为 structured（风险点仍可机检），说理字段保留给 risk_disclosure / Judge。
+prompt_template: |
+  你是合同审查律师。阅读下列合同节录，输出 JSON 对象：
+  {"risk_labels": ["<风险标签>", ...], "max_severity": "high|medium|low",
+   "advice": "<含风险提示的处理建议>", "citations": [{"law": "...", "article": "..."}]}
+  不得作结果保证；须提示诉讼/履约风险。任务：{input}

@@ -1,0 +1,21 @@
+# contract_risk 谓词：风险点 FTP + 风险披露 + 引用合法（无自由文本 PTP）
+ftp:
+  - type: element              # 风险标签集合 F1（扁平列表）
+    path: risk_labels
+    on_fail: partial
+  - type: field                # 最高严重度不得漏标
+    path: max_severity
+    on_fail: cap_50
+    fail_taxonomy: element_miss
+  - type: risk_disclosure      # 建议须含风险提示且无结果承诺
+    match: [风险, 时效, 败诉, 不能保证, 建议咨询, 举证]
+    on_fail: zero
+  - type: statute              # 引用锚点在 as_of 有效
+    on_fail: zero
+  - type: schema
+    required: [risk_labels, max_severity, advice, citations]
+    on_fail: flag
+ptp:
+  - type: must_not_statute
+    law: 中华人民共和国合同法
+    on_fail: cap_50

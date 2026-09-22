@@ -1,0 +1,17 @@
+# τ-Jud 终态：state 期望回落 item.state_goal + Proto 谓词（红线 zero）
+ftp:
+  - type: risk_disclosure
+    match: [风险, 时效, 不能保证, 建议咨询, 举证]
+    on_fail: zero
+  - type: refuse
+    expect: answer
+    on_fail: flag
+  - type: schema
+    required: [matter_type, parties, key_facts, next_steps, risk_note]
+    on_fail: flag
+ptp:
+  - type: state
+    on_fail: zero
+  - type: field_keep
+    path: parties.0
+    on_fail: cap_50

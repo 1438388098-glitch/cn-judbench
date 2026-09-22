@@ -1,0 +1,18 @@
+task_id: a_irac_reason
+capability: A
+interaction: L1
+output_type: structured
+roles: [lawyer, judge]
+domain: civil_commercial
+oracle: irac_recall_ftp
+status: draft
+description: |
+  IRAC 说理轨（impl-P3 §4）。输出 IRAC 结构卡（issue/rule/application/conclusion），
+  机检走「抽取后」字段 + statute；自由论证连贯进 Judge 列（可选 rubric），
+  **禁止**自由文本 PTP。
+prompt_template: |
+  你是法律分析师。就下列争点输出 IRAC JSON：
+  {"issue": "<争点>", "rule_law": "<法名>", "rule_article": "<条号>",
+   "application": "<适用分析要点>", "conclusion": "<结论>",
+   "citations": [{"law": "...", "article": "..."}]}
+  不得编造案例；结论不得作绝对保证。任务：{input}
