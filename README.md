@@ -30,9 +30,10 @@
 - [x] **P1 实施文档**（`docs/impl-P1.md`）
 - [x] **P1 代码** Judge/Abst/红线/诊断掉分/bootstrap/$/solve/canary（114 项测试）
 - [x] **P1 收尾代码** `--with-judge` 进 runner + 机检/Judge 分列 + limits.md + holdout 守卫 + CI 门禁（133 项测试，`scripts/ci_gate` 全绿）
-- [ ] P2 工具层 / Legal-GAIA
+- [x] **P2 代码** 6 工具沙箱 + Legal-Tool-Bench（L2 19 题，假调用零分）+ Legal-GAIA 精品 10 题（L3a exact + progress）+ 轨迹 hash 进 manifest（156 项测试）
+- [ ] P3 τ-Jud / 整案长程
 
-## 如何跑（P1 现状）
+## 如何跑（P2 现状）
 
 ```bash
 # 环境：Python 3.11+，装依赖与包
@@ -58,6 +59,11 @@ python -m cnjudbench run-all --tasks u_element_extract --model mock:gold \
   --with-judge --judge mock --out reports/runs/j1
 #   --blend weighted 才显式加权（0.7 机检 + 0.3 Judge），默认 parallel 分列不混分
 
+# L2 工具调用 / L3a 多步（P2）：mock:tools 重放 gold 调用轨迹，mock:gold 出 exact 终答
+python -m cnjudbench run --task tool_search_statute --model mock:tools --out reports/runs/t1
+python -m cnjudbench run --task gaia_fee_deadline --model mock:gold --out reports/runs/g1
+#   产出 items/<id>.trajectory.json（工具轨迹），hash 进 manifest.tools.trajectory_hashes
+
 # CI 门禁（validate + pytest + mock run-all + 产物断言 + 复跑翻转率=0）
 bash scripts/ci_gate.sh          # Windows: powershell -File scripts/ci_gate.ps1
 python scripts/flip_rate_check.py --tasks cit_validity --model mock:gold   # API 建议阈值 < 5%
@@ -82,13 +88,13 @@ Mock（`mock:gold`）零网络、确定性，CI 只跑 Mock；真 API 冒烟为�
 ## 目录
 
 ```text
-src/cnjudbench/  # 包：lawkb 解析 / schemas / validate / scale / smoke / predicates / citeguard / adapters / runner / cli
+src/cnjudbench/  # 包：lawkb 解析 / schemas / validate / scale / smoke / predicates / citeguard / adapters / runner / judge / metrics / gates / contamination / report / tools / cli
 lawkb/           # 法条时间轴多版本（生成脚本 scripts/build_min_lawkb.py）
-tasks/           # 任务包（cit_validity / u_element_extract / s_charge_subsume）
+tasks/           # 任务包（cit_validity / u_element_extract / s_charge_subsume / tool_search_statute / gaia_fee_deadline）
 data/            # public / holdout（ignore） / live
 tests/           # pytest
 docs/            # 调研、实施文档与校准集
-reports/runs/    # 每次评测的 manifest + summary（gitignore）
+reports/runs/    # 每次评测的 manifest + summary + limits.md + items/*.trajectory.json（gitignore）
 ```
 
 ## 许可
