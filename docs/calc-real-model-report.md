@@ -44,6 +44,21 @@ cf-011/012 互串），机检 per-item 判分将其如实记为半分而非误�
 `--ngram-corpus FRAMEWORK.md --ngram-size 8` 对 a_irac 19 题：max/mean 重叠均
 0.0000（runs/ngram-self/summary.json）——防污染双检管线自检通过。
 
+## C2. IRAC 口径双效度发现（R15，重要）
+
+落盘协议重跑（runs/airac-glm-r2，EXAMINEE.md 程序化转存，a-001 application
+341 字 4 引用为完整原文）推翻 R14 失真假说：详尽答案仍 36.09。逐谓词拆解
+发现两处口径效度问题：
+
+1. **issue/conclusion 文本覆盖率判开放式内容无效度**（已修）：0.80 字符
+   覆盖等于要求考生复述金样短句；改为 flag 出灯号不进基数（与 Sprint A
+   partial-only 原则一致）。考生结构/引用/禁编造谓词全 PASS。
+2. **单金样条号 vs 多解合理作答**（已记录，修复需逐题法学复核）：a-001
+   逾期还款 gold 只认总则 577，考生引借款合同编 675/676（更专业）被判
+   wrong_article cov=0 → 12 题 0 分主因。article_set 需要 gold 支持
+   acceptable_articles 可接受条号并集——语义改动前必须逐题复核，不仓促上线。
+   修正前 IRAC 31.58 应读作「结构+引用轨的单金样下限」，非考生能力分。
+
 ## C. a_irac 转存失真教训（R14，负结果）
 
 a_irac 19 题真考生回灌 mean 37.68（runs/airac-glm/scored）——**数据失真不可

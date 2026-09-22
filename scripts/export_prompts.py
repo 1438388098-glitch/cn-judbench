@@ -67,8 +67,25 @@ def main() -> int:
     (run_dir / "index.json").write_text(
         json.dumps(index, ensure_ascii=False, indent=2), encoding="utf-8"
     )
+    # 考生落盘协议（R14 教训）：转存必须程序化——考生 agent 直接写答案文件，
+    # 人工摘录只可用于定性观察（详见 docs/calc-real-model-report.md §C）。
+    (run_dir / "EXAMINEE.md").write_text(
+        "# 考生落盘协议（subagent 考生必读）\n"
+        "\n"
+        "1. 用 Read 读题面（prompts/ 下分配给你的文件）；除 Read/Write 外不得使用"
+        "任何工具，不得联网、不执行命令；\n"
+        "2. 按题面要求独立作答后，**用 Write 工具把完整 JSON 答案写入题面"
+        "index.json 中对应的 answers/<item_id>.txt**（UTF-8，JSON 全文即文件全文，"
+        "不加围栏不加说明）；\n"
+        "3. 全部写完后，最终消息只回报：`done: <id1>,<id2>,...`（一行），"
+        "**不要在消息里复述答案**——最终消息里的答案不会被评分；\n"
+        "4. 答案必须是对题面的直接回应：判分按官方机检，禁止抄题面原文、"
+        "禁止编造未给出的数据。\n",
+        encoding="utf-8",
+    )
     print(f"exported {len(index)} prompts -> {prompts_dir}")
     print(f"answers dir  -> {answers_dir}")
+    print("examinee protocol -> EXAMINEE.md（考生直接落盘，禁止消息转述）")
     return 0
 
 

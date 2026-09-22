@@ -1,14 +1,16 @@
-# a_irac_reason：长句用覆盖率 contains；rule_article 条号集合 partial；statute partial
+# a_irac_reason：issue/conclusion 为开放式文本，0.80 字符覆盖率等于要求考生
+# 复述金样（R15 真考生实证：结构/引用谓词全 PASS 而被文本覆盖拖至 36 分），
+# 无判分效度——降为 flag 出灯号不进基数；机检基数只留 结构化条号 + 引用效力 + 禁编造。
 ftp:
   - type: field
     path: issue
     match: contains
-    on_fail: partial
+    on_fail: flag
     fail_taxonomy: structure_broken
   - type: field
     path: conclusion
     match: contains
-    on_fail: partial
+    on_fail: flag
     fail_taxonomy: structure_broken
   - type: field
     path: rule_article
