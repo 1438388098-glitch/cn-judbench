@@ -10,7 +10,7 @@
     <run-dir>/answers/                            空目录，作答方按同名 .txt 回填
     <run-dir>/index.json                          task_id/item_id/路径/长度清单
 
-题面渲染与 run-all 完全同源（task.prompt_template.replace("{input}", item.input)），
+题面渲染与 run-all 完全同源（复用 runner.evaluate._build_prompt，含应拒题 refuse 协议覆盖），
 保证回灌机检时的 prompt_hash 口径一致。
 """
 
@@ -46,15 +46,15 @@ def main() -> int:
     seen_ids: set[str] = set()
     for tid in [t.strip() for t in args.tasks.split(",") if t.strip()]:
         task, _ = load_task_package(Path(args.tasks_root) / tid)
-        if "{input}" not in task.prompt_template:
-            raise SystemExit(f"任务 {tid} 的 prompt_template 缺少 {{input}}")
+        from cnjudbench.runner.evaluate import _build_prompt
+
         items_path = Path(args.items_root) / f"{tid}.jsonl"
         for _lineno, item in load_items_file(items_path):
             key = f"{tid}__{item.id}"
             if item.id in seen_ids:
                 raise SystemExit(f"item_id 跨包重复: {item.id}（file: 回灌按 id 寻址，必须唯一）")
             seen_ids.add(item.id)
-            prompt = task.prompt_template.replace("{input}", item.input)
+            prompt = _build_prompt(task, item)
             (prompts_dir / f"{key}.txt").write_text(prompt, encoding="utf-8")
             index.append({
                 "task_id": tid,
