@@ -19,6 +19,7 @@ from ..predicates.registry import compose_score, evaluate_predicates
 from ..scale import fmt2
 from ..schemas.item import Item
 from ..schemas.task import PredicatesFile, TaskManifest
+from ..tools.sandbox import ToolSandbox
 from ..validate.items import load_items_file
 from .account import Accountant
 
@@ -43,6 +44,7 @@ class ItemResult:
     abst_over_promise: bool = False
     contamination: list[ContaminationHit] = field(default_factory=list)
     diag_score: float | None = None  # diagnostic_ftp 单独合成；无诊断谓词为 None
+    trajectory: dict | None = None  # P2：tool_call 题的沙箱调用轨迹（落盘 + hash 进 manifest）
 
 
 @dataclass
@@ -106,6 +108,7 @@ def evaluate_item(
         contamination: list[ContaminationHit] | None = None,
         abst_over_refuse: bool = False,
         abst_over_promise: bool = False,
+        trajectory: dict | None = None,
     ) -> ItemResult:
         return ItemResult(
             item_id=item.id,
@@ -121,6 +124,7 @@ def evaluate_item(
             contamination=contamination or [],
             abst_over_refuse=abst_over_refuse,
             abst_over_promise=abst_over_promise,
+            trajectory=trajectory,
         )
 
     prompt = _build_prompt(task, item)
@@ -131,14 +135,30 @@ def evaluate_item(
     # P1 接线：Abst 双标签 + canary 一级扫描（对原始输出，含解析失败路径）
     abst = label_abst(completion.text, expect="answer")
     contam = scan_output(item.id, completion.text, canary=item.canary)
+    # P2：tool_call 任务——沙箱随题建，调用日志即轨迹
+    sandbox = ToolSandbox(store) if task.output_type == "tool_call" else None
 
-    # 1) 答案解析（structured/extract 须为 JSON；容忍 ```json 围栏）
+    # 1) 答案解析（structured/extract 须为 JSON；容忍 ```json 围栏）。
+    #    tool_call 任务解析失败不提前返回：让 fake_tool/终答谓词照常判
+    #    （叙述式假调用归 fake_tool 而非 format_fail，负例夹具才可归因）。
     try:
         answer = parse_answer_json(completion.text)
     except ValueError:
-        return result(0.00, ["format_fail"], error="答案不可解析为 JSON",
-                      answer_text=completion.text, contamination=contam,
-                      abst_over_refuse=abst.over_refuse, abst_over_promise=abst.over_promise)
+        if sandbox is None:
+            return result(0.00, ["format_fail"], error="答案不可解析为 JSON",
+                          answer_text=completion.text, contamination=contam,
+                          abst_over_refuse=abst.over_refuse, abst_over_promise=abst.over_promise)
+        answer = None
+
+    # 1.5) P2：tool_call——先执行声称的调用，日志即轨迹与判分事实
+    if sandbox is not None:
+        calls = answer.get("calls") if isinstance(answer, dict) else None
+        for c in calls or []:
+            if isinstance(c, dict):
+                sandbox.execute(str(c.get("name") or ""), c.get("args"))
+        trajectory = {"calls": sandbox.dump(), "answer": answer}
+    else:
+        trajectory = None
 
     # 2) claim 抽取 + CiteGuard 三检（claim 无 as_of 时回落题面 as_of）
     extraction = extract_claims(answer, task.output_type, completion.text)
@@ -165,12 +185,13 @@ def evaluate_item(
         claim_status=extraction.status,
         store=store,
         checks=checks,
+        tool_log=sandbox.log if sandbox else [],
     )
     try:
         ftp_results, ptp_results, diag_results = evaluate_predicates(ctx, preds)
     except PredicateError as e:
         return result(None, [], error=f"拒判: {e}", as_of_used=as_of_used, text_hashes=text_hashes,
-                      answer_text=completion.text, contamination=contam,
+                      answer_text=completion.text, contamination=contam, trajectory=trajectory,
                       abst_over_refuse=abst.over_refuse, abst_over_promise=abst.over_promise)
 
     score, taxonomy = compose_score(ftp_results, ptp_results)
@@ -189,8 +210,25 @@ def evaluate_item(
     ]
     return result(score, taxonomy, predicate_lines=lines, as_of_used=as_of_used,
                   text_hashes=text_hashes, answer_text=completion.text,
-                  diag_score=diag_score, contamination=contam,
+                  diag_score=diag_score, contamination=contam, trajectory=trajectory,
                   abst_over_refuse=abst.over_refuse, abst_over_promise=abst.over_promise)
+
+
+def _resolve_predicates(item: Item, task_dir: Path, default: PredicatesFile) -> PredicatesFile:
+    """按题分派谓词集：``item.predicates_ref``（L2/L3a 混合任务按题判分）。
+
+    解析顺序：cwd 相对 → 任务包根相对（``<tasks-root>/<ref>``）→ 任务包目录同名；
+    均不存在 → 拒判级错误（不静默回落默认集，防止判分口径错位）。
+    """
+    ref = item.predicates_ref
+    if not ref:
+        return default
+    for cand in (Path(ref), task_dir / ref, task_dir / Path(ref).name):
+        if cand.is_file():
+            return PredicatesFile.model_validate(
+                yaml.safe_load(cand.read_text(encoding="utf-8"))
+            )
+    raise PredicateError(f"predicates_ref 不可解析: {ref}（题 {item.id}）")
 
 
 def run_task(
@@ -207,7 +245,8 @@ def run_task(
     run = TaskRun(task_id=task.task_id, results=[])
     for _lineno, item in load_items_file(items_path):
         item_result = evaluate_item(
-            task, preds, item, adapter_factory(item), store,
+            task, _resolve_predicates(item, task_dir, preds), item,
+            adapter_factory(item), store,
             temperature=temperature, seed=seed, accountant=accountant,
         )
         run.results.append(item_result)

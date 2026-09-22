@@ -10,6 +10,7 @@ from ..schemas.task import PredicatesFile
 from ..validate.matrix import predicate_allowed, ptp_allowed
 from . import ftp, ptp
 from .base import EvalContext, PredicateError, PredicateResult
+from .tools import fake_tool, tool_ast, tool_sequence
 
 FTP_IMPLS = {
     "statute": ftp.statute,
@@ -20,12 +21,16 @@ FTP_IMPLS = {
     "no_fabrication": ftp.no_fabrication,
     "schema": ftp.schema_lint,
     "lint": ftp.schema_lint,
+    "progress_keyword": ftp.progress_keyword,
+    "fake_tool": fake_tool,
 }
 
 PTP_IMPLS = {
     "must_not_statute": ptp.must_not_statute,
     "field_keep": ptp.field_keep,
     "state": ptp.state,
+    "tool_sequence": tool_sequence,
+    "tool_ast": tool_ast,
 }
 
 

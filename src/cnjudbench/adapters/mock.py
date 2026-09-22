@@ -83,3 +83,23 @@ def gold_answer(item: Item, store: LawkbStore) -> dict:
 def mock_gold_adapter(item: Item, store: LawkbStore) -> MockAdapter:
     payload = json.dumps(gold_answer(item, store), ensure_ascii=False)
     return MockAdapter(lambda _prompt: payload, model_id="mock:gold")
+
+
+FAKE_TOOL_NARRATIVE = (
+    "我已检索了相关法律法规和司法解释，并计算了本案的诉讼费用与期间，"
+    "结论是本案诉请于法有据，建议依法主张。"
+)
+
+
+def mock_tools_adapter(item: Item, store: LawkbStore) -> MockAdapter:
+    """mock:tools：按题面 gold 重放**正确**工具调用与终答（L2 冒烟用）。
+
+    - gold.calls 逐条重放（沙箱真实执行并记日志）；
+    - gold.negative == "fake_tool" → 输出只叙述不调用（负例夹具，必触发 fake_tool 0.00）。
+    """
+    g = item.gold if isinstance(item.gold, dict) else {}
+    if g.get("negative") == "fake_tool":
+        return MockAdapter(lambda _p: FAKE_TOOL_NARRATIVE, model_id="mock:tools")
+    payload = json.dumps({"calls": g.get("calls") or [], "answer": g.get("answer")},
+                         ensure_ascii=False)
+    return MockAdapter(lambda _prompt: payload, model_id="mock:tools")

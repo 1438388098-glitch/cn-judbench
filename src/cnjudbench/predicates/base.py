@@ -46,6 +46,7 @@ class EvalContext:
     claim_status: str  # ok | claim_extract_miss | answer_unparseable
     store: LawkbStore
     checks: list[CiteCheck] = field(default_factory=list)
+    tool_log: list = field(default_factory=list)  # P2：ToolLogEntry 列表（tool_call 任务）
 
 
 class PredicateError(Exception):

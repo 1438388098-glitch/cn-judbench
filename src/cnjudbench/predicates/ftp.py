@@ -186,3 +186,24 @@ def schema_lint(ctx: EvalContext, p, index: int) -> PredicateResult:
     return PredicateResult("ftp", index, "schema", ok, 1.0 if ok else 0.0, p.on_fail,
                            detail=f"缺栏: {missing}" if missing else "栏目齐备",
                            failure_taxonomy=None if ok else "format_fail")
+
+
+def progress_keyword(ctx: EvalContext, p, index: int) -> PredicateResult:
+    """多步 progress（弱指标，on_fail 默认 flag 不改分；诊断列单独展示）。
+
+    关键词来源：谓词 ``match`` 键，缺省回落 ``item.gold.progress``。
+    """
+    extra = p.model_extra or {}
+    kws = list(extra.get("match") or [])
+    if not kws and isinstance(ctx.item.gold, dict):
+        kws = list(ctx.item.gold.get("progress") or [])
+    if not kws:
+        return PredicateResult("ftp", index, "progress_keyword", True, 1.0, p.on_fail,
+                               detail="无 progress 关键词，跳过")
+    text = ctx.answer_text or ""
+    found = [k for k in kws if k in text]
+    missing = [k for k in kws if k not in text]
+    ratio = len(found) / len(kws)
+    return PredicateResult("ftp", index, "progress_keyword", ratio >= 1.0, ratio, p.on_fail,
+                           detail=f"progress {len(found)}/{len(kws)}"
+                                  + (f"，缺 {missing}" if missing else ""))

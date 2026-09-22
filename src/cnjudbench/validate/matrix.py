@@ -20,8 +20,8 @@ _ALL = frozenset(SINGLE_OUTPUT_TYPES)
 ALLOWED: dict[str, frozenset[str]] = {
     "statute": _ALL,
     "must_not_statute": _ALL,
-    "element": frozenset({"choice", "short", "exact", "extract", "structured"}),
-    "field": frozenset({"choice", "short", "exact", "extract", "structured"}),
+    "element": frozenset({"choice", "short", "exact", "extract", "structured", "tool_call"}),
+    "field": frozenset({"choice", "short", "exact", "extract", "structured", "tool_call"}),
     "field_keep": frozenset({"extract", "structured"}),
     "amount": frozenset({"short", "exact", "extract", "structured", "regress", "tool_call"}),
     "deadline": frozenset({"short", "exact", "extract", "structured", "regress", "tool_call"}),
@@ -31,8 +31,12 @@ ALLOWED: dict[str, frozenset[str]] = {
     "risk_disclosure": frozenset({"choice", "structured", "gen"}),
     "refuse": frozenset({"choice", "structured", "gen"}),
     "no_fabrication": frozenset({"choice", "structured", "gen"}),
-    "progress_keyword": frozenset({"gen", "tool_call"}),
+    "progress_keyword": frozenset({"gen", "tool_call", "exact"}),
     "custom_script": _ALL,
+    # P2（impl-P2 §3/§5，同步 FRAMEWORK §4.2.1）：工具轨迹谓词仅限 tool_call
+    "tool_sequence": frozenset({"tool_call"}),
+    "tool_ast": frozenset({"tool_call"}),
+    "fake_tool": frozenset({"tool_call"}),
 }
 
 # PTP 收窄表（§4.2.1「PTP 可机检范围」）: output_type -> 允许的 PTP 谓词类型
@@ -44,7 +48,7 @@ PTP_ALLOWED: dict[str, frozenset[str]] = {
     "regress": frozenset({"must_not_statute"}),
     "exact": frozenset({"must_not_statute"}),
     "gen": frozenset({"lint"}),
-    "tool_call": frozenset({"must_not_statute", "state"}),
+    "tool_call": frozenset({"must_not_statute", "state", "tool_sequence", "tool_ast"}),
     "short": frozenset({"must_not_statute"}),
 }
 

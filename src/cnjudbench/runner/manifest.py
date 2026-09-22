@@ -49,9 +49,10 @@ def build_manifest(
     content_hash: str,
     accountant: Accountant,
     repo_hint: Path | None = None,
+    trajectory_hashes: dict[str, str] | None = None,
 ) -> dict:
     as_of_used = sorted({x for r in runs for x in r.as_of_used})
-    return {
+    manifest = {
         "run_id": uuid.uuid4().hex[:12],
         "created_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "harness_sha": harness_sha(repo_hint),
@@ -84,10 +85,20 @@ def build_manifest(
         },
         "disclaimer": DISCLAIMER,
     }
+    if trajectory_hashes:
+        manifest["tools"] = {"trajectory_hashes": trajectory_hashes}
+    return manifest
+
+
+def trajectory_hash(trajectory: dict) -> str:
+    """轨迹 hash：canonical JSON（键排序）的 sha256，进 manifest 防篡改。"""
+    blob = json.dumps(trajectory, ensure_ascii=False, sort_keys=True).encode("utf-8")
+    return "sha256:" + hashlib.sha256(blob).hexdigest()
 
 
 def write_run(out_dir: Path, manifest: dict, summary: dict,
-              limits_text: str | None = None) -> Path:
+              limits_text: str | None = None,
+              trajectories: dict[str, dict] | None = None) -> Path:
     out_dir.mkdir(parents=True, exist_ok=True)
     (out_dir / "manifest.json").write_text(
         json.dumps(manifest, ensure_ascii=False, indent=2), encoding="utf-8"
@@ -97,4 +108,11 @@ def write_run(out_dir: Path, manifest: dict, summary: dict,
     )
     if limits_text is not None:
         (out_dir / "limits.md").write_text(limits_text, encoding="utf-8")
+    if trajectories:
+        items_dir = out_dir / "items"
+        items_dir.mkdir(exist_ok=True)
+        for item_id, traj in trajectories.items():
+            (items_dir / f"{item_id}.trajectory.json").write_text(
+                json.dumps(traj, ensure_ascii=False, indent=2), encoding="utf-8"
+            )
     return out_dir

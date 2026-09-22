@@ -59,6 +59,24 @@ def validate_task_dir(task_dir: Path) -> list[str]:
     errors += check_predicate_set(preds.ptp, task.output_type, comps, "ptp")
     errors += check_predicate_set(preds.diagnostic_ftp, task.output_type, comps, "diagnostic_ftp")
 
+    # 按题谓词分派文件（predicates_*.yaml，impl-P2 L2/L3a 混合任务）：
+    # 与主 predicates.yaml 同一套 schema + 适用面校验，不走免检后门
+    for extra in sorted(task_dir.glob("predicates_*.yaml")):
+        try:
+            praw = yaml.safe_load(extra.read_text(encoding="utf-8"))
+            epreds = PredicatesFile.model_validate(praw)
+        except yaml.YAMLError as e:
+            errors.append(f"{tid}: {extra.name} 解析失败: {e}")
+            continue
+        except ValidationError as e:
+            errors.append(f"{tid}: {extra.name} 校验失败: {e}")
+            continue
+        errors += check_predicate_set(epreds.ftp, task.output_type, comps, f"{extra.name}:ftp")
+        errors += check_predicate_set(epreds.ptp, task.output_type, comps, f"{extra.name}:ptp")
+        errors += check_predicate_set(
+            epreds.diagnostic_ftp, task.output_type, comps, f"{extra.name}:diagnostic_ftp"
+        )
+
     return errors
 
 

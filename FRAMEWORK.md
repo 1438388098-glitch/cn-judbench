@@ -152,16 +152,21 @@ Item = 多维标签 + prompt
 | 谓词类型 | choice | short | exact | extract | structured | rank | regress | gen | tool_call |
 |---|---|---|---|---|---|---|---|---|---|
 | `statute` / `must_not_statute` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓* | ✓* |
-| `element` / `field`（FTP） | ✓ | ✓ | ✓ | ✓ | ✓ | — | — | ✗ | — |
+| `element` / `field`（FTP） | ✓ | ✓ | ✓ | ✓ | ✓ | — | — | ✗ | ✓（终答段） |
 | `field_keep`（PTP） | — | — | — | ✓ | ✓ | — | — | ✗ | — |
 | `amount` / `deadline` | — | ✓ | ✓ | ✓ | ✓ | — | ✓ | ✗ | ✓ |
 | `schema` / `lint` | — | — | — | ✓ | ✓ | — | — | ✓（栏目级） | ✓（参数 AST） |
 | `state`（终态 diff） | — | — | — | — | ✓ | — | — | ✗ | ✓（工具副作用） |
+| `tool_sequence` / `tool_ast`（PTP）／`fake_tool`（FTP） | — | — | — | — | — | — | — | ✗ | ✓（P2 工具轨迹） |
 | `risk_disclosure` / `refuse` / `no_fabrication` | ✓ | — | — | — | ✓ | — | — | ✓* | ✗ |
-| `progress_keyword` | — | — | — | — | — | — | — | ✓（弱） | ✓（弱） |
+| `progress_keyword` | — | — | ✓（弱） | — | — | — | — | ✓（弱） | ✓（弱） |
 | `custom_script` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓（脚本自负） | ✓ |
 
 \* 在 `gen` / `tool_call` 上：**先结构化抽取 claim，再机检**；抽不到 claim 时降级为 rubric gate，**不得**对原文做脆弱正则。`exact` 机检优先，不设自由文本 PTP。
+
+**P2 工具轨迹判分**（impl-P2 §3/§6）：`fake_tool`（FTP，zero）管「该调未调/虚构调用/调了未注册工具」；
+`tool_sequence`（PTP，partial）管期望工具子集覆盖；`tool_ast`（PTP，partial）管参数 schema 合法率。
+`tool_call` 终答段经 `element` / `field` / `amount` / `deadline` 判。题分 = 终答分 × 序列覆盖 × 参数合法 − 假调用零分。
 
 **PTP 可机检范围（明确收窄）**：
 
@@ -170,7 +175,7 @@ Item = 多维标签 + prompt
 | `extract` / `structured` | `field_keep`、`must_not_statute`、`state` | 「说理不被改写」类 |
 | `choice` / `rank` / `regress` / `exact` | `must_not_statute`、金样字段保持 | 自由评述 |
 | `gen` | **无自由文本 PTP**；仅 `lint` 栏目保留 + 抽取后字段 | 语义「不破坏」 |
-| `tool_call` | `must_not_statute`、副作用 `state`（若声明） | 对工具「评语」的语义保持 |
+| `tool_call` | `must_not_statute`、副作用 `state`（若声明）、`tool_sequence`、`tool_ast` | 对工具「评语」的语义保持 |
 | `composite` | 按 `components` 各段规则之并，且仅限已声明段 | 跨段语义「不破坏」 |
 | `short` | 金样别名表外不篡改已知事实（有限） | — |
 

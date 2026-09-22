@@ -22,7 +22,7 @@ from dataclasses import asdict
 from datetime import date
 from pathlib import Path
 
-from .adapters.mock import mock_gold_adapter
+from .adapters.mock import mock_gold_adapter, mock_tools_adapter
 from .adapters.openai_compat import OpenAICompatAdapter
 from .judge import MockJudge, load_rubric
 from .judge.openai_judge import OpenAIJudge
@@ -34,7 +34,7 @@ from .report.writeup import limits_md
 from .runner.account import Accountant
 from .runner.evaluate import DISCLAIMER, TaskRun, load_task_package, run_task
 from .runner.guards import HoldoutPathError, assert_items_not_holdout, assert_no_holdout
-from .runner.manifest import build_manifest, item_content_hash, write_run
+from .runner.manifest import build_manifest, item_content_hash, trajectory_hash, write_run
 from .runner.with_judge import apply_judge
 from .scale import fmt2
 from .smoke import format_report, run_smoke
@@ -145,12 +145,14 @@ def cmd_smoke(args: argparse.Namespace) -> int:
 def _make_adapter_factory(args: argparse.Namespace, store: LawkbStore):
     if args.model == "mock:gold":
         return lambda item: mock_gold_adapter(item, store)
+    if args.model == "mock:tools":
+        return lambda item: mock_tools_adapter(item, store)
     if args.model.startswith("openai:"):
         adapter = OpenAICompatAdapter(
             args.model.split(":", 1)[1], base_url=args.base_url, revision=args.revision
         )
         return lambda item: adapter
-    raise SystemExit(f"未知模型规格: {args.model!r}（支持 mock:gold / openai:<model>）")
+    raise SystemExit(f"未知模型规格: {args.model!r}（支持 mock:gold / mock:tools / openai:<model>）")
 
 
 def _make_judge(args: argparse.Namespace):
@@ -307,6 +309,10 @@ def _execute_runs(args: argparse.Namespace, task_ids: list[str]) -> tuple[list[T
         item_count=sum(len(r.results) for r in runs),
         content_hash=item_content_hash(raw_lines),
         accountant=accountant,
+        trajectory_hashes={
+            x.item_id: trajectory_hash(x.trajectory)
+            for r in runs for x in r.results if x.trajectory is not None
+        } or None,
     )
     summary = _build_summary(args, runs, manifest, accountant, judge_scores)
     return runs, {"manifest": manifest, "summary": summary, "judge": judge,
@@ -358,10 +364,17 @@ def _cmd_run_generic(args: argparse.Namespace) -> int:
         print(f"HOLDOUT GUARD: {e}")
         return 2
     out_dir = Path(args.out) if args.out else Path("reports/runs") / artifacts["manifest"]["run_id"]
+    trajectories = {
+        x.item_id: x.trajectory for r in runs for x in r.results if x.trajectory is not None
+    }
     write_run(out_dir, artifacts["manifest"], artifacts["summary"],
-              limits_text=_limits_text(args, artifacts))
+              limits_text=_limits_text(args, artifacts),
+              trajectories=trajectories or None)
     _print_runs(runs, artifacts)
-    print(f"written: {out_dir}/manifest.json, {out_dir}/summary.json, {out_dir}/limits.md")
+    written = f"{out_dir}/manifest.json, {out_dir}/summary.json, {out_dir}/limits.md"
+    if trajectories:
+        written += f", {out_dir}/items/*.trajectory.json (×{len(trajectories)})"
+    print(f"written: {written}")
     na = sum(1 for run in runs for r in run.results if r.score is None)
     return 1 if na else 0
 
