@@ -1,0 +1,21 @@
+name: ci-gate
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  gate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install
+        run: pip install -e ".[dev]"
+      - name: CI gate（Mock 全链路，不烧真 API）
+        run: bash scripts/ci_gate.sh
+        env:
+          PYTHON: python
