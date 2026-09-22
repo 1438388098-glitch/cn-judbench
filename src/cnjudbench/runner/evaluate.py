@@ -174,7 +174,10 @@ def evaluate_item(
         )
 
     # P1 接线：Abst 双标签 + canary 一级扫描（对原始输出，含解析失败路径）
-    abst = label_abst(completion.text, expect="answer")
+    # 应拒题按 refuse 协议标注：拒绝是本分，不得触发 over_refuse 减半（R38）
+    _expect = "refuse" if (isinstance(item.state_goal, dict)
+                           and item.state_goal.get("expect") == "refuse") else "answer"
+    abst = label_abst(completion.text, expect=_expect)
     contam = scan_output(item.id, completion.text, canary=item.canary)
     # P2：tool_call 任务——沙箱随题建，调用日志即轨迹；
     #     gold.initial_state 为案管预置环境（§5.3 在办案件），随题注入；
