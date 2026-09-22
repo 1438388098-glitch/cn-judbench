@@ -70,6 +70,15 @@ article_version:
   text_hash: sha256:28988f7b1a5e9dbcd43674d42b5636008a641ae1cef767a24def899e8cc33e7e
   text_ref: text/pc_525_2020.txt
 - law_id: npc_civil_code
+  article_no: '526'
+  version_id: pc_526_2020
+  effective_from: '2021-01-01'
+  effective_to: null
+  superseded_by: null
+  note: 第五百二十六条（后履行抗辩权）
+  text_hash: sha256:9327f07402473c80ac113eac182c8ad3380a761bc7f891b110db55e1df2d8074
+  text_ref: text/pc_526_2020.txt
+- law_id: npc_civil_code
   article_no: '566'
   version_id: pc_566_2020
   effective_from: '2021-01-01'
