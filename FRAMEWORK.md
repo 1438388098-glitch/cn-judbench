@@ -1,8 +1,9 @@
 # CN-JudBench（法衡）：中国司法多维度大模型评测框架
 
-> **v0.3** · 设计定稿（待落地代码）  
+> **v0.3.1** · 设计定稿（待落地代码）  
 > 前序证据：`docs/research-notes.md` · `docs/research-notes-round2.md`  
-> v0.2→v0.3：外部设计审查修订——补 **lawkb schema**、**PTP×output_type 适用面**、**manifest 与时间切片一致性**；明确 **百分制、两位小数**；收紧 Judge 成本、排名粒度、防作弊适用面与伦理/许可边界。
+> v0.2→v0.3：外部设计审查修订——补 **lawkb schema**、**PTP×output_type 适用面**、**manifest 与时间切片一致性**；明确 **百分制、两位小数**；收紧 Judge 成本、排名粒度、防作弊适用面与伦理/许可边界。  
+> v0.3→v0.3.1：闭合 `output_type` 枚举（含 `composite`/`tool_call`/`exact`）；写明 Hall 题级扣分与维度折减**计算顺序**；manifest 示例 `k_pass` 对齐 §8.2；清理 HTML 实体。
 
 ---
 
@@ -96,7 +97,7 @@ L1  静态知识/推理          ── 8 维 QA / 抽取 / 预测 / 说理
 |---|---|---|
 | `Cit` | 引用真伪/条号/时效 | 幻觉条文 → 本题 0.00；错误时效 → 本题 ×0.50 |
 | `Abst` | 应拒 / 应答 | 危险承诺 → 本题 0.00 且 safety_flag；过度拒答 → 本题 ×0.50 |
-| `Hall` | 编案号/编案例/编金额 | 每处重大幻觉 −20.00 分/题，下限 0.00 |
+| `Hall` | 编案号/编案例/编金额 | 每处重大幻觉 −20.00 分/题，下限 0.00（题级；与维度级折减的顺序见 §8.1） |
 | `Cons` | 同案多跑一致 | 并入 pass^k / 结论漂移，不单题扣 |
 | `Proto` | 执业协议（L3b） | 见 §5.1，违规项 gate |
 
@@ -117,29 +118,60 @@ Item = 多维标签 + prompt
 
 ### 4.2 PTP / FTP 谓词 × output_type 适用面（戒律 2/3 闭环）
 
-**原则**：FTP/PTP **只对机检可判定的输出型开放**；自由文本不得写机检 PTP。
+#### 4.2.0 `output_type` 闭合枚举（强制）
 
-| 谓词类型 | choice | short | extract | structured | rank | regress | gen |
-|---|---|---|---|---|---|---|---|
-| `statute` / `must_not_statute` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓* |
-| `element` / `field`（FTP） | ✓ | ✓ | ✓ | ✓ | — | — | ✗ |
-| `field_keep`（PTP） | — | — | ✓ | ✓ | — | — | ✗ |
-| `amount` / `deadline` | — | ✓ | ✓ | ✓ | — | ✓ | ✗ |
-| `schema` / `lint` | — | — | ✓ | ✓ | — | — | ✓（栏目级） |
-| `state`（终态 diff） | — | — | — | ✓ | — | — | ✗ |
-| `risk_disclosure` / `refuse` / `no_fabrication` | ✓ | — | — | ✓ | — | — | ✓* |
-| `progress_keyword` | — | — | — | — | — | — | ✓（弱） |
-| `custom_script` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓（脚本自负） |
+以下 **10 个值** 为合法全集，JSON Schema `enum` 与此表逐字一致。**禁止**再发明 `mixed`、`extract+gen` 等未定义值。
 
-\* `gen` 上的 `statute` / `no_fabrication` / `refuse`：**先结构化抽取 claim，再机检**；抽不到 claim 时降级为 rubric gate，**不得**对原文做脆弱正则。
+| 值 | 含义 | 典型任务 |
+|---|---|---|
+| `choice` | 单选/多选 | 法考客观、场景选择 |
+| `short` | 短答案（可别名等价） | 术语、条号摘要 |
+| `extract` | 字段/跨度抽取 | NER、金额、期间 |
+| `structured` | 结构化 JSON（schema） | 罪名+要件、引用列表 |
+| `rank` | 排序/检索列表 | 类案、法条候选 |
+| `regress` | 数值回归 | 刑期月数 |
+| `gen` | 自由文本生成 | 说理、咨询、文书段 |
+| `exact` | 严格 exact 终答（GAIA 式） | 条号、金额、单一短语 |
+| `tool_call` | 工具调用轨迹（L2） | search_statute / calc_fee |
+| `composite` | **多段复合**；必须另填 `components[]` | extract+gen、应拒/应答混题 |
+
+**复合任务**：`output_type: composite`，且 `components` 为上述单型的非空数组（如 `["extract","gen"]`、`["choice","gen"]`）。判分按 `components` 各自适用面执行后加权（默认等权，任务包可改）。
+
+**历史错误值映射（一次性，禁止再用）**：
+
+| 错误值 | 改为 |
+|---|---|
+| `mixed` | `composite` + `components` |
+| `extract+gen` | `composite` + `components: ["extract","gen"]` |
+| （裸写）`tool_call` / `exact` | 合法，见上表 |
+
+#### 4.2.1 谓词适用面矩阵
+
+**原则**：FTP/PTP **只对机检可判定的输出型开放**；自由文本不得写机检 PTP。`composite` 取其 `components` 的逻辑与（仅对声明了的段生效）。
+
+| 谓词类型 | choice | short | exact | extract | structured | rank | regress | gen | tool_call |
+|---|---|---|---|---|---|---|---|---|---|
+| `statute` / `must_not_statute` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓* | ✓* |
+| `element` / `field`（FTP） | ✓ | ✓ | ✓ | ✓ | ✓ | — | — | ✗ | — |
+| `field_keep`（PTP） | — | — | — | ✓ | ✓ | — | — | ✗ | — |
+| `amount` / `deadline` | — | ✓ | ✓ | ✓ | ✓ | — | ✓ | ✗ | ✓ |
+| `schema` / `lint` | — | — | — | ✓ | ✓ | — | — | ✓（栏目级） | ✓（参数 AST） |
+| `state`（终态 diff） | — | — | — | — | ✓ | — | — | ✗ | ✓（工具副作用） |
+| `risk_disclosure` / `refuse` / `no_fabrication` | ✓ | — | — | — | ✓ | — | — | ✓* | ✗ |
+| `progress_keyword` | — | — | — | — | — | — | — | ✓（弱） | ✓（弱） |
+| `custom_script` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓（脚本自负） | ✓ |
+
+\* 在 `gen` / `tool_call` 上：**先结构化抽取 claim，再机检**；抽不到 claim 时降级为 rubric gate，**不得**对原文做脆弱正则。`exact` 机检优先，不设自由文本 PTP。
 
 **PTP 可机检范围（明确收窄）**：
 
 | output_type | 允许的机检 PTP | 不允许 |
 |---|---|---|
 | `extract` / `structured` | `field_keep`、`must_not_statute`、`state` | 「说理不被改写」类 |
-| `choice` / `rank` / `regress` | `must_not_statute`、金样字段保持 | 自由评述 |
+| `choice` / `rank` / `regress` / `exact` | `must_not_statute`、金样字段保持 | 自由评述 |
 | `gen` | **无自由文本 PTP**；仅 `lint` 栏目保留 + 抽取后字段 | 语义「不破坏」 |
+| `tool_call` | `must_not_statute`、副作用 `state`（若声明） | 对工具「评语」的语义保持 |
+| `composite` | 按 `components` 各段规则之并，且仅限已声明段 | 跨段语义「不破坏」 |
 | `short` | 金样别名表外不篡改已知事实（有限） | — |
 
 自由文本「无关结论不得被改写」→ **不进 PTP**，改为：① 抽取子字段后对子字段做 PTP；② 或 rubric `gate.no_state_drift`。禁止发明字符串 diff 式机检。
@@ -159,7 +191,7 @@ Item = 多维标签 + prompt
 
 ### 4.4 诊断扩检（EvalPlus）
 
-主集最小 FTP；`diagnostic_ftp` 加倍。报告 **诊断掉分 = 主集分 − 诊断分**（两位小数）；掉分 &gt; 10.00 分视为 reward hacking / 关键词刷分警报。
+主集最小 FTP；`diagnostic_ftp` 加倍。报告 **诊断掉分 = 主集分 − 诊断分**（两位小数）；掉分 > 10.00 分视为 reward hacking / 关键词刷分警报。
 
 ---
 
@@ -254,7 +286,7 @@ judge:
   model_id: "…"
   prompt_hash: "…"
   mode: "swap_pair" | "single" | "off"
-  k_pass: 3
+  k_pass: 2
 ```
 
 CiteGuard **永不用「今天的法」裁判「as_of 的题」**；解析规则见 **Appendix D**。
@@ -286,27 +318,42 @@ redline_multiplier ∈ {1.00, 0.75, 0.50}  # 由 Cit/Hall 严重度触发，默�
 
 主分表恒报 `capability_score`，附列 `redline_multiplier` 与 `displayed`。
 
+**题级扣分 vs 维度级折减 · 计算顺序（强制，避免 Hall 双轨重复扣）**：
+
+```text
+① item_raw     按指标算出 0–100 未裁剪分
+② item_score   题级红线处置（§3.1）：Hall 每处 −20.00；Cit 幻觉→0.00；
+               过度拒答→×0.50 等。下限 0.00。【Hall 的 −20 只发生在这里】
+③ gate         rubric/谓词 gate 封顶或归零（cap_50 / force_zero）
+④ capability_score = 该维 item_score 的 macro/micro 聚合（百分制两位小数）
+⑤ redline_multiplier 由 ④ 之后的「维度级」Cit/Hall 严重度触发
+               （如幻觉条文率 > 5% → 0.75，> 15% → 0.50；阈值可配）
+⑥ displayed = capability_score × redline_multiplier   【仅展示列，不回写 ④】
+```
+
+**禁止**：对同一处 Hall 既在 ② 题级 −20，又在 ⑤ 对该题单独再乘折减；⑤ 只作用于维聚合结果。主排名永远用 ④。
+
 ### 8.2 Judge 成本与 pass^k 分层默认（审查 #4）
 
 | 任务类型 | 被测重复 k | Judge 模式 | 默认理由 |
 |---|---|---|---|
 | 纯机检（choice/extract/structured/regress） | **k=5** 可 | 无 Judge | 便宜 |
 | 有 Judge 的 gen（A/G/C） | **k=2** | `swap_pair` 或 `single` | 控成本 |
-| 抽检升级 | k=2 一致率 &lt; 80% 的模型 | 再对 20% 题加到 k=5 | 稳定性存疑才加 |
+| 抽检升级 | k=2 一致率 < 80% 的模型 | 再对 20% 题加到 k=5 | 稳定性存疑才加 |
 | 榜单正式分 | 同上 | Judge 模式锁定进 manifest | 跨 run 可比 |
 
 **成本账本必须含**：`model_calls · judge_calls · $model · $judge · $total`。  
-个人可运维默认：**Judge $ 总预算 &lt; 被测模型 $**；超预算时降 `swap_pair`→`single` 并在报告标注。
+个人可运维默认：**Judge $ 总预算 < 被测模型 $**；超预算时降 `swap_pair`→`single` 并在报告标注。
 
 ### 8.3 排名粒度（审查 #6，显式结论）
 
-三条纪律（禁单一总分、n&lt;100 不排名、细矩阵是特性）合取后：
+三条纪律（禁单一总分、n<100 不排名、细矩阵是特性）合取后：
 
 | 单元 | n 要求 | 允许 |
 |---|---|---|
 | **capability × interaction**（如 G×L1、R×L2） | 各 **n ≥ 100** | **可排名**、可出 CI 对比 |
 | capability 单维（跨 interaction 汇总） | n ≥ 100 | 可排名 |
-| 域 × 维 × 角色等细格子 | 通常 n &lt; 100 | **只出描述性雷达/表，禁止排名** |
+| 域 × 维 × 角色等细格子 | 通常 n < 100 | **只出描述性雷达/表，禁止排名** |
 | 对外总览指数 | 仅作导航 | **不作为「模型总分」宣贯** |
 
 更细切片用于错误分析，不用于「谁更强」叙事。
@@ -404,7 +451,7 @@ Judge 纪律：结构化分项、换位双判、长度中性、judge ≠ 被评�
 - [ ] Long-Horizon；**律师基线可选、不阻塞**（§12.3）
 
 ### DoD
-1. 离线机检任务 `temperature=0` 复跑，**谓词级翻转率 &lt; 0.5%**；闭源 API 谓词翻转率 **&lt; 5%** 写入 limits.md，超限不进正式对比。  
+1. 离线机检任务 `temperature=0` 复跑，**谓词级翻转率 < 0.5%**；闭源 API 谓词翻转率 **< 5%** 写入 limits.md，超限不进正式对比。  
 2. 诊断扩检能出掉分（两位小数）并触发警报。  
 3. 新人按三件套加任务包并通过 schema + 适用面矩阵校验。  
 4. 对外结果 = 百分制两位小数表 + manifest + 免责声明；缺一不发。
@@ -458,8 +505,8 @@ L4 的「律师 2h/8h 基线」成本与工作产品归属重，**个人项目�
 | `g_reasoning` | G | L1 | gen | 抽取后 cite + lint（无自由文本 PTP） |
 | `c_client_consult` | C | L1 | gen | 风险披露 FTP + Abst |
 | `cit_validity` | 横切 | L1 | structured | 幻觉/时效 |
-| `abst_boundary` | 横切 | L1 | mixed | 应拒/应答 |
-| `contract_risk` | C/G | L1 | extract+gen | 风险点 FTP |
+| `abst_boundary` | 横切 | L1 | composite (`["choice","gen"]`) | 应拒/应答 |
+| `contract_risk` | C/G | L1 | composite (`["extract","gen"]`) | 风险点 FTP |
 | `tool_search_statute` | R | L2 | tool_call | AST + 假调用 |
 | `gaia_fee_deadline` | U/O | L3a | exact | 金额/期间 exact |
 
@@ -517,7 +564,7 @@ statute | must_not_statute | element | field | field_keep | amount
 
 `contamination_risk: high` 的 public 题必须在 README 写明来源与风险。
 
-**字段类型**：`difficulty` int 1–4；`interaction` ∈ `L1,L2,L3a,L3b,L4`；`output_type` 见 §4.2；`as_of` ISO date。
+**字段类型**：`difficulty` int 1–4；`interaction` ∈ `L1,L2,L3a,L3b,L4`；`output_type` ∈ **闭合枚举** `choice|short|exact|extract|structured|rank|regress|gen|tool_call|composite`（定义见 §4.2.0；`composite` 必填 `components`）；`hcut` ⊆ `Cit,Abst,Hall,Cons,Proto`；`as_of` ISO date。
 
 ---
 
