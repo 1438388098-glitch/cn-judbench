@@ -33,8 +33,9 @@ def test_contract_irac_mock_scores(repo_root: Path, store):
             ipreds = _resolve_predicates(item, task_dir, preds)
             r = evaluate_item(task, ipreds, item, mock_gold_adapter(item, store), store)
             assert r.score is not None, (tid, item.id, r.error)
-            # a-008 为应拒题（predicates_refuse），其余应接近满分（partial 允许非 100）
-            if item.id == "a-008":
+            # 应拒题（predicates_refuse，state_goal.expect==refuse）必须满分，
+            # 其余应接近满分（partial 允许非 100）
+            if (item.state_goal or {}).get("expect") == "refuse":
                 assert r.score == 100.0, (r.display, r.predicate_lines)
             else:
                 assert r.score >= 50.0, (item.id, r.display, r.predicate_lines)

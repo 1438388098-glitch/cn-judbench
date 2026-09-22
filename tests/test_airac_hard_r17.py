@@ -55,7 +55,7 @@ def test_hard_anchors_in_lawkb():
 
 
 def test_run_all_airac_mock_gold_end_to_end(tmp_path, monkeypatch):
-    """mock:gold → 29 题（19 基础 + 10 hard）全对，证明金样自洽。"""
+    """mock:gold → 32 题（19 基础 + 10 hard + 3 应拒 R37）全对，证明金样自洽。"""
     monkeypatch.chdir(REPO)
     out = tmp_path / "run"
     rc = cli.main(["run-all", "--tasks", "a_irac_reason", "--model", "mock:gold",
@@ -65,7 +65,7 @@ def test_run_all_airac_mock_gold_end_to_end(tmp_path, monkeypatch):
     pt = s["per_task"]["a_irac_reason"]
     assert pt["machine_mean_str"] == "100.00"
     n_items = len(s["tasks"]["a_irac_reason"]["items"])
-    assert n_items == 29
+    assert n_items == 32
     for it in s["tasks"]["a_irac_reason"]["items"]:
         assert float(it["score"]) == 100.0, it["id"]
 

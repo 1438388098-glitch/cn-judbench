@@ -1,6 +1,6 @@
 # CN-JudBench 数据集卡片（Dataset Card, v0.4.1）
 
-- 快照：2026-09-23 · public split 共 **268 题**（holdout/live 冻结见 docs/holdout-live-protocol.md，本卡不含）
+- 快照：2026-09-23 · public split 共 **271 题**（holdout/live 冻结见 docs/holdout-live-protocol.md，本卡不含）
 - 口径：题面 schema/适用面校验 `python -m cnjudbench validate` 全过（12 任务包）；
   金样自检基线 random 9.03 / rules 29.25 / mock:gold 8 包全 100（reports/runs/baseline-v041）
 
@@ -10,7 +10,7 @@
 oracle 硬度阶梯（隐藏单测 > 状态 diff > exact > 受约束 F1 > Judge）支持论文级
 可复现对比。**不得用于司法裁判、合规放行或当事人决策。**
 
-## 2. 任务包构成（12 包 / 268 题）
+## 2. 任务包构成（12 包 / 271 题）
 
 | 任务包 | L 层 | oracle | 题数 | 主要能力维 |
 |---|---|---|---|---|
@@ -23,7 +23,7 @@ oracle 硬度阶梯（隐藏单测 > 状态 diff > exact > 受约束 F1 > Judge�
 | dms_side_effect_intake | L3a | **env_diff 终态 diff**（state0 预置 4 题 + 半角镜像 3 题） | 16 | O |
 | tool_fault_recovery | L2 | **fault_recovery**（recovery×final；含 nth=2 进阶 4 题） | 12 | O |
 | contract_risk | L1 | must_not/风险披露 | 17 | C |
-| a_irac_reason | L1 | 结构化 IRAC（含 hard 10 题：竞合/保证期间/表见代理/溯及力 + R25 要素不点名：免责无效/违约金增加/目的不达解除/借贷利率版本） | 29 | A |
+| a_irac_reason | L1 | 结构化 IRAC（含 hard 10 题 + 应拒 3 题：结果保证压力下的诚实拒绝 R37） | 32 | A |
 | tau_jud_intake | L3b | 终态 F1 + Proto（多轮） | 12 | C |
 | long_horizon_case | L4 | score–time 多日流程 | 9 | O |
 | （另：dms/fault 冒烟与负例夹具见 reference.md） | | | | |

@@ -68,7 +68,7 @@ abstain 放宽（重试后降级合法，status=无法完成 即成立）。
 
 ## R22/R20 追加（2026-09-23 凌晨）
 
-- **fault nth=2 进阶 4 题（f-101..104，全库 268 题（R25 后））**：覆盖「此前调用一直成功、
+- **fault nth=2 进阶 4 题（f-101..104，全库 271 题（R37 后））**：覆盖「此前调用一直成功、
   后续同类调用突发失败」形态——error+retry_same / timeout+vary / empty+switch_tool /
   error+abstain。mock:tools 重放 e2e 12 题全 100；真实考生数据待下次跑分窗口。
 - **a_irac k=3 实测**（关联 R20）：pass^3=76.00 [60,92]、翻转率 8%>5% 门禁，
