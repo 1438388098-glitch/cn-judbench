@@ -66,7 +66,7 @@ oracle 硬度阶梯（隐藏单测 > 状态 diff > exact > 受约束 F1 > Judge�
    （§6.1 n 规则：单维 n<50 不排名）。
 5. fault 任务 final_exact 口径公平性修正进行中
    （docs/fault-dms-real-model-report.md 发现 2/3）。
-6. lawkb 为节录口径（12 法 50 版本）：statute 类谓词的判别力受库覆盖约束，
+6. lawkb 为节录口径（12 法 51 版本）：statute 类谓词的判别力受库覆盖约束，
    库外条文分列 unknown_in_lawkb、不记幻觉；扩库准入见 anchor×as_of 审计
    （docs/calc-real-model-report.md §C5）。
 
