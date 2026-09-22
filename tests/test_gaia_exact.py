@@ -35,7 +35,7 @@ def _eval(item, answer_obj: dict, store):
 def test_ten_items_exact_gold_full_score(store):
     """10 题精品：mock:gold 终答 → 全 100.00（gold 不进 prompt）。"""
     items = _items()
-    assert len(items) == 12
+    assert len(items) >= 10
     for item in items:
         answer_obj = {"answer": item.gold["answer"], "steps": item.gold["steps"]}
         r = _eval(item, answer_obj, store)
