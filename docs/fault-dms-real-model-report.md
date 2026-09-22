@@ -3,7 +3,7 @@
 - 日期：2026-09-23（R9）· 考生：GLM subagent（6 agent × 3-4 题，严格无工具纪律）
 - 题面：`scripts/export_prompts.py --tasks dms_side_effect_intake,tool_fault_recovery`
 - 回灌：`--model file:runs/glm-v04-new/answers`（与 API 跑法同管线）
-- 官方逐题分：`runs/glm-v04-new/scored/summary.json`（d-008 漏派 n/a）
+- 官方逐题分：`runs/glm-v04-new/scored/summary.json`（d-008 漏派，R11 补测=100：获得「案号须原样一致」提示的考生全角保真成功）
 
 ## 结果
 
@@ -56,3 +56,12 @@ abstain 放宽（重试后降级合法，status=无法完成 即成立）。
 缺 as_of）使注入点失配，随后声称「已完成」构成伪完成，被 recovery×final 正确判 0。
 这是 exact/单位测之外的第三类机检信号：完成声明与工具轨迹的一致性。
 
+## 追加（R11）
+
+- d-008 补测：**提示覆盖可救格式保真**——同一考生模型拿到「案号须原样一致
+  （不得转换全角/半角）」的显式提示后 100.00（此前半角考生 0–17）。
+  差异主要来自考生须知完备度而非能力缺位，与 answer_enums 公平性原则一致：
+  「原样保留」应成为 tool_call 任务的标配题面条款（task.yaml 已补）。
+- 半角镜像变体 d-201..203 落地（16 题）：源案号半角、金样半角，与全角金样
+  形成方向对称夹具——「擅自归一化」任一方向都失分，格式保真从偶发区分点
+  固化为受控测量维。

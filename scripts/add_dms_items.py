@@ -195,6 +195,37 @@ def main() -> int:
             "canary": f"CNJB-CANARY-{hashlib.sha256(iid.encode()).hexdigest()[:8]}",
             "split": "public", "contamination_risk": "low",
         })
+    # §5.3 半角镜像变体（R11）：源案号为半角括号，金样亦半角——考「原样保留」，
+    # 与 d-001..008 全角金样形成方向对称夹具（擅自转全角即 env_diff 叶失配）。
+    MIRROR = [
+        ("d-201", "civil_commercial", "买卖合同纠纷", "原告某仓储公司诉被告某贸易公司",
+         "811", 3, "card_doc_hearing"),
+        ("d-202", "labor", "劳动争议（经济补偿金）", "原告周某诉被告某物流公司",
+         "812", 3, "card_update_doc"),
+        ("d-203", "criminal", "刑事附带民事诉讼", "附带民事诉讼原告冯某诉被告人马某",
+         "813", 4, "card_hearing_update_doc"),
+    ]
+    for iid, domain, cause, party, tail, diff, variant in MIRROR:
+        case_no = f"(2024)京0105民初{tail}号"
+        calls = build_calls(case_no, cause, party, variant)
+        expected = build_expected(case_no, cause, party, variant)
+        rows.append({
+            "id": iid, "task_id": "dms_side_effect_intake", "capability": "O",
+            "difficulty": diff, "interaction": "L3a", "roles": ["lawyer", "party"],
+            "output_type": "tool_call", "hcut": ["Hall"], "source": "synthetic",
+            "domain": domain,
+            "instruction": "按任务 prompt_template 通过案管工具完成立案流程（案号等标识符须原样保留）。",
+            "input": f"收案登记：{case_no}，{COURT}，{cause}，{party}。请依次完成：{_CAUSE_DESC[variant]}完成后返回最终确认对象。",
+            "gold": {"calls": calls, "answer": {"case_no": case_no, "status": "已办理"},
+                     "expected_state": expected},
+            "law_anchors": [{"law": "中华人民共和国民事诉讼法", "article": "126",
+                             "effective_on": "2024-01-01"}],
+            "as_of": "2024-06-01",
+            "predicates_ref": "tasks/dms_side_effect_intake/predicates.yaml",
+            "rubric_id": "dms_r1", "state_goal": None,
+            "canary": f"CNJB-CANARY-{hashlib.sha256(iid.encode()).hexdigest()[:8]}",
+            "split": "public", "contamination_risk": "low",
+        })
     # 负例：叙述不调用（fake_tool zero + 终态空）
     rows.append({
         "id": "d-fake-001", "task_id": "dms_side_effect_intake", "capability": "O",

@@ -16,4 +16,5 @@ prompt_template: |
   - write_document(case_no, doc_type, content)：落卷宗文书（案卡须已存在）
   - set_hearing_date(case_no, date)：排开庭日期（案卡须已存在）
   纪律：严格按题目要求的步骤与内容执行；不得虚构已执行；answer 只放最终确认对象。
+  案号、文号等标识符必须与题面原样一致（不得转换全角/半角）。
   任务：{input}

@@ -1,6 +1,6 @@
 # CN-JudBench 数据集卡片（Dataset Card, v0.4）
 
-- 快照：2026-09-23 · public split 共 **251 题**（holdout/live 冻结见 docs/holdout-live-protocol.md，本卡不含）
+- 快照：2026-09-23 · public split 共 **254 题**（holdout/live 冻结见 docs/holdout-live-protocol.md，本卡不含）
 - 口径：题面 schema/适用面校验 `python -m cnjudbench validate` 全过（12 任务包）
 
 ## 1. 动机与用途
@@ -19,7 +19,7 @@ oracle 硬度阶梯（隐藏单测 > 状态 diff > exact > 受约束 F1 > Judge�
 | s_charge_subsume | L1 | 罪名归并 exact | 20 | S |
 | tool_search_statute | L2 | tool_sequence/ast + exact | 26 | R |
 | gaia_fee_deadline | L3a | 金额阶梯 + progress | 17 | U/O |
-| dms_side_effect_intake | L3a | **env_diff 终态 diff**（state0 预置 4 题） | 13 | O |
+| dms_side_effect_intake | L3a | **env_diff 终态 diff**（state0 预置 4 题 + 半角镜像 3 题） | 16 | O |
 | tool_fault_recovery | L2 | **fault_recovery**（recovery×final） | 8 | O |
 | contract_risk | L1 | must_not/风险披露 | 17 | C |
 | a_irac_reason | L1 | 结构化 IRAC | 19 | A |
@@ -32,7 +32,7 @@ oracle 硬度阶梯（隐藏单测 > 状态 diff > exact > 受约束 F1 > Judge�
 - **8 科目全覆盖**：每任务包在 民商事/刑事/合同合规/劳动/家事/知产/行政/执行
   至少各 1 题（validate 网格强制）；民商事为天然大头（诉讼费/利息/期间类计算
   题集中在民商事）。
-- **难度**：1–4 级作者标注（1 基础 7 题 / 2 基础-中 84 / 3 中 98 / 4 难 62）；
+- **难度**：1–4 级作者标注（1 基础 7 题 / 2 基础-中 84 / 3 中 100 / 4 难 63）；
   实证重标（difficulty_emp，按通过率分带）工具已备（scripts/calibrate_difficulty.py），
   待真实模型数据冻结后回写。
 - **来源**：synthetic（结构化生成，参数化题目+程序化金样）为主；
