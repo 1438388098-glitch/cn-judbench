@@ -31,3 +31,10 @@
 - lawkb 若未入库 585/1260/307 等，cit/statute 会分列 unknown（属预期）
 - 真实模型分未跑（用户后续）
 - Judge rubric 仍 draft
+
+
+## 审查结论
+
+- 用户复审：**允许通过**（2026-09-22）
+- 任务包仍 `status: draft`（进 active 按 FRAMEWORK 合议门禁）
+- 后续扩题继续走同等自我审查。
