@@ -16,6 +16,9 @@
 | [docs/research-notes-round2.md](docs/research-notes-round2.md) | 第二轮调研：coding / agent / 工程硬化 |
 | [docs/impl-P0a.md](docs/impl-P0a.md) | **P0a 实施文档**（lawkb + 校验 + 冒烟任务包） |
 | [docs/impl-P0b.md](docs/impl-P0b.md) | **P0b 实施文档**（FTP/PTP + CiteGuard + API/Manifest） |
+| [docs/impl-P1.md](docs/impl-P1.md) | **P1 实施文档**（Judge / 红线 / 门禁） |
+| [docs/impl-P1-rest.md](docs/impl-P1-rest.md) | **P1 收尾**（Judge 进 runner / CI 门禁） |
+| [docs/impl-P2.md](docs/impl-P2.md) | **P2 实施文档**（工具沙箱 / Tool-Bench / Legal-GAIA） |
 
 ## 项目状态
 
@@ -24,10 +27,12 @@
 - [x] **P0a 代码** lawkb 多版本解析 + 题面/谓词校验 + `cit_validity` 冒烟（60 项测试）
 - [x] **P0b 实施文档**（`docs/impl-P0b.md`）
 - [x] **P0b 代码** FTP/PTP 执行器 + CiteGuard + API adapter（104 项测试）
-- [ ] P1 Judge / 红线 / CI 门禁
+- [x] **P1 实施文档**（`docs/impl-P1.md`）
+- [x] **P1 代码** Judge/Abst/红线/诊断掉分/bootstrap/$/solve/canary（114 项测试）
+- [x] **P1 收尾代码** `--with-judge` 进 runner + 机检/Judge 分列 + limits.md + holdout 守卫 + CI 门禁（133 项测试，`scripts/ci_gate` 全绿）
 - [ ] P2 工具层 / Legal-GAIA
 
-## 如何跑（P0b 现状）
+## 如何跑（P1 现状）
 
 ```bash
 # 环境：Python 3.11+，装依赖与包
@@ -46,7 +51,16 @@ python -m cnjudbench smoke-cit-validity
 python -m cnjudbench run --task cit_validity --model mock:gold --out reports/runs/smoke-cit
 python -m cnjudbench run-all --tasks cit_validity,u_element_extract,s_charge_subsume --model mock:gold
 #   --model openai:<model> --base-url … 走真 API（密钥仅经 OPENAI_API_KEY / CNJUD_API_KEY 环境变量）
-# 产出 reports/runs/<run_id>/summary.json + manifest.json（百分制两位小数；目录已 gitignore）
+# 产出 reports/runs/<run_id>/summary.json + manifest.json + limits.md（百分制两位小数；目录已 gitignore）
+
+# 机检 + Judge 分列（P1）：--judge mock|openai；缺 rubric 的任务 judge 列为 n/a（禁填 0.00）
+python -m cnjudbench run-all --tasks u_element_extract --model mock:gold \
+  --with-judge --judge mock --out reports/runs/j1
+#   --blend weighted 才显式加权（0.7 机检 + 0.3 Judge），默认 parallel 分列不混分
+
+# CI 门禁（validate + pytest + mock run-all + 产物断言 + 复跑翻转率=0）
+bash scripts/ci_gate.sh          # Windows: powershell -File scripts/ci_gate.ps1
+python scripts/flip_rate_check.py --tasks cit_validity --model mock:gold   # API 建议阈值 < 5%
 ```
 
 Mock（`mock:gold`）零网络、确定性，CI 只跑 Mock；真 API 冒烟为可选步骤。
