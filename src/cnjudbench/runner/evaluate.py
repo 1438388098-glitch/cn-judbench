@@ -161,9 +161,11 @@ def evaluate_item(
     abst = label_abst(completion.text, expect="answer")
     contam = scan_output(item.id, completion.text, canary=item.canary)
     # P2：tool_call 任务——沙箱随题建，调用日志即轨迹；
-    #     gold.initial_state 为案管预置环境（§5.3 在办案件），随题注入
-    _state0 = item.gold.get("initial_state") if isinstance(item.gold, dict) else None
-    sandbox = (ToolSandbox(store, dms_state0=_state0)
+    #     gold.initial_state 为案管预置环境（§5.3 在办案件），随题注入；
+    #     gold.fault 为故障注入规格（§5.4 tool_fault_recovery）
+    _gold = item.gold if isinstance(item.gold, dict) else {}
+    sandbox = (ToolSandbox(store, dms_state0=_gold.get("initial_state"),
+                           fault=_gold.get("fault"))
                if task.output_type == "tool_call" else None)
 
     # 1) 答案解析（structured/extract 须为 JSON；容忍 ```json 围栏）。

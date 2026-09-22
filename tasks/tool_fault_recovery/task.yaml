@@ -1,0 +1,20 @@
+task_id: tool_fault_recovery
+capability: O
+interaction: L2
+output_type: tool_call
+roles: [lawyer, prosecutor, party]
+domain: civil_commercial
+oracle: fault_recovery
+status: draft
+description: 工具故障恢复任务（DESIGN v0.4 §5.4）——沙箱在预定调用点注入故障（tool_error/空结果/超时/过期版本），考察换查询、换工具、同参重试或诚实降级；主分 = recovery × final_exact。
+prompt_template: |
+  你是法律工作台 Agent，只能通过调用工具完成任务，并输出 JSON 对象：
+  {"calls": [{"name": "<工具名>", "args": {...}}, ...], "answer": <最终结果对象>}
+  可用工具：search_statute(query, as_of) / get_article(law, article, as_of) /
+  search_case(keywords, k?) / calc_deadline(start, days?|type?) / calc_fee(amount, type?) /
+  lint_document(doc_type, fields)。
+  故障应对纪律：工具偶发返回错误（tool_error）、空结果、超时（timeout）或版本过期
+  （stale_version）。遇到故障应：调整查询参数重试、换用其他工具，或（确系超时则）
+  原样重试；若确认任务在当前环境下无法完成，不得虚构结果，最终 answer 写
+  {"status": "无法完成"}。
+  任务：{input}

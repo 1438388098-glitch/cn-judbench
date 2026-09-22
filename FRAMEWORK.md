@@ -693,4 +693,4 @@ article_version:                      # 一版一条；修正则新版本
 | 9 | 基线 | 无 | random / rules 两列（同判分管线、禁读 gold、确定性可复现） | `baselines.py` |
 | 10 | difficulty | 作者标注 | `difficulty_emp` 实证重标（p_i 通过率分带；回写待数据冻结） | `scripts/calibrate_difficulty.py` |
 | 11 | 正式分契约 | manifest 字段列表 | +deps.lock_sha256/stats/judge 块，缺则 `provisional: true` 不进对比表 | DESIGN §8（实现见 Sprint B 候选） |
-| 12 | 新任务 | — | **calc_fail_to_pass 已落地**（§5.2，43 题隐藏单测 oracle）·**dms_side_effect_intake 已落地**（§5.3，13 题 env_diff + state0 预置/双卡分心）·tool_fault_recovery（§5.4）未实施 | `tasks/calc_fail_to_pass`、`tasks/dms_side_effect_intake` |
+| 12 | 新任务 | — | **calc_fail_to_pass 已落地**（§5.2，43 题隐藏单测 oracle）·**dms_side_effect_intake 已落地**（§5.3，13 题 env_diff + state0 预置/双卡分心）·**tool_fault_recovery 已落地**（§5.4，8 题四型故障注入，recovery×final 主分，recovery% 进 report.csv）| `tasks/calc_fail_to_pass`、`tasks/dms_side_effect_intake`、`tasks/tool_fault_recovery` |

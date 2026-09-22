@@ -55,6 +55,7 @@ class ToolSandbox:
     store: LawkbStore
     log: list[ToolLogEntry] = field(default_factory=list)
     dms_state0: dict | None = None
+    fault: dict | None = None
     _impls: dict[str, Callable[..., Any]] = field(default_factory=dict, init=False)
     _dms_state: dict = field(default_factory=dms.default_state, init=False)
 
@@ -100,6 +101,17 @@ class ToolSandbox:
             entry.schema_ok = False
             self.log.append(entry)
             return entry
+        # §5.4 故障注入：第 fault.nth 次调用 fault.tool 时以 fault.kind 故障表现
+        # （沙箱级注入，模型真实看到错误再反应；轨迹即判分事实）。
+        if isinstance(self.fault, dict) and name == self.fault.get("tool"):
+            nth = sum(1 for e in self.log if e.name == name) + 1
+            if nth == self.fault.get("nth"):
+                kind = str(self.fault.get("kind") or "error")
+                entry.ok = kind == "empty"   # 空结果：调用「成功」但返回空
+                entry.result = [] if kind == "empty" else None
+                entry.error = None if kind == "empty" else f"fault: {kind}"
+                self.log.append(entry)
+                return entry
         try:
             entry.result = impl(store=self.store, **args)
             entry.ok = True

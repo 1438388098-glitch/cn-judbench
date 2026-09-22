@@ -26,6 +26,7 @@ PredicateTypeLiteral = Literal[
     "refuse", "no_fabrication", "progress_keyword", "custom_script",
     "tool_sequence", "tool_ast", "fake_tool", "status_ladder", "unit_tests",
     "env_diff",
+    "fault_recovery",
 ]
 OnFailLiteral = Literal["zero", "cap_50", "partial", "flag"]
 VerifiedStateLiteral = Literal[

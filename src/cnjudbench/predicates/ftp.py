@@ -13,7 +13,12 @@ from datetime import date
 from pathlib import Path
 
 from ..lawkb.resolve import normalize_article_no, normalize_law_name
+import json as _json
+
 from .base import EvalContext, PredicateResult
+
+# §5.4 诚实降级声明的可接受状态值
+_ABSTAIN_STATUSES = {"无法完成", "abstain", "cannot_complete"}
 
 
 def _walk(path: str, obj) -> object:
@@ -556,4 +561,93 @@ def env_diff(ctx: EvalContext, p, index: int) -> PredicateResult:
         "ftp", index, "env_diff", ok, pass_ratio, p.on_fail,
         detail=f"终态 diff {matched}/{total}（重放 {n_calls} 个案管调用）",
         failure_taxonomy=None if ok else "env_state_mismatch",
+    )
+
+def fault_recovery(ctx: EvalContext, p, index: int) -> PredicateResult:
+    """工具故障恢复（DESIGN v0.4 §5.4，tool_fault_recovery 主分）。
+
+    主分 = recovery × final_exact：
+    - recovery：故障调用之后的行为是否命中 gold.fault.accept 形态之一
+      （retry_same 重试同参 / vary 换查询 / switch_tool 换工具 / abstain 诚实降级）；
+    - final：模型终答对象与 gold.answer 逐叶匹配比例；
+    - 乱编（原地重试、假装成功继续、或可降级而不降级）→ recovery=0。
+    """
+    want_fault = (ctx.item.gold.get("fault") if isinstance(ctx.item.gold, dict) else None)
+    if not isinstance(want_fault, dict) or not want_fault.get("tool"):
+        return PredicateResult("ftp", index, "fault_recovery", True, 1.0, p.on_fail,
+                               detail="gold 无 fault：跳过机判（n/a）", skipped=True)
+
+    tool = str(want_fault["tool"])
+    nth = int(want_fault.get("nth") or 1)
+    accept = set(want_fault.get("accept") or ["vary", "switch_tool", "abstain"])
+    fail_args = None
+    fault_idx = None
+    seen = 0
+    for i, entry in enumerate(ctx.tool_log):
+        name = getattr(entry, "name", None)
+        if name == tool:
+            seen += 1
+            if seen == nth:
+                fault_idx = i
+                fail_args = getattr(entry, "args", None) or {}
+                break
+    if fault_idx is None:
+        return PredicateResult(
+            "ftp", index, "fault_recovery", False, 0.0, p.on_fail,
+            detail=f"未触达故障点（{tool} 仅调用 {seen}/{nth} 次）",
+            failure_taxonomy="fault_not_reached")
+
+    def _norm_args(e):
+        a = getattr(e, "args", None)
+        return _json.dumps(a, ensure_ascii=False, sort_keys=True) if isinstance(a, dict) else ""
+
+    after = list(ctx.tool_log[fault_idx + 1:])
+    fail_key = _json.dumps(fail_args, ensure_ascii=False, sort_keys=True)
+    same = [e for e in after if getattr(e, "name", None) == tool]
+    other = [e for e in after
+             if getattr(e, "name", None) != tool and getattr(e, "schema_ok", False)]
+    retry_same = any(_norm_args(e) == fail_key for e in same)
+    vary = any(_norm_args(e) != fail_key for e in same)
+    switch_tool = bool(other)
+    answer = ctx.answer if isinstance(ctx.answer, dict) else {}
+    tail_answer = answer.get("answer") if isinstance(answer.get("answer"), dict) else {}
+    abstain = (not after) and str(tail_answer.get("status") or "") in _ABSTAIN_STATUSES
+
+    forms = {"retry_same": retry_same, "vary": vary,
+             "switch_tool": switch_tool, "abstain": abstain}
+    recovered = any(forms.get(a) for a in accept)
+    recovery = 1.0 if recovered else 0.0
+    hit = "、".join(k for k, v in forms.items() if v) or "无（乱编或僵住）"
+
+    # final：终答对象逐叶匹配 gold.answer
+    want_ans = ctx.item.gold.get("answer") if isinstance(ctx.item.gold, dict) else None
+    total = matched = 0
+
+    def leaves(obj, prefix=()):
+        if isinstance(obj, dict):
+            for k, v in obj.items():
+                yield from leaves(v, prefix + (k,))
+        else:
+            yield prefix, obj
+
+    if isinstance(want_ans, dict) and want_ans:
+        got = tail_answer
+        for path, wv in leaves(want_ans):
+            total += 1
+            node = got
+            try:
+                for k in path[:-1]:
+                    node = node[k]
+                if node.get(path[-1]) == wv:
+                    matched += 1
+            except (KeyError, TypeError, AttributeError):
+                pass
+    final = (matched / total) if total else (1.0 if abstain else 0.0)
+    score = recovery * final
+    ok = score >= 1.0
+    return PredicateResult(
+        "ftp", index, "fault_recovery", ok, score, p.on_fail,
+        detail=(f"故障@{tool}#{nth} 后行为：{hit}；recovery={recovery:.2f}×"
+                f"final={final:.2f}（终答叶 {matched}/{total}）"),
+        failure_taxonomy=None if ok else "no_recovery",
     )

@@ -22,6 +22,7 @@
         <a href="#pred">谓词/lawkb</a>
         <a href="#anti">防作弊</a>
         <a href="#road">路线</a>
+        <a href="#v04">v0.4</a>
       </nav>
       <span class="ver">v0.4</span>
     </div>
@@ -275,6 +276,24 @@
       </div>
       <p class="note">工具最小集：search_statute · get_article · search_case · calc_deadline · calc_fee · lint_document；
       案管副作用（§5.3 env_diff 终态 diff）：create_case_card · update_case_card · write_document · set_hearing_date。</p>
+    </section>
+
+    <section id="v04">
+      <h2>14. v0.4：统计协议与新任务</h2>
+      <ul>
+        <li><strong>oracle 硬度阶梯</strong>：隐藏单测（calc_fail_to_pass 43 题，容差锁在测试内）&gt;
+          状态 diff（dms_side_effect_intake，env_diff 终态逐叶比对 + state0 预置）&gt;
+          exact &gt; 受约束 F1 &gt; Judge（辅列）。</li>
+        <li><strong>故障恢复</strong>：tool_fault_recovery（§5.4）沙箱级注入四型故障
+          （error/empty/timeout/stale_version），主分 = recovery × final_exact，
+          recovery% 进主表必报列。</li>
+        <li><strong>主表纪律</strong>：pass^k 组合语义为正式口径；bootstrap CI 恒附；
+          机检 flip&gt;5% 或缺 deps 锁 → <code>provisional</code>，只进附录不进对比表
+          （GLM 考生模式实测翻转 6/11≈55%，单样本一律出局的证据见
+          docs/u-hard-subset-report.md）。</li>
+        <li><strong>能力/安全分列</strong>：safety 夹具单列 safety_score，不混入能力分；
+          过度拒答能力分 ×0.50；random/rules 基线同判分管线。</li>
+      </ul>
     </section>
 
     <footer class="foot">

@@ -1,0 +1,2 @@
+rubric_id: fault_r1
+description: 机判任务包（fault_recovery oracle）；人核仅审恢复策略合理性与降级诚实性，不替代机检。

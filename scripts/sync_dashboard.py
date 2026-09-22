@@ -30,6 +30,10 @@ TASK_DIM = {
     "a_irac_reason": "A",
     "tau_jud_intake": "C",
     "long_horizon_case": "O",
+    # v0.4 新任务
+    "calc_fail_to_pass": "U",
+    "dms_side_effect_intake": "O",
+    "tool_fault_recovery": "O",
 }
 DIMS = ["K", "U", "R", "S", "A", "G", "O", "C"]
 

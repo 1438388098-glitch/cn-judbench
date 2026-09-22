@@ -37,6 +37,7 @@ ALLOWED: dict[str, frozenset[str]] = {
     "unit_tests": frozenset({"composite", "structured", "gen", "tool_call"}),
     # DESIGN v0.4 §5.3：案管副作用终态 diff，仅工具调用型
     "env_diff": frozenset({"tool_call"}),
+    "fault_recovery": frozenset({"tool_call"}),
     "progress_keyword": frozenset({"gen", "tool_call", "exact"}),
     "custom_script": _ALL,
     # P2（impl-P2 §3/§5，同步 FRAMEWORK §4.2.1）：工具轨迹谓词仅限 tool_call

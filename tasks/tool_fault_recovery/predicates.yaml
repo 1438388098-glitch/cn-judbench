@@ -1,0 +1,9 @@
+# tool_fault_recovery 谓词：recovery × final_exact 单谓词乘积主分
+ftp:
+  - type: fault_recovery     # §5.4：故障后行为命中 accept 形态 × 终答逐叶匹配
+    on_fail: partial
+ptp:
+  - type: tool_sequence
+    on_fail: partial
+  - type: tool_ast
+    on_fail: partial

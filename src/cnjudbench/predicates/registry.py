@@ -27,6 +27,7 @@ FTP_IMPLS = {
     "status_ladder": ftp.status_ladder,
     "unit_tests": ftp.unit_tests,
     "env_diff": ftp.env_diff,
+    "fault_recovery": ftp.fault_recovery,
     "fake_tool": fake_tool,
 }
 

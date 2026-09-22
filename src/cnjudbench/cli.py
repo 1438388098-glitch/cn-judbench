@@ -582,6 +582,14 @@ def _write_report_csv(out_dir: Path, summary: dict, manifest: dict) -> None:
         lo, hi = cap["hard_ci95"]
         hard_str = f"{cap['hard']} [{lo},{hi}]"
     ledger = summary.get("cost", {})
+    # §6.1 必报列：fail2pass（calc 隐藏单测）/ recovery（tool_fault_recovery）
+    # 取该任务在本次 run 中的能力得分；工具轨未跑保持 n/a，不编造。
+    def _task_cap(task_id: str) -> str:
+        t = summary.get("tasks", {}).get(task_id) or {}
+        scores = [float(i["score"]) for i in t.get("items", [])
+                  if i.get("score") not in (None, "n/a")]
+        return f"{sum(scores) / len(scores):.2f}" if scores else "n/a"
+
     row = {
         "模型": summary.get("model_id", "n/a"),
         "rev": f"{manifest.get('harness_sha', 'unknown')}"
@@ -590,7 +598,9 @@ def _write_report_csv(out_dir: Path, summary: dict, manifest: dict) -> None:
         "hard±CI": hard_str,
         "safety": summary.get("safety_score", "n/a"),
         "solve%": (f"{100.0 * solved / solve:.2f}" if solve else "n/a"),
-        "e2e%": "n/a", "fail2pass%": "n/a", "recovery%": "n/a",  # 工具轨未跑不编造
+        "e2e%": "n/a",
+        "fail2pass%": _task_cap("calc_fail_to_pass"),
+        "recovery%": _task_cap("tool_fault_recovery"),
         "$/solve": (ledger.get("dollar_per_solve") or "n/a"),
         "p95": (f"{manifest.get('accounting', {}).get('p95_latency_ms')}" if
                 manifest.get("accounting", {}).get("p95_latency_ms") is not None else "n/a"),
