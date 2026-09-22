@@ -99,11 +99,3 @@ def format_report(report: SmokeReport) -> str:
         lines.append(f"slice_union_hash={report.slice_union_hash}")
     lines.append("ALL MATCH" if report.all_match else "MISMATCH FOUND")
     return "\n".join(lines)
-
-
-def load_gold_summary(items_path: Path) -> int:
-    """题数统计（含于 CLI 输出）。"""
-    n = 0
-    for path in [items_path] if items_path.is_file() else sorted(items_path.rglob("*.jsonl")):
-        n += sum(1 for line in path.read_text(encoding="utf-8").splitlines() if line.strip())
-    return n

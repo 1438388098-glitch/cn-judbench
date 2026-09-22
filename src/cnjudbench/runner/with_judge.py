@@ -14,11 +14,6 @@ from .account import Accountant
 from .evaluate import TaskRun
 
 
-def load_rubrics(task_dirs: dict[str, Path]) -> dict[str, Rubric | None]:
-    """按 task_id 加载各任务包 rubric.yaml；缺文件 → None。"""
-    return {tid: load_rubric(d) for tid, d in task_dirs.items()}
-
-
 def apply_judge(
     runs: list[TaskRun],
     judge: Judge,
