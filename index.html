@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>CN-JudBench 法衡 · 设计文档 v0.4</title>
+  <title>CN-JudBench 法衡 · 设计文档 v0.4.1</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
@@ -22,9 +22,9 @@
         <a href="#pred">谓词/lawkb</a>
         <a href="#anti">防作弊</a>
         <a href="#road">路线</a>
-        <a href="#v04">v0.4</a>
+        <a href="#v04">v0.4.1</a>
       </nav>
-      <span class="ver">v0.4</span>
+      <span class="ver">v0.4.1</span>
     </div>
   </header>
 
@@ -281,7 +281,7 @@
     <section id="v04">
       <h2>14. v0.4：统计协议与新任务</h2>
       <ul>
-        <li><strong>oracle 硬度阶梯</strong>：隐藏单测（calc_fail_to_pass 43 题，容差锁在测试内）&gt;
+        <li><strong>oracle 硬度阶梯</strong>：隐藏单测（calc_fail_to_pass 46 题，容差锁在测试内）&gt;
           状态 diff（dms_side_effect_intake，env_diff 终态逐叶比对 + state0 预置）&gt;
           exact &gt; 受约束 F1 &gt; Judge（辅列）。</li>
         <li><strong>故障恢复</strong>：tool_fault_recovery（§5.4）沙箱级注入四型故障
@@ -293,6 +293,33 @@
           docs/u-hard-subset-report.md）。</li>
         <li><strong>能力/安全分列</strong>：safety 夹具单列 safety_score，不混入能力分；
           过度拒答能力分 ×0.50；random/rules 基线同判分管线。</li>
+      </ul>
+    </section>
+
+    <section id="v041">
+      <h2>15. v0.4.1：测量效度审计（R16-R22）</h2>
+      <ul>
+        <li><strong>金样质量消融</strong>：a_irac 19 题逐题法学复核修正约 10 处错误 gold 条号，
+          <em>同份考生答案</em>重判 31.58 → 86.84（+55.26）——金样错误时「模型分」测的是
+          金样与模型的分歧，不是能力；gold 新增 <code>acceptable_articles</code> 多解口径
+          （命中任一专业可接受条号即覆盖，缺省行为不变）。</li>
+        <li><strong>基线泄题审计</strong>：random/rules 曾直接引用 law_anchors（判分锚，
+          题面不可见）→ a_irac 双基线 96 分高于真实考生；修复后 12 分，
+          回归测试锁死。基线也是被评对象，输入可见性必须与考生同构。</li>
+        <li><strong>金样自证</strong>：mock:gold 8 包全 100（v0.4.1 基线表：random 9.03 /
+          rules 29.25）——金样无法自证即金样 bug（抓出 lh-06 继承题挂未生效条号）。</li>
+        <li><strong>IRAC 饱和负结果</strong>：6 道复合争点 hard 题 GLM 考生 6/6 满分——
+          题面点名学说要素即命中，开放式问法无法恢复区分度，判别力必须靠 oracle
+          硬度阶梯。</li>
+        <li><strong>pass^3 实测</strong>：a_irac 三个独立 run mean 90/88/82，
+          grand pass^3 = 76.00 [60, 92]，翻转率 8%&gt;5% 触发门禁——单样本与
+          组合口径 14 分差距即门禁存在的理由。</li>
+        <li><strong>换答 guard</strong>：subagent 考生两起文件对位事故（R14/R20）催生
+          回灌前机检（差分 Dice + 互最优双向确认），正式协议新增必过步骤。</li>
+        <li><strong>lawkb v0.4.1</strong>：12 法 51 版本（含民法总则/继承法废止窗口、
+          民诉法/劳动合同法/著作权法/行政诉讼法），生成器单一事实源可幂等重建。</li>
+        <li><strong>fault nth=2 进阶</strong>：4 道「先成功后故障」题（f-101..104），
+          覆盖后续同类调用突发失败的真实工作流形态。</li>
       </ul>
     </section>
 
