@@ -41,7 +41,19 @@
 - [x] **v0.4 翻转实证** GLM 考生模式 k=3 复测：逐对题级翻转 6/11≈55% ≫ 5% 门禁（docs/u-hard-subset-report.md 追加节）→ 单样本 run 一律 provisional，主表强制 pass^k
 - [ ] 待办：DS v0.4 复跑（密钥）· holdout 冻结执行（协议已备）· 人评 κ 试点（方案已备）
 
-## 如何跑（P3 现状）
+## 快速开始（5 分钟）
+
+```bash
+py -3.13 -m venv .venv && .venv/Scripts/python -m pip install -e ".[dev]"
+.venv/Scripts/python -m pytest -q                 # 269 项测试全绿
+.venv/Scripts/python -m cnjudbench run-all   --tasks cit_validity,dms_side_effect_intake,tool_fault_recovery   --model mock:gold --out reports/runs/demo
+cat reports/runs/demo/report.csv                  # §6.1 论文表直贴列
+```
+
+换真实模型：`--model openai:<model> --base-url …`（密钥仅经环境变量）；已有答案文件用
+`--model file:<answers 目录>` 回灌（全管线同 API 跑法，见 docs/paper-outline.md §7）。
+
+## 如何跑（完整）
 
 ```bash
 # 环境：Python 3.11+，装依赖与包

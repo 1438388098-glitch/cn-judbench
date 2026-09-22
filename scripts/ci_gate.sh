@@ -38,6 +38,23 @@ else:
 print("L2 fake_tool gate: checked")
 PY
 
+echo "== [4b/6] v0.4 新任务 mock 管线（dms env_diff + fault recovery） =="
+"$PY" -m cnjudbench run-all   --tasks dms_side_effect_intake,tool_fault_recovery   --model mock:tools   --out reports/runs/ci-v04
+"$PY" - <<'PY'
+import json
+from pathlib import Path
+s = json.loads(Path("reports/runs/ci-v04/summary.json").read_text(encoding="utf-8"))
+NEGATIVE_IDS = {"d-fake-001", "t-fake-001"}  # 负例夹具设计即 0 分
+for tid, task in s.get("tasks", {}).items():
+    for row in task.get("items", []):
+        sc = float(row["score"])
+        if row["id"] in NEGATIVE_IDS:
+            assert sc == 0.0, f"{row['id']} 负例应 0: {row['score']}"
+        else:
+            assert sc == 100.0, f"{row['id']} mock 重放应满分: {row['score']}'"
+print("v0.4 tasks mock gate: all 100")
+PY
+
 echo "== [5/6] assert run gate =="
 "$PY" scripts/assert_run_gate.py reports/runs/ci
 

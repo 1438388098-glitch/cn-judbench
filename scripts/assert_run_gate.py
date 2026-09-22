@@ -60,6 +60,29 @@ def main(argv: list[str]) -> int:
             if key not in acc:
                 errors.append(f"manifest.accounting 缺 {key}")
 
+    # v0.4：report.csv §6.1 必报列 + provisional 契约字段
+    report_path = run_dir / "report.csv"
+    if not report_path.is_file():
+        errors.append("缺 report.csv（§6.1 论文表直贴列）")
+    else:
+        import csv as _csv
+        with report_path.open(encoding="utf-8-sig", newline="") as f:
+            header = next(_csv.reader(f))
+        for col in ("cap±CI", "hard±CI", "safety", "solve%", "fail2pass%",
+                    "recovery%", "$/solve", "flip%", "provisional"):
+            if col not in header:
+                errors.append(f"report.csv 缺必报列 {col}")
+        prov_idx = header.index("provisional") if "provisional" in header else None
+        if prov_idx is not None:
+            with report_path.open(encoding="utf-8-sig", newline="") as f:
+                rows = list(_csv.reader(f))[1:]
+            for r in rows:
+                if len(r) > prov_idx and r[prov_idx] not in ("True", "False"):
+                    errors.append(f"report.csv provisional 非布尔: {r[prov_idx]!r}")
+    for key in ("provisional",):
+        if key not in m:
+            errors.append(f"manifest 缺 {key}（正式分契约字段）")
+
     if errors:
         print(f"ASSERT FAIL（{len(errors)} 处）:")
         for e in errors:
