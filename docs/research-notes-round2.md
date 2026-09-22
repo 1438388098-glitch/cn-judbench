@@ -38,7 +38,7 @@
 
 - **Manifest 必填**：model revision、prompt hash、数据 SHA、harness SHA、采样参数、lawkb 快照。
 - **防作弊 L0–L4**：canary → 污染双检（n-gram+改写+Min-K%）→ 时间切片 Live → 私有 holdout+限流 → 人工复核+沙箱。
-- **统计**：bootstrap 95% CI；同题配对检验；n&lt;100 只描述不排名。
+- **统计**：bootstrap 95% CI；同题配对检验；n<100 只描述不排名。
 - **成本账本**：accuracy \| $/solve \| p95 latency 并列。
 - **数据 SemVer**：major=改金标不可比；minor=增题；弃题进 deprecated 不删。
 - **伦理**：固定「非法律意见」声明；代码许可 ≠ 数据许可（PurpleLlama 分表）。
