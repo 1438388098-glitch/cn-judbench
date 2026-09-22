@@ -6,19 +6,19 @@ cd "$(dirname "$0")/.."
 
 PY="${PYTHON:-python}"
 
-echo "== [1/6] validate =="
+echo "== [1/7] validate =="
 "$PY" -m cnjudbench validate --items data/public --tasks tasks
 
-echo "== [2/6] pytest =="
+echo "== [2/7] pytest =="
 "$PY" -m pytest -q
 
-echo "== [3/6] run-all (mock:gold, with-judge) =="
+echo "== [3/7] run-all (mock:gold, with-judge) =="
 "$PY" -m cnjudbench run-all \
   --tasks cit_validity,u_element_extract,s_charge_subsume,a_irac_reason \
   --model mock:gold --with-judge --judge mock \
   --out reports/runs/ci
 
-echo "== [4/6] L2 mock:tools（含 t-fake-001 假调用负例） =="
+echo "== [4/7] L2 mock:tools（含 t-fake-001 假调用负例） =="
 "$PY" -m cnjudbench run \
   --task tool_search_statute \
   --model mock:tools \
@@ -38,7 +38,7 @@ else:
 print("L2 fake_tool gate: checked")
 PY
 
-echo "== [4b/6] v0.4 新任务 mock 管线（dms env_diff + fault recovery） =="
+echo "== [4b/7] v0.4 新任务 mock 管线（dms env_diff + fault recovery） =="
 "$PY" -m cnjudbench run-all   --tasks dms_side_effect_intake,tool_fault_recovery   --model mock:tools   --out reports/runs/ci-v04
 "$PY" - <<'PY'
 import json
@@ -55,10 +55,30 @@ for tid, task in s.get("tasks", {}).items():
 print("v0.4 tasks mock gate: all 100")
 PY
 
-echo "== [5/6] assert run gate =="
+echo "== [5/7] assert run gate =="
 "$PY" scripts/assert_run_gate.py reports/runs/ci
 
-echo "== [6/6] flip rate (mock 必须 0) =="
+echo "== [6/7] flip rate (mock 必须 0) =="
 "$PY" scripts/flip_rate_check.py
+
+
+echo "== [7/7] n-gram 污染双检接线（--ngram-corpus 实测生效） =="
+GATE_TMP="$(mktemp -d)"
+"$PY" scripts/export_prompts.py --tasks cit_validity --run-dir "$GATE_TMP"
+cat "$GATE_TMP"/prompts/*.txt > "$GATE_TMP/corpus.txt"
+"$PY" -m cnjudbench run-all \
+  --tasks cit_validity --model mock:gold \
+  --out "$GATE_TMP/run" --ngram-corpus "$GATE_TMP/corpus.txt"
+"$PY" - "$GATE_TMP/run/summary.json" <<'PY'
+import json
+import sys
+from pathlib import Path
+
+s = json.loads(Path(sys.argv[1]).read_text(encoding="utf-8"))
+ng = s["contamination"]["ngram_overlap"]
+assert ng["n"] == 8 and ng["max_overlap"] > 0.5, f"题面本源命中语料应高重叠: {ng}"
+print(f"ngram wiring gate: max_overlap={ng['max_overlap']:.2f} top={ng['top_item']}")
+PY
+rm -rf "$GATE_TMP"
 
 echo "CI GATE: ALL GREEN"
