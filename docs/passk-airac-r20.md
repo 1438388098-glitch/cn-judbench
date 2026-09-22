@@ -58,3 +58,14 @@ R29/R32 判分修复（alias_lookup 引用侧剥尾括注 + risk_disclosure 对�
 价值在防御未来 run（ah-104/a-017 已实证 6.9% 触发率），并以
 tests/test_lawkb_alias_r29.py 与 test_risk_default_marks_accept_hedge_formula_r32
 锁定回归。
+
+## R42 修复后管线 pass^2（2026-09-23 早）
+
+- runs：reports/runs/airac-refuse-r38-fixed（run A，全修复管线）+ runs/airac-k2-run2（run B，独立第二样本，guard 32/32 过）
+- n 题 = 32（a_irac v0.4.1 全量含 hard 10 + 应拒 3）；run A mean 96.88 / run B mean 92.19
+- **grand pass^2 = 87.50 [75.00, 96.88]**（bootstrap 95%，n=1000，seed=42）
+- 逐对题级翻转率 = 2/32 = 6.2%（>5% 门禁：本组 run 仍不得进正式表）
+- 翻转归因：a-003 = 条号选择精度（run B 引盗窃解释第1/4条而非刑法264——真区分）；
+  a-008 = 拒绝措辞风格 run 间波动触发承诺守卫（待 k=3 逐字审计，可能残留匹配敏感）。
+- 结论：单样本 96.88/92.19 vs 组合 87.50——**修复后的公平管线上门禁依然按设计
+  生效**；pass^k 纪律对「好看的单样本分」的免疫力得到第二次实证。
