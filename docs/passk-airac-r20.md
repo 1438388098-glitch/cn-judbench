@@ -48,3 +48,13 @@
   lawkb（民法典526），三 run 全 100。修正使 grand pass^3 72.00→76.00。
 - **门禁结论**：修正后翻转率 4/50=8.0% 仍 >5% 门禁——本组 run 按协议不得进
   正式表；单样本 run（90.00）与 pass^3（76.00）的 14 分差距是门禁存在的理由。
+
+## R34 复评备注（2026-09-23）
+
+R29/R32 判分修复（alias_lookup 引用侧剥尾括注 + risk_disclosure 对冲句式）
+落地后，对本报告三组 run 的答案全量重评（runs/airac-k3-run{1,2,3}-rescored）：
+**逐题零漂移**。E15 机检假阴性是引用书写风格条件性的——旧 run 的考生答案
+未用法名括注装饰，故不受影响；pass^3=72.00 与翻转率结论不变。该修复的
+价值在防御未来 run（ah-104/a-017 已实证 6.9% 触发率），并以
+tests/test_lawkb_alias_r29.py 与 test_risk_default_marks_accept_hedge_formula_r32
+锁定回归。
