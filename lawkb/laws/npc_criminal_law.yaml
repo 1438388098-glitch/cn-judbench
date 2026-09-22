@@ -34,6 +34,15 @@ article_version:
   text_hash: sha256:d384112939effcbb8903d83f5ea5552207f045ff1c1bac9f63718b1a1c92dd6f
   text_ref: text/cl_263_1997.txt
 - law_id: npc_criminal_law
+  article_no: '267'
+  version_id: cl_267_1997
+  effective_from: '1997-10-01'
+  effective_to: null
+  superseded_by: null
+  note: 1997 年刑法原文；第二百六十七条（抢夺罪）· 文本待官方源校对
+  text_hash: sha256:31f2e01555defcd780b56524e37a607e2e99021442c784cd9aff2bd1e602cdce
+  text_ref: text/cl_267_1997.txt
+- law_id: npc_criminal_law
   article_no: '266'
   version_id: cl_266_1997
   effective_from: '1997-10-01'

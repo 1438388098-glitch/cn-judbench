@@ -1,0 +1,96 @@
+# lawkb 入库片段：诉讼费用交纳办法 + 民诉 2023 + 刑诉 2018
+# schema 对齐 lawkb/laws/*.yaml（law / article_version）
+# 来源见 docs/statute-sources.md；正文摘录 ≤200 字/条（第十三条含分段表，为计算锚点全量保留）
+# 核验状态：
+#   fee_13_2007     : 公报全文已核（gov.cn gongbao content_512694）
+#   msf_122/128/171 : flk 目录已核条号；正文为通行法定文本，入库前建议对照 flk 详情正文
+#   xsf_230_2018    : 未从 flk 取到详情；条号/正文待二次核对
+---
+law:
+  law_id: state_council_fee_measures_481
+  names:
+  - 诉讼费用交纳办法
+  - 诉讼费用交纳办法（国务院令第481号）
+  level: administrative_regulation
+  promulgated_on: '2006-12-19'
+  source_url: https://www.gov.cn/gongbao/content/2007/content_512694.htm
+article_version:
+- law_id: state_council_fee_measures_481
+  article_no: '13'
+  version_id: fee_13_2007
+  effective_from: '2007-04-01'
+  effective_to: null
+  superseded_by: null
+  note: 第十三条（案件受理费交纳标准；财产案件分段累计）
+  text_hash: sha256:b6e4dce220adc9966ff5ea37cea4afd855d83535ff2603faee7953f27b4cc9c1
+  text_ref: inline
+  text: |-
+    第十三条　案件受理费分别按照下列标准交纳：（一）财产案件根据诉讼请求的金额或者价额，按照下列比例分段累计交纳：1.不超过1万元的，每件交纳50元；2.超过1万元至10万元的部分，按照2.5%交纳；3.超过10万元至20万元的部分，按照2%交纳；4.超过20万元至50万元的部分，按照1.5%交纳；5.超过50万元至100万元的部分，按照1%交纳；6.超过100万元至200万元的部分，按照0.9%交纳；7.超过200万元至500万元的部分，按照0.8%交纳；8.超过500万元至1000万元的部分，按照0.7%交纳；9.超过1000万元至2000万元的部分，按照0.6%交纳；10.超过2000万元的部分，按照0.5%交纳。
+  verify: official_gongbao_fulltext
+---
+law:
+  law_id: npc_civil_procedure_law
+  names:
+  - 中华人民共和国民事诉讼法
+  - 民事诉讼法
+  - 民诉法
+  level: law
+  promulgated_on: '2023-09-01'
+  source_url: https://flk.npc.gov.cn/detail2.html?ZmY4MDgxODE4YTIxZGMxMzAxOGI0MjUzMDNiNzA4NmQ=
+  flk_bbbs: ff8081818a21dc13018b425303b7086d
+article_version:
+- law_id: npc_civil_procedure_law
+  article_no: '122'
+  version_id: msf_122_2023
+  effective_from: '2024-01-01'
+  effective_to: null
+  superseded_by: null
+  note: 第一百二十二条（起诉条件）；2017 及更早为第一百一十九条
+  text_ref: inline
+  text: |-
+    第一百二十二条　起诉必须符合下列条件：（一）原告是与本案有直接利害关系的公民、法人和其他组织；（二）有明确的被告；（三）有具体的诉讼请求和事实、理由；（四）属于人民法院受理民事诉讼的范围和受诉人民法院管辖。
+  verify: flk_toc_ok_text_pending
+- law_id: npc_civil_procedure_law
+  article_no: '128'
+  version_id: msf_128_2023
+  effective_from: '2024-01-01'
+  effective_to: null
+  superseded_by: null
+  note: 第一百二十八条（答辩期 15 日）；2017 及更早为第一百二十五条
+  text_ref: inline
+  text: |-
+    第一百二十八条　人民法院应当在立案之日起五日内将起诉状副本发送被告，被告应当在收到之日起十五日内提出答辩状。答辩状应当记明被告的姓名、性别、年龄、民族、职业、工作单位、住所、联系方式；法人或者其他组织的名称、住所和法定代表人或者主要负责人的姓名、职务、联系方式。人民法院应当在收到答辩状之日起五日内将答辩状副本发送原告。被告不提出答辩状的，不影响人民法院审理。
+  verify: flk_toc_ok_text_pending
+- law_id: npc_civil_procedure_law
+  article_no: '171'
+  version_id: msf_171_2023
+  effective_from: '2024-01-01'
+  effective_to: null
+  superseded_by: null
+  note: 第一百七十一条（判决上诉期 15 日 / 裁定上诉期 10 日）；2017 及更早为第一百六十四条
+  text_ref: inline
+  text: |-
+    第一百七十一条　当事人不服地方人民法院第一审判决的，有权在判决书送达之日起十五日内向上一级人民法院提起上诉。当事人不服地方人民法院第一审裁定的，有权在裁定书送达之日起十日内向上一级人民法院提起上诉。
+  verify: flk_toc_ok_text_pending
+---
+law:
+  law_id: npc_criminal_procedure_law
+  names:
+  - 中华人民共和国刑事诉讼法
+  - 刑事诉讼法
+  - 刑诉法
+  level: law
+  promulgated_on: '2018-10-26'
+  source_url: https://flk.npc.gov.cn/
+article_version:
+- law_id: npc_criminal_procedure_law
+  article_no: '230'
+  version_id: xsf_230_2018
+  effective_from: '2018-10-26'
+  effective_to: null
+  superseded_by: null
+  note: 第二百三十条（上诉、抗诉期限：判决 10 日 / 裁定 5 日，自接到文书次日起算）；2012 及更早为第二百一十九条
+  text_ref: inline
+  text: |-
+    第二百三十条　不服判决的上诉、抗诉的期限为十日，不服裁定的上诉、抗诉的期限为五日，从接到判决书、裁定书的第二日起算。
+  verify: pending_flk_official
