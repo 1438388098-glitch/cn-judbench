@@ -25,3 +25,10 @@ Thumbs.db
 *.egg-info/
 build/
 dist/
+
+.env.local
+*.local
+
+
+# 自动迭代技能状态
+.autopilot/

@@ -14,9 +14,10 @@ def cache_key(
     prompt: str,
     temperature: float,
     seed: int | None,
+    extra: str = "",
 ) -> str:
     return hashlib.sha256(
-        f"{model_id}|{revision}|{prompt}|{temperature}|{seed}".encode("utf-8")
+        f"{model_id}|{revision}|{prompt}|{temperature}|{seed}|{extra}".encode("utf-8")
     ).hexdigest()
 
 

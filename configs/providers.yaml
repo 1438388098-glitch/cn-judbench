@@ -1,0 +1,45 @@
+# 评测提供商配置（无密钥）。密钥只读环境变量或 .env.local（gitignore）。
+# 用法：python -m cnjudbench run-all --provider zhipu --model glm-5.3-flash …
+# 或：  python -m cnjudbench run-all --model zhipu:glm-5.3-flash …
+
+deepseek:
+  label: DeepSeek
+  base_url: https://api.deepseek.com/v1
+  api_key_env: [CNJUD_API_KEY, OPENAI_API_KEY, DEEPSEEK_API_KEY]
+  defaults:
+    timeout: 60
+    temperature: 0.0
+  models:
+    deepseek-flash:
+      price_key: deepseek-flash
+      note: DeepSeek-V4.1-Flash
+    deepseek-v4-pro:
+      price_key: deepseek-v4-pro
+      note: DeepSeek-V4-Pro-0813
+
+zhipu:
+  label: 智谱 BigModel
+  base_url: https://open.bigmodel.cn/api/paas/v4
+  api_key_env: [CNJUD_API_KEY, ZAI_API_KEY, ZHIPU_API_KEY]
+  defaults:
+    timeout: 180
+    temperature: 0.0
+    # 智谱个人 token plan 实测并发上限低；429 也可能是「余额不足/无资源包」（code 1113）
+    max_workers: 10
+    # GLM-5.3-Flash 推荐 reasoning_effort=max；thinking 仅 enabled
+    reasoning_effort: max
+    thinking:
+      type: enabled
+      clear_thinking: false
+  models:
+    glm-5.3-flash:
+      price_key: glm-5.3-flash
+    glm-5.3-flashx:
+      price_key: glm-5.3-flashx
+    glm-5.3:
+      price_key: glm-5.3
+    glm-5.2:
+      price_key: glm-5.3   # 价目与 5.3 同档（8/28 元），暂挂靠；可另拆
+    glm-4.7-flash:
+      price_key: null      # 免费模型
+      note: 免费文本模型
