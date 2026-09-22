@@ -20,3 +20,8 @@ lawkb/private/
 Thumbs.db
 .idea/
 .vscode/
+
+# Python 构建产物
+*.egg-info/
+build/
+dist/
