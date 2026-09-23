@@ -52,6 +52,7 @@
 | 已有机制覆盖 | 大半 | 如 E14 已扫描过的锚类、test 已锁行为 |
 | backlog 待排（candidate-014..043 旧通用项 + 后续新增） | 31 pending | 见 `.autopilot/state.json`；deadline 内按轮消化 |
 | 用户级阻塞 | 3 | DeepSeek 有效密钥（v0.4 复跑）、holdout --apply 双审签字、人评 κ 招募 |
+| 判分语义待消融（blocked：需真考生轮对照） | 2 | **F4** proto 红线 transcript 污染（risk_disclosure/has_mandate 叙述提及红线词即扣分？candidate-331）；**F5** statute 谓词倾倒无精确率惩罚（引用 10 条命中 1 条仍满分？candidate-346）。两者改动都会重排历史分数，须按 gold-adjudication-policy 同等纪律：先跑真考生消融留痕再改 |
 | 有意不做 | 少量 | 如重编 s-014（破坏 id 稳定性，见 batch3 补记）；embedding 类语义判分（违背可审计原则） |
 
 ## 4. 方法论收获（供 C5 写作）

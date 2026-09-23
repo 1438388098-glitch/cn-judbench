@@ -32,6 +32,9 @@
 | 33.9% / ρ=+0.152 | 作者难度×实证通过率对角一致率 / Spearman | `reports/difficulty-emp-crosstab.md`（`scripts/calibrate_difficulty.py`） |
 | S1 0.00→13.09、S2 0.00→5.56 | tau state partial 化后真考生重判 | `docs/paper-outline.md` §E18（同份答案重判运行记录） |
 | 6/62（缺陷率 9.7%） | fresh 题真考生轮抓出金样/题面缺陷 | `docs/paper-outline.md` §E17、`docs/self-review-new-items-*.md` |
+| random 7.96 / rules 27.03 | v0.6 判分收紧后基线（baseline-v06） | `reports/runs/baseline-v06`、dataset-card 口径行 | ✓ |
+| c322-c324 修复组 | as_of 强制题面 / 极性对冲 / 拒绝否定豁免（判分效度 v0.6 收尾） | `tests/test_validity_fixes_v06.py`（8 测试，s-006 伪 as_of 反自证样例） | ✓ |
+| eligibility 两档制 100/50 | 排名资格阈值（n≥100 rankable；n≥50 CI 仅 descriptive） | `src/cnjudbench/metrics/compare.py` `RANKABLE_MIN_N`/`CI_DESCRIPTIVE_MIN_N` + FRAMEWORK §8.3 | c342 |
 
 > 「历史运行记录」类数字无法 pytest 机检（依赖本地考生 run 目录），
 > 以报告文件 + 提纲双重留档为准；引用时注明口径与运行日期。

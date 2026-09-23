@@ -1,5 +1,7 @@
-# CN-JudBench 数据集卡片（Dataset Card, v0.5 · Phase 1）
+# CN-JudBench 数据集卡片（Dataset Card, v0.6.0）
 
+- **dataset_version: 0.6.0**（与 `pyproject.toml` / `CITATION.cff` / `CHANGELOG.md` 最新条目同源，一致性有机检）
+- **snapshot_date: 2026-09-24** · **license: MIT (code) / CC BY 4.0 (data)**（法条文本为官方作品，见 §7 与 LICENSE 分表声明）
 - 快照：2026-09-24 · public split 共 **323 题**（v0.5：Phase 1 剖减 a_irac 全分饱和题 20 题入 data/archive，Phase 3a/3b/3c 新增难题 18+8+10=36 题，Phase 4 新增实务题 30 题；v0.6 batch4 新增 cit stale 族 6 题；原 271；holdout/live 冻结见 docs/holdout-live-protocol.md，本卡不含）
 - 口径：题面 schema/适用面校验 `python -m cnjudbench validate` 全过（12 任务包）；
   金样自检基线 v0.6：random 7.96 / rules 27.03 / mock:gold 8 包全 100（reports/runs/baseline-v06；v0.4.1 历史值 9.03/29.25 见 calc-real-model-report）

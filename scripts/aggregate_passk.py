@@ -84,6 +84,10 @@ def main() -> int:
                          "对照报告 = 同命令不加开关）")
     args = ap.parse_args()
 
+    # c343：threshold 是百分制题分的通过线，越界只会产出形似合法的废话表
+    if not (0.0 <= args.threshold <= 100.0):
+        ap.error(f"--threshold={args.threshold} 越界：须在 [0,100]（百分制题分）")
+
     n_runs = len(args.runs)
     # c325：k 越界直接报错——静默退化为 0.00 曾产出形似合法的全错主表数字
     if args.k is not None and args.k <= 0:

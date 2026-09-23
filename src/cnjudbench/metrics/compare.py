@@ -20,13 +20,17 @@ from .bootstrap import paired_bootstrap_ci
 
 SOLVE_THRESHOLD_DEFAULT = 60.0  # 与 report.csv solve% 同一口径
 
-# 预注册比较单元（FRAMEWORK §8.3）：核心六包等权 grand，162 题。
+# 预注册比较单元（FRAMEWORK §8.3）：核心六包等权 grand，168 题（c262 勘误口径）。
 # 事后挑比较子集是排名作弊的主要通道——凡用于排名主张的 A-B 比较，
 # 必须同时给出本口径（--preregistered）。
 CORE_SIX_TASKS = frozenset({
     "cit_validity", "u_element_extract", "s_charge_subsume",
     "contract_risk", "a_irac_reason", "long_horizon_case",
 })
+
+# 排名资格两档阈值（FRAMEWORK §8.3 文字与代码的唯一对齐点，测试锁定）
+RANKABLE_MIN_N = 100
+CI_DESCRIPTIVE_MIN_N = 50
 
 
 def mcnemar_exact(a_pass: list[bool], b_pass: list[bool]) -> dict:
@@ -95,15 +99,16 @@ def _macro_paired_bootstrap(
 
 
 def _eligibility(n_aligned: int, protocol: str = "FRAMEWORK §8.3") -> dict:
-    """排名资格两档制（c326，FRAMEWORK §8.3）：n≥100 rankable；50≤n<100
-    CI 仅 descriptive；n<50 descriptive_only——CLI 据此抑制显著性结论措辞。"""
-    if n_aligned >= 100:
+    """排名资格两档制（c326，FRAMEWORK §8.3）：n≥RANKABLE_MIN_N rankable；
+    n≥CI_DESCRIPTIVE_MIN_N CI 仅 descriptive；再低 descriptive_only——
+    CLI 据此抑制显著性结论措辞。"""
+    if n_aligned >= RANKABLE_MIN_N:
         tier = "rankable"
-    elif n_aligned >= 50:
+    elif n_aligned >= CI_DESCRIPTIVE_MIN_N:
         tier = "ci_descriptive"
     else:
         tier = "descriptive_only"
-    return {"tier": tier, "n_threshold": 100, "protocol": protocol}
+    return {"tier": tier, "n_threshold": RANKABLE_MIN_N, "protocol": protocol}
 
 
 def compare_runs(

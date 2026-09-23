@@ -4,6 +4,11 @@
 翻转率 = 翻转题数 / 比对题数。离线 Mock 必须 = 0；闭源 API 阈值（< 5%）由调用方
 写入 limits.md。任一题拒判（n/a）不计入分母但计入警告。
 
+适用面（c344）：本检查面向**谓词/判分确定性**，默认任务集（DEFAULT_TASKS）
+只含三个冒烟谓词包。dms_side_effect_intake、fault_injection 等工具沙箱包的
+翻转语义由沙箱确定性单独保证（ci_gate 4b mock:tools 自证），翻转率门禁对
+它们不适用——env_diff 的随机性来自考生动作序列而非判分器。
+
 用法::
 
     python scripts/flip_rate_check.py                       # 默认 3 冒烟包、mock:gold
