@@ -25,6 +25,12 @@
 ### 修正
 - 预注册核心六包合计题数勘误：162 → **168**（cit 27 + u 49 + s_charge 20 +
   contract 23 + a_irac 34 + long_horizon 15），FRAMEWORK 与论文提纲同步。
+- 判分效度三修复（c322-c324）：时效判定**强制题面 as_of**（考生 citation
+  自报 as_of 仅进诊断列，引用废止法条+伪日期无法洗掉 stale_statute）；
+  极性对冲 `polarity_opposed`（一侧否定头+核心相等不得分，「未支持」≠「支持」）；
+  拒绝判定否定豁免（「本案无需转介」不再误判为拒绝）。修复后按纪律重导
+  基线：baseline-v06b 与修复前 **245 题逐题分零漂移**
+  （`tests/test_baseline_zero_drift_v06.py`）。
 - tau state 谓词部分得分化：自由文本字段（risk_note/next_steps）由逐字
   包含匹配（真考生结构性 0 分）改为标量命中/文本覆盖连续分/列表 set_f1，
   `on_fail` 由 zero 改 partial（c290 收尾，语义锁定于
@@ -34,6 +40,10 @@
 - 密钥取用顺序：进程环境变量优先于 `.env.local`（防旧键遮蔽会话新键）。
 
 ### 变更
+- 发布一致性机检（c336-c346）：版本四源一致（pyproject/CITATION/__init__/
+  CHANGELOG/dataset-card）、占位仓库地址集中清单、CITATION 日期对齐、
+  §8.3 两档阈值常量互锁（`RANKABLE_MIN_N`/`CI_DESCRIPTIVE_MIN_N`）、
+  `aggregate_passk --threshold` 越界拒绝、flip 门禁工具包适用面声明。
 - 全仓 Python 版本下限 3.11（CI matrix 3.11 + 3.13）。
 - `.gitattributes` 强制 data/public、lawkb/text、docs/corpus.txt 检出 LF，
   防 autocrlf 机器复现 CRLF 挂测试。

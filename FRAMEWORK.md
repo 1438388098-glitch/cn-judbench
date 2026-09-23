@@ -392,6 +392,10 @@ contract_risk · a_irac_reason · long_horizon_case`（合计 168 题，v0.4 起
 - **solve%（解决率）保守口径**：分母含判为 n/a 的题（n/a 计未解决，与 machine_mean 的 n/a 剔除口径不同）；与 scored_rate 的 <90% 警告阈值联动——scored_rate 低于 90% 时 solve% 是系统性低估，报告须并列 scored_rate_str 提示。  
 - 排序用未舍入分；展示 `xx.xx`。  
 - n 分档与 §8.3 两档制一致：`n ≥ 100` 可排名；`50 ≤ n < 100` 报 CI 标 descriptive；`n < 50` 只描述。
+- **判分改动→基线重导纪律（v0.6 补记）**：判分器语义改动与 gold 改动同权——
+  落地后必须重导 random/rules/mock:gold 基线并留档对照（零漂移也要留证）；
+  已验证案例：c322-c324 判分效度修复后 baseline-v06b 与修复前 245 题逐题分
+  零漂移（`tests/test_baseline_zero_drift_v06.py`；calc-real-model-report §C5）。
 
 ### 8.5 Rubric gate（百分制）
 

@@ -20,7 +20,7 @@
 
 ## 已齐备（无需动作，防重复盘点）
 
-- v0.6 基线表（baseline-v06：random 7.96 / rules 27.03 / gold 100×8）
+- v0.6 基线表（baseline-v06：random 7.96 / rules 27.03 / gold 100×8；修复后零漂移凭证 baseline-v06b）
 - E18/E19 消融与复现数字（活体金样测试锁定：test_e18_repro_golden_v06 / test_passk_golden_v06）
 - 作者×实证难度交叉表（difficulty-emp-crosstab.md：对角一致 33.9%）
 - 能力维覆盖矩阵（capability-matrix.md：8+1 维全非零）

@@ -1,8 +1,9 @@
 # 论文主表（生成自 runs，正式对比表只收 provisional=false）
 
 > 数据截至：2026-09-23（v0.4.1 期 run）；v0.6 现行基线为 random 7.96 /
-> rules 27.03 / mock:gold 100×8 包（reports/runs/baseline-v06），真实模型 v0.6
-> 全量复跑因密钥/余额阻塞未做。引用本表数字前先核对 `生成自 runs` 的时效。
+> rules 27.03 / mock:gold 100×8 包（reports/runs/baseline-v06；判分效度修复后
+> 重导验证零漂移见 baseline-v06b），真实模型 v0.6 全量复跑因密钥/余额阻塞未做。
+> 引用本表数字前先核对 `生成自 runs` 的时效。
 
 ## T-main（正式对比表）
 
