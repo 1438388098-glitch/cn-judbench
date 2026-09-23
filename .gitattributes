@@ -1,0 +1,5 @@
+# 行尾纪律（R14 c238/c183）：判分输入逐字节可比，检出时强制 LF，与仓库一致
+* text=auto eol=lf
+data/public/*.jsonl text eol=lf
+lawkb/text/*.txt text eol=lf
+docs/corpus.txt text eol=lf
