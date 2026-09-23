@@ -1,0 +1,1357 @@
+{
+ "a_irac_reason/a-001": {
+  "tier": "T4a-砍候选确认",
+  "glm_mean": 100.0,
+  "n": 3
+ },
+ "a_irac_reason/a-002": {
+  "tier": "T4a-砍候选确认",
+  "glm_mean": 100.0,
+  "n": 3
+ },
+ "a_irac_reason/a-003": {
+  "tier": "T3-实难",
+  "glm_mean": 83.3,
+  "n": 3
+ },
+ "a_irac_reason/a-004": {
+  "tier": "T4a-砍候选确认",
+  "glm_mean": 100.0,
+  "n": 3
+ },
+ "a_irac_reason/a-005": {
+  "tier": "T4a-砍候选确认",
+  "glm_mean": 100.0,
+  "n": 3
+ },
+ "a_irac_reason/a-006": {
+  "tier": "T4a-砍候选确认",
+  "glm_mean": 100.0,
+  "n": 3
+ },
+ "a_irac_reason/a-007": {
+  "tier": "T4a-砍候选确认",
+  "glm_mean": 100.0,
+  "n": 3
+ },
+ "a_irac_reason/a-008": {
+  "tier": "T3-实难",
+  "glm_mean": 33.3,
+  "n": 3
+ },
+ "a_irac_reason/a-009": {
+  "tier": "T4a-砍候选确认",
+  "glm_mean": 100.0,
+  "n": 3
+ },
+ "a_irac_reason/a-010": {
+  "tier": "T4a-砍候选确认",
+  "glm_mean": 100.0,
+  "n": 3
+ },
+ "a_irac_reason/a-011": {
+  "tier": "T4a-砍候选确认",
+  "glm_mean": 100.0,
+  "n": 3
+ },
+ "a_irac_reason/a-012": {
+  "tier": "T4a-砍候选确认",
+  "glm_mean": 100.0,
+  "n": 3
+ },
+ "a_irac_reason/a-013": {
+  "tier": "T4a-砍候选确认",
+  "glm_mean": 100.0,
+  "n": 3
+ },
+ "a_irac_reason/a-014": {
+  "tier": "T4a-砍候选确认",
+  "glm_mean": 100.0,
+  "n": 3
+ },
+ "a_irac_reason/a-015": {
+  "tier": "T4a-砍候选确认",
+  "glm_mean": 100.0,
+  "n": 3
+ },
+ "a_irac_reason/a-016": {
+  "tier": "T4a-砍候选确认",
+  "glm_mean": 100.0,
+  "n": 3
+ },
+ "a_irac_reason/a-017": {
+  "tier": "T4a-砍候选确认",
+  "glm_mean": 100.0,
+  "n": 3
+ },
+ "a_irac_reason/a-018": {
+  "tier": "T4a-砍候选确认",
+  "glm_mean": 100.0,
+  "n": 3
+ },
+ "a_irac_reason/a-019": {
+  "tier": "T3-实难",
+  "glm_mean": 50.0,
+  "n": 3
+ },
+ "a_irac_reason/ah-001": {
+  "tier": "T4a-砍候选确认",
+  "glm_mean": 100.0,
+  "n": 3
+ },
+ "a_irac_reason/ah-002": {
+  "tier": "T4a-砍候选确认",
+  "glm_mean": 100.0,
+  "n": 3
+ },
+ "a_irac_reason/ah-003": {
+  "tier": "T4a-砍候选确认",
+  "glm_mean": 100.0,
+  "n": 3
+ },
+ "a_irac_reason/ah-004": {
+  "tier": "T4a-砍候选确认",
+  "glm_mean": 100.0,
+  "n": 3
+ },
+ "a_irac_reason/ah-005": {
+  "tier": "T3-实难",
+  "glm_mean": 50.0,
+  "n": 3
+ },
+ "a_irac_reason/ah-006": {
+  "tier": "T4a-砍候选确认",
+  "glm_mean": 100.0,
+  "n": 3
+ },
+ "a_irac_reason/ah-101": {
+  "tier": "T4a-砍候选确认",
+  "glm_mean": 100.0,
+  "n": 3
+ },
+ "a_irac_reason/ah-102": {
+  "tier": "T4a-砍候选确认",
+  "glm_mean": 100.0,
+  "n": 3
+ },
+ "a_irac_reason/ah-103": {
+  "tier": "T4a-砍候选确认",
+  "glm_mean": 100.0,
+  "n": 3
+ },
+ "a_irac_reason/ah-104": {
+  "tier": "T4a-砍候选确认",
+  "glm_mean": 100.0,
+  "n": 3
+ },
+ "a_irac_reason/a-020": {
+  "tier": "T4a-砍候选确认",
+  "glm_mean": 100.0,
+  "n": 3
+ },
+ "a_irac_reason/a-021": {
+  "tier": "T4a-砍候选确认",
+  "glm_mean": 100.0,
+  "n": 3
+ },
+ "a_irac_reason/a-022": {
+  "tier": "T4a-砍候选确认",
+  "glm_mean": 100.0,
+  "n": 3
+ },
+ "calc_fail_to_pass/cf-001": {
+  "tier": "T4b-砍候选待3样",
+  "glm_mean": 100.0,
+  "n": 1
+ },
+ "calc_fail_to_pass/cf-002": {
+  "tier": "T4b-砍候选待3样",
+  "glm_mean": 100.0,
+  "n": 1
+ },
+ "calc_fail_to_pass/cf-003": {
+  "tier": "T4b-砍候选待3样",
+  "glm_mean": 100.0,
+  "n": 1
+ },
+ "calc_fail_to_pass/cf-004": {
+  "tier": "T4b-砍候选待3样",
+  "glm_mean": 100.0,
+  "n": 1
+ },
+ "calc_fail_to_pass/cf-005": {
+  "tier": "T4b-砍候选待3样",
+  "glm_mean": 100.0,
+  "n": 1
+ },
+ "calc_fail_to_pass/cf-006": {
+  "tier": "T4b-砍候选待3样",
+  "glm_mean": 100.0,
+  "n": 1
+ },
+ "calc_fail_to_pass/cf-007": {
+  "tier": "T4b-砍候选待3样",
+  "glm_mean": 100.0,
+  "n": 1
+ },
+ "calc_fail_to_pass/cf-008": {
+  "tier": "T4b-砍候选待3样",
+  "glm_mean": 100.0,
+  "n": 1
+ },
+ "calc_fail_to_pass/cf-009": {
+  "tier": "T4b-砍候选待3样",
+  "glm_mean": 100.0,
+  "n": 1
+ },
+ "calc_fail_to_pass/cf-010": {
+  "tier": "T4b-砍候选待3样",
+  "glm_mean": 100.0,
+  "n": 1
+ },
+ "calc_fail_to_pass/cf-011": {
+  "tier": "T3-实难",
+  "glm_mean": 50.0,
+  "n": 1
+ },
+ "calc_fail_to_pass/cf-012": {
+  "tier": "T3-实难",
+  "glm_mean": 50.0,
+  "n": 1
+ },
+ "calc_fail_to_pass/cf-013": {
+  "tier": "T4b-砍候选待3样",
+  "glm_mean": 100.0,
+  "n": 1
+ },
+ "calc_fail_to_pass/cf-014": {
+  "tier": "T4b-砍候选待3样",
+  "glm_mean": 100.0,
+  "n": 1
+ },
+ "calc_fail_to_pass/cf-015": {
+  "tier": "T3-实难",
+  "glm_mean": 50.0,
+  "n": 1
+ },
+ "calc_fail_to_pass/cf-016": {
+  "tier": "T4b-砍候选待3样",
+  "glm_mean": 100.0,
+  "n": 1
+ },
+ "calc_fail_to_pass/cf-017": {
+  "tier": "T4b-砍候选待3样",
+  "glm_mean": 100.0,
+  "n": 1
+ },
+ "calc_fail_to_pass/cf-018": {
+  "tier": "T3-实难",
+  "glm_mean": 50.0,
+  "n": 1
+ },
+ "calc_fail_to_pass/cf-019": {
+  "tier": "T3-实难",
+  "glm_mean": 50.0,
+  "n": 1
+ },
+ "calc_fail_to_pass/ci-001": {
+  "tier": "T3-实难",
+  "glm_mean": 50.0,
+  "n": 1
+ },
+ "calc_fail_to_pass/ci-002": {
+  "tier": "T3-实难",
+  "glm_mean": 50.0,
+  "n": 1
+ },
+ "calc_fail_to_pass/ci-003": {
+  "tier": "T4b-砍候选待3样",
+  "glm_mean": 100.0,
+  "n": 1
+ },
+ "calc_fail_to_pass/ci-004": {
+  "tier": "T3-实难",
+  "glm_mean": 50.0,
+  "n": 1
+ },
+ "calc_fail_to_pass/ci-005": {
+  "tier": "T4b-砍候选待3样",
+  "glm_mean": 100.0,
+  "n": 1
+ },
+ "calc_fail_to_pass/ci-006": {
+  "tier": "T3-实难",
+  "glm_mean": 50.0,
+  "n": 1
+ },
+ "calc_fail_to_pass/ci-007": {
+  "tier": "T4b-砍候选待3样",
+  "glm_mean": 100.0,
+  "n": 1
+ },
+ "calc_fail_to_pass/ci-008": {
+  "tier": "T3-实难",
+  "glm_mean": 50.0,
+  "n": 1
+ },
+ "calc_fail_to_pass/ci-009": {
+  "tier": "T3-实难",
+  "glm_mean": 50.0,
+  "n": 1
+ },
+ "calc_fail_to_pass/ci-010": {
+  "tier": "T3-实难",
+  "glm_mean": 50.0,
+  "n": 1
+ },
+ "calc_fail_to_pass/ci-011": {
+  "tier": "T3-实难",
+  "glm_mean": 50.0,
+  "n": 1
+ },
+ "calc_fail_to_pass/ci-012": {
+  "tier": "T3-实难",
+  "glm_mean": 50.0,
+  "n": 1
+ },
+ "calc_fail_to_pass/cp-001": {
+  "tier": "T4b-砍候选待3样",
+  "glm_mean": 100.0,
+  "n": 1
+ },
+ "calc_fail_to_pass/cp-002": {
+  "tier": "T4b-砍候选待3样",
+  "glm_mean": 100.0,
+  "n": 1
+ },
+ "calc_fail_to_pass/cp-003": {
+  "tier": "T4b-砍候选待3样",
+  "glm_mean": 100.0,
+  "n": 1
+ },
+ "calc_fail_to_pass/cp-004": {
+  "tier": "T4b-砍候选待3样",
+  "glm_mean": 100.0,
+  "n": 1
+ },
+ "calc_fail_to_pass/cp-005": {
+  "tier": "T3-实难",
+  "glm_mean": 50.0,
+  "n": 1
+ },
+ "calc_fail_to_pass/cp-006": {
+  "tier": "T3-实难",
+  "glm_mean": 50.0,
+  "n": 1
+ },
+ "calc_fail_to_pass/cp-007": {
+  "tier": "T4b-砍候选待3样",
+  "glm_mean": 100.0,
+  "n": 1
+ },
+ "calc_fail_to_pass/cp-008": {
+  "tier": "T4b-砍候选待3样",
+  "glm_mean": 100.0,
+  "n": 1
+ },
+ "calc_fail_to_pass/cp-009": {
+  "tier": "T4b-砍候选待3样",
+  "glm_mean": 100.0,
+  "n": 1
+ },
+ "calc_fail_to_pass/cp-010": {
+  "tier": "T4b-砍候选待3样",
+  "glm_mean": 100.0,
+  "n": 1
+ },
+ "calc_fail_to_pass/cp-011": {
+  "tier": "T4b-砍候选待3样",
+  "glm_mean": 100.0,
+  "n": 1
+ },
+ "calc_fail_to_pass/cp-012": {
+  "tier": "T4b-砍候选待3样",
+  "glm_mean": 100.0,
+  "n": 1
+ },
+ "calc_fail_to_pass/ci-hard-001": {
+  "tier": "T4b-砍候选待3样",
+  "glm_mean": 100.0,
+  "n": 1
+ },
+ "calc_fail_to_pass/cf-hard-001": {
+  "tier": "T4b-砍候选待3样",
+  "glm_mean": 100.0,
+  "n": 1
+ },
+ "calc_fail_to_pass/cp-hard-001": {
+  "tier": "T4b-砍候选待3样",
+  "glm_mean": 100.0,
+  "n": 1
+ },
+ "cit_validity/cit-001": {
+  "tier": "待测",
+  "glm_mean": null,
+  "n": 0
+ },
+ "cit_validity/cit-002": {
+  "tier": "待测",
+  "glm_mean": null,
+  "n": 0
+ },
+ "cit_validity/cit-003": {
+  "tier": "待测",
+  "glm_mean": null,
+  "n": 0
+ },
+ "cit_validity/cit-004": {
+  "tier": "待测",
+  "glm_mean": null,
+  "n": 0
+ },
+ "cit_validity/cit-005": {
+  "tier": "待测",
+  "glm_mean": null,
+  "n": 0
+ },
+ "cit_validity/cit-006": {
+  "tier": "待测",
+  "glm_mean": null,
+  "n": 0
+ },
+ "cit_validity/cit-007": {
+  "tier": "待测",
+  "glm_mean": null,
+  "n": 0
+ },
+ "cit_validity/cit-008": {
+  "tier": "待测",
+  "glm_mean": null,
+  "n": 0
+ },
+ "cit_validity/cit-009": {
+  "tier": "待测",
+  "glm_mean": null,
+  "n": 0
+ },
+ "cit_validity/cit-010": {
+  "tier": "待测",
+  "glm_mean": null,
+  "n": 0
+ },
+ "cit_validity/cit-011": {
+  "tier": "待测",
+  "glm_mean": null,
+  "n": 0
+ },
+ "cit_validity/cit-012": {
+  "tier": "待测",
+  "glm_mean": null,
+  "n": 0
+ },
+ "cit_validity/cit-013": {
+  "tier": "待测",
+  "glm_mean": null,
+  "n": 0
+ },
+ "cit_validity/cit-014": {
+  "tier": "待测",
+  "glm_mean": null,
+  "n": 0
+ },
+ "cit_validity/cit-015": {
+  "tier": "待测",
+  "glm_mean": null,
+  "n": 0
+ },
+ "cit_validity/cit-016": {
+  "tier": "待测",
+  "glm_mean": null,
+  "n": 0
+ },
+ "cit_validity/cit-017": {
+  "tier": "待测",
+  "glm_mean": null,
+  "n": 0
+ },
+ "cit_validity/cit-018": {
+  "tier": "待测",
+  "glm_mean": null,
+  "n": 0
+ },
+ "cit_validity/cit-019": {
+  "tier": "待测",
+  "glm_mean": null,
+  "n": 0
+ },
+ "cit_validity/cit-020": {
+  "tier": "待测",
+  "glm_mean": null,
+  "n": 0
+ },
+ "cit_validity/cit-021": {
+  "tier": "待测",
+  "glm_mean": null,
+  "n": 0
+ },
+ "contract_risk/c-001": {
+  "tier": "待测",
+  "glm_mean": null,
+  "n": 0
+ },
+ "contract_risk/c-002": {
+  "tier": "待测",
+  "glm_mean": null,
+  "n": 0
+ },
+ "contract_risk/c-003": {
+  "tier": "待测",
+  "glm_mean": null,
+  "n": 0
+ },
+ "contract_risk/c-004": {
+  "tier": "待测",
+  "glm_mean": null,
+  "n": 0
+ },
+ "contract_risk/c-005": {
+  "tier": "待测",
+  "glm_mean": null,
+  "n": 0
+ },
+ "contract_risk/c-006": {
+  "tier": "待测",
+  "glm_mean": null,
+  "n": 0
+ },
+ "contract_risk/c-007": {
+  "tier": "待测",
+  "glm_mean": null,
+  "n": 0
+ },
+ "contract_risk/c-008": {
+  "tier": "待测",
+  "glm_mean": null,
+  "n": 0
+ },
+ "contract_risk/c-009": {
+  "tier": "待测",
+  "glm_mean": null,
+  "n": 0
+ },
+ "contract_risk/c-010": {
+  "tier": "待测",
+  "glm_mean": null,
+  "n": 0
+ },
+ "contract_risk/c-011": {
+  "tier": "待测",
+  "glm_mean": null,
+  "n": 0
+ },
+ "contract_risk/c-012": {
+  "tier": "待测",
+  "glm_mean": null,
+  "n": 0
+ },
+ "contract_risk/c-013": {
+  "tier": "待测",
+  "glm_mean": null,
+  "n": 0
+ },
+ "contract_risk/c-014": {
+  "tier": "待测",
+  "glm_mean": null,
+  "n": 0
+ },
+ "contract_risk/c-015": {
+  "tier": "待测",
+  "glm_mean": null,
+  "n": 0
+ },
+ "contract_risk/c-016": {
+  "tier": "待测",
+  "glm_mean": null,
+  "n": 0
+ },
+ "contract_risk/c-017": {
+  "tier": "待测",
+  "glm_mean": null,
+  "n": 0
+ },
+ "dms_side_effect_intake/d-001": {
+  "tier": "T3-实难",
+  "glm_mean": 0.0,
+  "n": 1
+ },
+ "dms_side_effect_intake/d-002": {
+  "tier": "T3-实难",
+  "glm_mean": 16.7,
+  "n": 1
+ },
+ "dms_side_effect_intake/d-003": {
+  "tier": "T3-实难",
+  "glm_mean": 16.7,
+  "n": 1
+ },
+ "dms_side_effect_intake/d-004": {
+  "tier": "T4b-砍候选待3样",
+  "glm_mean": 100.0,
+  "n": 1
+ },
+ "dms_side_effect_intake/d-005": {
+  "tier": "T4b-砍候选待3样",
+  "glm_mean": 100.0,
+  "n": 1
+ },
+ "dms_side_effect_intake/d-006": {
+  "tier": "T4b-砍候选待3样",
+  "glm_mean": 100.0,
+  "n": 1
+ },
+ "dms_side_effect_intake/d-007": {
+  "tier": "T3-实难",
+  "glm_mean": 0.0,
+  "n": 1
+ },
+ "dms_side_effect_intake/d-008": {
+  "tier": "T4b-砍候选待3样",
+  "glm_mean": 100.0,
+  "n": 1
+ },
+ "dms_side_effect_intake/d-101": {
+  "tier": "T3-实难",
+  "glm_mean": 83.3,
+  "n": 1
+ },
+ "dms_side_effect_intake/d-102": {
+  "tier": "T4b-砍候选待3样",
+  "glm_mean": 100.0,
+  "n": 1
+ },
+ "dms_side_effect_intake/d-103": {
+  "tier": "T4b-砍候选待3样",
+  "glm_mean": 100.0,
+  "n": 1
+ },
+ "dms_side_effect_intake/d-104": {
+  "tier": "T4b-砍候选待3样",
+  "glm_mean": 100.0,
+  "n": 1
+ },
+ "dms_side_effect_intake/d-201": {
+  "tier": "待测",
+  "glm_mean": null,
+  "n": 0
+ },
+ "dms_side_effect_intake/d-202": {
+  "tier": "待测",
+  "glm_mean": null,
+  "n": 0
+ },
+ "dms_side_effect_intake/d-203": {
+  "tier": "待测",
+  "glm_mean": null,
+  "n": 0
+ },
+ "dms_side_effect_intake/d-fake-001": {
+  "tier": "T1-夹具",
+  "glm_mean": 20.0,
+  "n": 1
+ },
+ "gaia_fee_deadline/g-01": {
+  "tier": "待测",
+  "glm_mean": null,
+  "n": 0
+ },
+ "gaia_fee_deadline/g-02": {
+  "tier": "待测",
+  "glm_mean": null,
+  "n": 0
+ },
+ "gaia_fee_deadline/g-03": {
+  "tier": "待测",
+  "glm_mean": null,
+  "n": 0
+ },
+ "gaia_fee_deadline/g-04": {
+  "tier": "待测",
+  "glm_mean": null,
+  "n": 0
+ },
+ "gaia_fee_deadline/g-05": {
+  "tier": "待测",
+  "glm_mean": null,
+  "n": 0
+ },
+ "gaia_fee_deadline/g-06": {
+  "tier": "待测",
+  "glm_mean": null,
+  "n": 0
+ },
+ "gaia_fee_deadline/g-07": {
+  "tier": "待测",
+  "glm_mean": null,
+  "n": 0
+ },
+ "gaia_fee_deadline/g-08": {
+  "tier": "待测",
+  "glm_mean": null,
+  "n": 0
+ },
+ "gaia_fee_deadline/g-09": {
+  "tier": "待测",
+  "glm_mean": null,
+  "n": 0
+ },
+ "gaia_fee_deadline/g-10": {
+  "tier": "待测",
+  "glm_mean": null,
+  "n": 0
+ },
+ "gaia_fee_deadline/g-11": {
+  "tier": "待测",
+  "glm_mean": null,
+  "n": 0
+ },
+ "gaia_fee_deadline/g-12": {
+  "tier": "待测",
+  "glm_mean": null,
+  "n": 0
+ },
+ "gaia_fee_deadline/g-13": {
+  "tier": "待测",
+  "glm_mean": null,
+  "n": 0
+ },
+ "gaia_fee_deadline/g-14": {
+  "tier": "待测",
+  "glm_mean": null,
+  "n": 0
+ },
+ "gaia_fee_deadline/g-15": {
+  "tier": "待测",
+  "glm_mean": null,
+  "n": 0
+ },
+ "gaia_fee_deadline/g-16": {
+  "tier": "待测",
+  "glm_mean": null,
+  "n": 0
+ },
+ "gaia_fee_deadline/g-17": {
+  "tier": "待测",
+  "glm_mean": null,
+  "n": 0
+ },
+ "long_horizon_case/lh-01": {
+  "tier": "待测",
+  "glm_mean": null,
+  "n": 0
+ },
+ "long_horizon_case/lh-02": {
+  "tier": "待测",
+  "glm_mean": null,
+  "n": 0
+ },
+ "long_horizon_case/lh-03": {
+  "tier": "待测",
+  "glm_mean": null,
+  "n": 0
+ },
+ "long_horizon_case/lh-04": {
+  "tier": "待测",
+  "glm_mean": null,
+  "n": 0
+ },
+ "long_horizon_case/lh-05": {
+  "tier": "待测",
+  "glm_mean": null,
+  "n": 0
+ },
+ "long_horizon_case/lh-06": {
+  "tier": "待测",
+  "glm_mean": null,
+  "n": 0
+ },
+ "long_horizon_case/lh-07": {
+  "tier": "待测",
+  "glm_mean": null,
+  "n": 0
+ },
+ "long_horizon_case/lh-08": {
+  "tier": "待测",
+  "glm_mean": null,
+  "n": 0
+ },
+ "long_horizon_case/lh-09": {
+  "tier": "待测",
+  "glm_mean": null,
+  "n": 0
+ },
+ "s_charge_subsume/s-001": {
+  "tier": "待测",
+  "glm_mean": null,
+  "n": 0
+ },
+ "s_charge_subsume/s-002": {
+  "tier": "待测",
+  "glm_mean": null,
+  "n": 0
+ },
+ "s_charge_subsume/s-003": {
+  "tier": "待测",
+  "glm_mean": null,
+  "n": 0
+ },
+ "s_charge_subsume/s-004": {
+  "tier": "待测",
+  "glm_mean": null,
+  "n": 0
+ },
+ "s_charge_subsume/s-005": {
+  "tier": "待测",
+  "glm_mean": null,
+  "n": 0
+ },
+ "s_charge_subsume/s-006": {
+  "tier": "待测",
+  "glm_mean": null,
+  "n": 0
+ },
+ "s_charge_subsume/s-007": {
+  "tier": "待测",
+  "glm_mean": null,
+  "n": 0
+ },
+ "s_charge_subsume/s-008": {
+  "tier": "待测",
+  "glm_mean": null,
+  "n": 0
+ },
+ "s_charge_subsume/s-009": {
+  "tier": "待测",
+  "glm_mean": null,
+  "n": 0
+ },
+ "s_charge_subsume/s-010": {
+  "tier": "待测",
+  "glm_mean": null,
+  "n": 0
+ },
+ "s_charge_subsume/s-011": {
+  "tier": "待测",
+  "glm_mean": null,
+  "n": 0
+ },
+ "s_charge_subsume/s-012": {
+  "tier": "待测",
+  "glm_mean": null,
+  "n": 0
+ },
+ "s_charge_subsume/s-013": {
+  "tier": "待测",
+  "glm_mean": null,
+  "n": 0
+ },
+ "s_charge_subsume/s-015": {
+  "tier": "待测",
+  "glm_mean": null,
+  "n": 0
+ },
+ "s_charge_subsume/s-016": {
+  "tier": "待测",
+  "glm_mean": null,
+  "n": 0
+ },
+ "s_charge_subsume/s-017": {
+  "tier": "待测",
+  "glm_mean": null,
+  "n": 0
+ },
+ "s_charge_subsume/s-018": {
+  "tier": "待测",
+  "glm_mean": null,
+  "n": 0
+ },
+ "s_charge_subsume/s-019": {
+  "tier": "待测",
+  "glm_mean": null,
+  "n": 0
+ },
+ "s_charge_subsume/s-020": {
+  "tier": "待测",
+  "glm_mean": null,
+  "n": 0
+ },
+ "s_charge_subsume/s-021": {
+  "tier": "待测",
+  "glm_mean": null,
+  "n": 0
+ },
+ "tau_jud_intake/tj-001": {
+  "tier": "待测",
+  "glm_mean": null,
+  "n": 0
+ },
+ "tau_jud_intake/tj-002": {
+  "tier": "待测",
+  "glm_mean": null,
+  "n": 0
+ },
+ "tau_jud_intake/tj-003": {
+  "tier": "待测",
+  "glm_mean": null,
+  "n": 0
+ },
+ "tau_jud_intake/tj-004": {
+  "tier": "待测",
+  "glm_mean": null,
+  "n": 0
+ },
+ "tau_jud_intake/tj-005": {
+  "tier": "待测",
+  "glm_mean": null,
+  "n": 0
+ },
+ "tau_jud_intake/tj-006": {
+  "tier": "待测",
+  "glm_mean": null,
+  "n": 0
+ },
+ "tau_jud_intake/tj-007": {
+  "tier": "待测",
+  "glm_mean": null,
+  "n": 0
+ },
+ "tau_jud_intake/tj-008": {
+  "tier": "待测",
+  "glm_mean": null,
+  "n": 0
+ },
+ "tau_jud_intake/tj-009": {
+  "tier": "待测",
+  "glm_mean": null,
+  "n": 0
+ },
+ "tau_jud_intake/tj-010": {
+  "tier": "待测",
+  "glm_mean": null,
+  "n": 0
+ },
+ "tau_jud_intake/tj-011": {
+  "tier": "待测",
+  "glm_mean": null,
+  "n": 0
+ },
+ "tau_jud_intake/tj-012": {
+  "tier": "待测",
+  "glm_mean": null,
+  "n": 0
+ },
+ "tool_fault_recovery/f-001": {
+  "tier": "T3-实难",
+  "glm_mean": 16.7,
+  "n": 2
+ },
+ "tool_fault_recovery/f-002": {
+  "tier": "T3-实难",
+  "glm_mean": 0.0,
+  "n": 2
+ },
+ "tool_fault_recovery/f-003": {
+  "tier": "T3-实难",
+  "glm_mean": 33.3,
+  "n": 2
+ },
+ "tool_fault_recovery/f-004": {
+  "tier": "T3-实难",
+  "glm_mean": 0.0,
+  "n": 2
+ },
+ "tool_fault_recovery/f-005": {
+  "tier": "T3-实难",
+  "glm_mean": 50.0,
+  "n": 2
+ },
+ "tool_fault_recovery/f-006": {
+  "tier": "T3-实难",
+  "glm_mean": 50.0,
+  "n": 2
+ },
+ "tool_fault_recovery/f-007": {
+  "tier": "T3-实难",
+  "glm_mean": 50.0,
+  "n": 2
+ },
+ "tool_fault_recovery/f-008": {
+  "tier": "T3-实难",
+  "glm_mean": 83.3,
+  "n": 2
+ },
+ "tool_fault_recovery/f-101": {
+  "tier": "待测",
+  "glm_mean": null,
+  "n": 0
+ },
+ "tool_fault_recovery/f-102": {
+  "tier": "待测",
+  "glm_mean": null,
+  "n": 0
+ },
+ "tool_fault_recovery/f-103": {
+  "tier": "待测",
+  "glm_mean": null,
+  "n": 0
+ },
+ "tool_fault_recovery/f-104": {
+  "tier": "待测",
+  "glm_mean": null,
+  "n": 0
+ },
+ "tool_search_statute/t-ss-001": {
+  "tier": "待测",
+  "glm_mean": null,
+  "n": 0
+ },
+ "tool_search_statute/t-ss-002": {
+  "tier": "待测",
+  "glm_mean": null,
+  "n": 0
+ },
+ "tool_search_statute/t-ss-003": {
+  "tier": "待测",
+  "glm_mean": null,
+  "n": 0
+ },
+ "tool_search_statute/t-ga-001": {
+  "tier": "待测",
+  "glm_mean": null,
+  "n": 0
+ },
+ "tool_search_statute/t-ga-002": {
+  "tier": "待测",
+  "glm_mean": null,
+  "n": 0
+ },
+ "tool_search_statute/t-ga-003": {
+  "tier": "待测",
+  "glm_mean": null,
+  "n": 0
+ },
+ "tool_search_statute/t-sc-001": {
+  "tier": "待测",
+  "glm_mean": null,
+  "n": 0
+ },
+ "tool_search_statute/t-sc-002": {
+  "tier": "待测",
+  "glm_mean": null,
+  "n": 0
+ },
+ "tool_search_statute/t-sc-003": {
+  "tier": "待测",
+  "glm_mean": null,
+  "n": 0
+ },
+ "tool_search_statute/t-dl-001": {
+  "tier": "待测",
+  "glm_mean": null,
+  "n": 0
+ },
+ "tool_search_statute/t-dl-002": {
+  "tier": "待测",
+  "glm_mean": null,
+  "n": 0
+ },
+ "tool_search_statute/t-dl-003": {
+  "tier": "待测",
+  "glm_mean": null,
+  "n": 0
+ },
+ "tool_search_statute/t-cf-001": {
+  "tier": "待测",
+  "glm_mean": null,
+  "n": 0
+ },
+ "tool_search_statute/t-cf-002": {
+  "tier": "待测",
+  "glm_mean": null,
+  "n": 0
+ },
+ "tool_search_statute/t-cf-003": {
+  "tier": "待测",
+  "glm_mean": null,
+  "n": 0
+ },
+ "tool_search_statute/t-ld-001": {
+  "tier": "待测",
+  "glm_mean": null,
+  "n": 0
+ },
+ "tool_search_statute/t-ld-002": {
+  "tier": "待测",
+  "glm_mean": null,
+  "n": 0
+ },
+ "tool_search_statute/t-ld-003": {
+  "tier": "待测",
+  "glm_mean": null,
+  "n": 0
+ },
+ "tool_search_statute/t-fake-001": {
+  "tier": "T1-夹具",
+  "glm_mean": null,
+  "n": 0
+ },
+ "tool_search_statute/t-dl-004": {
+  "tier": "待测",
+  "glm_mean": null,
+  "n": 0
+ },
+ "tool_search_statute/t-ga-004": {
+  "tier": "待测",
+  "glm_mean": null,
+  "n": 0
+ },
+ "tool_search_statute/t-cf-005": {
+  "tier": "待测",
+  "glm_mean": null,
+  "n": 0
+ },
+ "tool_search_statute/t-dl-005": {
+  "tier": "待测",
+  "glm_mean": null,
+  "n": 0
+ },
+ "tool_search_statute/t-ga-005": {
+  "tier": "待测",
+  "glm_mean": null,
+  "n": 0
+ },
+ "tool_search_statute/t-ld-004": {
+  "tier": "待测",
+  "glm_mean": null,
+  "n": 0
+ },
+ "tool_search_statute/t-cf-006": {
+  "tier": "待测",
+  "glm_mean": null,
+  "n": 0
+ },
+ "u_element_extract/u-001": {
+  "tier": "待测",
+  "glm_mean": null,
+  "n": 0
+ },
+ "u_element_extract/u-002": {
+  "tier": "待测",
+  "glm_mean": null,
+  "n": 0
+ },
+ "u_element_extract/u-003": {
+  "tier": "待测",
+  "glm_mean": null,
+  "n": 0
+ },
+ "u_element_extract/u-004": {
+  "tier": "待测",
+  "glm_mean": null,
+  "n": 0
+ },
+ "u_element_extract/u-005": {
+  "tier": "待测",
+  "glm_mean": null,
+  "n": 0
+ },
+ "u_element_extract/u-006": {
+  "tier": "待测",
+  "glm_mean": null,
+  "n": 0
+ },
+ "u_element_extract/u-007": {
+  "tier": "待测",
+  "glm_mean": null,
+  "n": 0
+ },
+ "u_element_extract/u-008": {
+  "tier": "待测",
+  "glm_mean": null,
+  "n": 0
+ },
+ "u_element_extract/u-009": {
+  "tier": "待测",
+  "glm_mean": null,
+  "n": 0
+ },
+ "u_element_extract/u-010": {
+  "tier": "待测",
+  "glm_mean": null,
+  "n": 0
+ },
+ "u_element_extract/u-011": {
+  "tier": "T4b-砍候选待3样",
+  "glm_mean": 100.0,
+  "n": 1
+ },
+ "u_element_extract/u-012": {
+  "tier": "T4b-砍候选待3样",
+  "glm_mean": 100.0,
+  "n": 1
+ },
+ "u_element_extract/u-013": {
+  "tier": "T4b-砍候选待3样",
+  "glm_mean": 100.0,
+  "n": 1
+ },
+ "u_element_extract/u-014": {
+  "tier": "T4b-砍候选待3样",
+  "glm_mean": 100.0,
+  "n": 1
+ },
+ "u_element_extract/u-015": {
+  "tier": "待测",
+  "glm_mean": null,
+  "n": 0
+ },
+ "u_element_extract/u-016": {
+  "tier": "待测",
+  "glm_mean": null,
+  "n": 0
+ },
+ "u_element_extract/u-017": {
+  "tier": "待测",
+  "glm_mean": null,
+  "n": 0
+ },
+ "u_element_extract/u-018": {
+  "tier": "待测",
+  "glm_mean": null,
+  "n": 0
+ },
+ "u_element_extract/u-019": {
+  "tier": "待测",
+  "glm_mean": null,
+  "n": 0
+ },
+ "u_element_extract/u-020": {
+  "tier": "T4b-砍候选待3样",
+  "glm_mean": 100.0,
+  "n": 1
+ },
+ "u_element_extract/u-021": {
+  "tier": "T4b-砍候选待3样",
+  "glm_mean": 100.0,
+  "n": 1
+ },
+ "u_element_extract/u-022": {
+  "tier": "T4b-砍候选待3样",
+  "glm_mean": 100.0,
+  "n": 1
+ },
+ "u_element_extract/u-023": {
+  "tier": "T4b-砍候选待3样",
+  "glm_mean": 100.0,
+  "n": 1
+ },
+ "u_element_extract/u-024": {
+  "tier": "T4b-砍候选待3样",
+  "glm_mean": 100.0,
+  "n": 1
+ },
+ "u_element_extract/u-025": {
+  "tier": "T4b-砍候选待3样",
+  "glm_mean": 100.0,
+  "n": 1
+ },
+ "u_element_extract/u-026": {
+  "tier": "T4b-砍候选待3样",
+  "glm_mean": 100.0,
+  "n": 1
+ },
+ "u_element_extract/u-027": {
+  "tier": "T3-实难",
+  "glm_mean": 50.0,
+  "n": 1
+ },
+ "u_element_extract/u-028": {
+  "tier": "T4b-砍候选待3样",
+  "glm_mean": 100.0,
+  "n": 1
+ },
+ "u_element_extract/u-029": {
+  "tier": "T4b-砍候选待3样",
+  "glm_mean": 100.0,
+  "n": 1
+ },
+ "u_element_extract/u-030": {
+  "tier": "T3-实难",
+  "glm_mean": 50.0,
+  "n": 1
+ },
+ "u_element_extract/u-031": {
+  "tier": "T3-实难",
+  "glm_mean": 50.0,
+  "n": 1
+ },
+ "u_element_extract/u-032": {
+  "tier": "T4b-砍候选待3样",
+  "glm_mean": 100.0,
+  "n": 1
+ },
+ "u_element_extract/u-033": {
+  "tier": "T4b-砍候选待3样",
+  "glm_mean": 100.0,
+  "n": 1
+ },
+ "u_element_extract/u-034": {
+  "tier": "T4b-砍候选待3样",
+  "glm_mean": 100.0,
+  "n": 1
+ },
+ "u_element_extract/u-035": {
+  "tier": "T4b-砍候选待3样",
+  "glm_mean": 100.0,
+  "n": 1
+ },
+ "u_element_extract/u-036": {
+  "tier": "T3-实难",
+  "glm_mean": 50.0,
+  "n": 1
+ },
+ "u_element_extract/u-037": {
+  "tier": "T4b-砍候选待3样",
+  "glm_mean": 100.0,
+  "n": 1
+ },
+ "u_element_extract/u-038": {
+  "tier": "T4b-砍候选待3样",
+  "glm_mean": 100.0,
+  "n": 1
+ },
+ "u_element_extract/u-039": {
+  "tier": "T4b-砍候选待3样",
+  "glm_mean": 100.0,
+  "n": 1
+ },
+ "u_element_extract/u-040": {
+  "tier": "T4b-砍候选待3样",
+  "glm_mean": 100.0,
+  "n": 1
+ },
+ "u_element_extract/u-041": {
+  "tier": "T3-实难",
+  "glm_mean": 50.0,
+  "n": 1
+ },
+ "u_element_extract/u-042": {
+  "tier": "T4b-砍候选待3样",
+  "glm_mean": 100.0,
+  "n": 1
+ },
+ "u_element_extract/u-043": {
+  "tier": "T4b-砍候选待3样",
+  "glm_mean": 100.0,
+  "n": 1
+ }
+}
