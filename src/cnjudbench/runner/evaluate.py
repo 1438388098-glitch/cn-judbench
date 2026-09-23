@@ -203,6 +203,7 @@ def evaluate_item(
             completion.latency_ms,
             cache_hit_tokens=completion.cache_hit_tokens,
             cache_miss_tokens=completion.cache_miss_tokens,
+            cache_replay=completion.cache_hit,
         )
 
     # P1 接线：Abst 双标签 + canary 一级扫描（对原始输出，含解析失败路径）

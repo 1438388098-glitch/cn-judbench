@@ -83,3 +83,14 @@ def test_c241_dead_links_extended_docs():
             if rel.startswith(("http://", "https://")):
                 continue
             assert (t.parent / rel).is_file(), f"{name} 死链: {rel}"
+
+
+def test_c244_saturation_count_card_vs_manifest():
+    man = json.loads((REPO / "data" / "public" / "MANIFEST.json")
+                     .read_text(encoding="utf-8"))
+    n_sat = sum(1 for p in man["packages"].values()
+                for it in p["items"].values() if it.get("saturation_flag"))
+    card = (REPO / "docs" / "dataset-card.md").read_text(encoding="utf-8")
+    m = re.search(r"(\d+) 题带 `saturation_flag: true`", card)
+    assert m, "dataset-card §1.1 饱和标注行格式变化，请同步本测试"
+    assert int(m.group(1)) == n_sat == 68

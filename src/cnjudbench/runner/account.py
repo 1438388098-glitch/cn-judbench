@@ -102,6 +102,7 @@ class Accountant:
     cache_hit_tokens: int = 0
     cache_miss_tokens: int = 0
     model_calls: int = 0
+    n_cache_replays: int = 0  # FileCache 重放调用数（c243，latency 不进 p95 样本）
     judge_calls: int = 0  # Mock 也计次；未跑 Judge 恒 0，避免成本幻觉
     judge_prompt_tokens: int = 0
     judge_completion_tokens: int = 0
@@ -130,7 +131,10 @@ class Accountant:
         *,
         cache_hit_tokens: int = 0,
         cache_miss_tokens: int = 0,
+        cache_replay: bool = False,
     ) -> None:
+        """``cache_replay``：FileCache 命中重放（latency/tokens 是旧值）——
+        不进延迟样本（防旧值污染 p95），单独计数进 manifest accounting（c243）。"""
         hit = int(cache_hit_tokens or 0)
         miss = int(cache_miss_tokens or 0)
         if not (cache_hit_tokens or cache_miss_tokens):
@@ -144,12 +148,14 @@ class Accountant:
             cost += _fee(miss, rates["input_miss"], peak=peak)
             cost += _fee(completion_tokens, rates["output"], peak=peak)
         with self._lock:
+            if not cache_replay:  # 重放调用的 latency/tokens 是旧值，不进延迟样本
+                self._latencies.append(latency_ms)
             self.model_calls += 1
+            self.n_cache_replays += int(cache_replay)
             self.prompt_tokens += prompt_tokens
             self.completion_tokens += completion_tokens
             self.cache_hit_tokens += hit
             self.cache_miss_tokens += miss
-            self._latencies.append(latency_ms)
             self._model_cost_usd += cost
 
     def add_judge(self, n_calls: int, prompt_tokens: int, completion_tokens: int) -> None:
@@ -218,6 +224,7 @@ class Accountant:
             native_judge = self._judge_cost_usd
         return {
             "model_calls": self.model_calls,
+            "n_cache_replays": self.n_cache_replays,
             "judge_calls": self.judge_calls,
             "prompt_tokens": self.prompt_tokens,
             "completion_tokens": self.completion_tokens,
