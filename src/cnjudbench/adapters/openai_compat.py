@@ -55,6 +55,7 @@ class OpenAICompatAdapter:
             extra=f"{self._reasoning_effort}|{self._thinking}",
         )
         if (hit := self._cache.get(key)) is not None:
+            hit.cache_hit = True  # v0.6：命中标记（latency/tokens 为旧值重放，分析时分列）
             return hit
 
         payload = {
@@ -70,7 +71,8 @@ class OpenAICompatAdapter:
             payload["thinking"] = self._thinking
 
         data, latency_ms = self._post(payload)
-        text = (data.get("choices") or [{}])[0].get("message", {}).get("content", "") or ""
+        choice = (data.get("choices") or [{}])[0]
+        text = choice.get("message", {}).get("content", "") or ""
         usage = data.get("usage") or {}
         result = CompletionResult(
             text=str(text),
@@ -82,6 +84,7 @@ class OpenAICompatAdapter:
             cache_hit_tokens=int(usage.get("prompt_cache_hit_tokens", 0) or 0),
             cache_miss_tokens=int(usage.get("prompt_cache_miss_tokens", 0) or 0),
             raw=None,  # 原始响应不落盘
+            finish_reason=choice.get("finish_reason"),
         )
         self._cache.put(key, result)
         return result
@@ -94,9 +97,9 @@ class OpenAICompatAdapter:
         url = f"{self._base_url}/chat/completions"
 
         last_err: Exception | None = None
-        attempts = max(self._max_retries, 4)  # 429 需要更长退避
+        attempts = max(self._max_retries, 4)  # 429 需要更长退避（与 max_retries 取大）
+        start = time.monotonic()  # v0.6：latency 计入整个重试循环（含退避），不再低估 p95
         for attempt in range(attempts + 1):
-            start = time.monotonic()
             try:
                 req = urllib.request.Request(url, data=body, headers=headers, method="POST")
                 with urllib.request.urlopen(req, timeout=self._timeout) as resp:

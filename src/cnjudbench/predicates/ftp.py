@@ -570,9 +570,11 @@ def env_diff(ctx: EvalContext, p, index: int) -> PredicateResult:
         return PredicateResult("ftp", index, "env_diff", True, 1.0, p.on_fail,
                                detail="gold 无 expected_state：跳过机判（n/a）",
                                skipped=True)
+    want = copy.deepcopy(want)  # v0.6：不得原地改写 item.gold（题对象上的活数据）
     state0 = ctx.item.gold.get("initial_state") if isinstance(ctx.item.gold, dict) else None
     state = copy.deepcopy(state0) if isinstance(state0, dict) and state0 else _dms.default_state()
     n_calls = 0
+    dropped_str_events = 0
     for entry in ctx.tool_log:
         name = getattr(entry, "name", None) or (entry.get("name") if isinstance(entry, dict) else None)
         args = getattr(entry, "args", None) or (entry.get("args") if isinstance(entry, dict) else None)
@@ -580,38 +582,53 @@ def env_diff(ctx: EvalContext, p, index: int) -> PredicateResult:
             _dms.apply(state, name, args)
             n_calls += 1
 
-    def leaves(obj, prefix=()):
-        if isinstance(obj, dict):
-            for k, v in obj.items():
-                yield from leaves(v, prefix + (k,))
-        else:
-            yield prefix, obj
-
-    # events 按多重集比较（排序后整叶比）：排期执行顺序不扣分，重复排期仍失配
+    # events 按多重集比较（排序后整叶比）：排期执行顺序不扣分，重复排期仍失配；
+    # 字符串事件不进比对但计数入 detail（v0.6：不再静默丢弃）
     for ev_state in (want, state):
         if isinstance(ev_state.get("events"), list):
+            dropped_str_events += sum(1 for e in ev_state["events"] if isinstance(e, str))
             ev_state["events"] = sorted(
                 _json.dumps(e, ensure_ascii=False, sort_keys=True)
                 for e in ev_state["events"] if not isinstance(e, str))
 
-    got = dict(state)
-    total = matched = 0
-    for path, wv in leaves(want):
-        total += 1
-        node = got
-        try:
-            for k in path[:-1]:
-                node = node[k]
-            if node.get(path[-1]) == wv:
-                matched += 1
-        except (KeyError, TypeError, AttributeError):
-            pass
-    ratio = (matched / total) if total else 0.0
-    ok = total > 0 and matched == total
-    pass_ratio = ratio if p.on_fail == "partial" else (1.0 if ok else 0.0)
+    def _count_leaves(obj) -> int:
+        if isinstance(obj, dict):
+            return sum(_count_leaves(v) for v in obj.values())
+        if isinstance(obj, list):
+            return 1  # list 整叶（events 多重集语义）
+        return 1
+
+    def _diff(w, g):
+        """递归三计数：（命中金样叶, 金样总叶, 金样未枚举的多余叶）。
+
+        多余叶 = 与金样枚举路径相交的子树里模型多建/多写的叶（副作用纪律：
+        建了金样没要的案卡/文档/字段 → 记 precision，召回-only 会放过乱建）。
+        """
+        if isinstance(w, dict):
+            mw = tw = ex = 0
+            for k, wv in w.items():
+                a, b, c = _diff(wv, g.get(k) if isinstance(g, dict) else None)
+                mw += a
+                tw += b
+                ex += c
+            if isinstance(g, dict):
+                for k in g.keys() - w.keys():
+                    ex += _count_leaves(g[k])
+            return mw, tw, ex
+        return (1 if w == g else 0), 1, 0
+
+    matched_want, total, extra = _diff(want, state)
+    recall = (matched_want / total) if total else 0.0
+    precision = (matched_want / (matched_want + extra)) if (matched_want + extra) else 0.0
+    f1 = (2 * recall * precision / (recall + precision)) if (recall + precision) else 0.0
+    ok = total > 0 and matched_want == total and extra == 0
+    pass_ratio = f1 if p.on_fail == "partial" else (1.0 if ok else 0.0)
     return PredicateResult(
         "ftp", index, "env_diff", ok, pass_ratio, p.on_fail,
-        detail=f"终态 diff {matched}/{total}（重放 {n_calls} 个案管调用）",
+        detail=(f"终态 diff {matched_want}/{total} 叶（重放 {n_calls} 个案管调用；"
+                f"多余叶 {extra}；F1 {f1:.2f}"
+                + (f"；丢弃字符串事件 {dropped_str_events} 条" if dropped_str_events else "")
+                + ")"),
         failure_taxonomy=None if ok else "env_state_mismatch",
     )
 

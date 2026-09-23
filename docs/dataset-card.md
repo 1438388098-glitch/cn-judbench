@@ -10,6 +10,13 @@
 oracle 硬度阶梯（隐藏单测 > 状态 diff > exact > 受约束 F1 > Judge）支持论文级
 可复现对比。**不得用于司法裁判、合规放行或当事人决策。**
 
+## 1.1 饱和题标注（v0.6）
+
+68 题带 `saturation_flag: true`（difficulty-audit-v05 T4a/T4b：双考生/三样本实测无区分度，
+其中 T4b 60 题尚待第 3 样本复核）。标注**不改变**任何题的金样与主分口径；
+发布统计与论文表建议剔除或单列（逐题名单见 reports/difficulty-audit-v05.json
+与 data/public/MANIFEST.json 的 difficulty/saturation 字段）。
+
 ## 2. 任务包构成（12 包 / 317 题）
 
 | 任务包 | L 层 | oracle | 题数 | 主要能力维 |

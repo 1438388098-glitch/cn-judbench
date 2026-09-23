@@ -45,6 +45,8 @@ class Item(BaseModel):
     output_type: OutputTypeLiteral
     components: list[SingleOutputTypeLiteral] | None = None
     hcut: list[HcutLiteral] = Field(min_length=1)
+    # v0.6：饱和标注（difficulty-audit T4a/T4b 双考生实测无区分度）；None=未标注
+    saturation_flag: bool | None = None
     instruction: str = Field(min_length=1)
     input: str
     gold: Any

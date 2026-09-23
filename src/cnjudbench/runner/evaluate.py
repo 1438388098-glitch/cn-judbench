@@ -83,6 +83,38 @@ class TaskRun:
         return [h for r in self.results for h in r.text_hashes]
 
 
+def scored_rate_stats(results: list["ItemResult"]) -> dict:
+    """n/a 口径三件套（v0.6）：scored_rate、n/a 计 0 保守均值、低scored率告警。
+
+    n/a 静默退出均值时，「跑完 60% 且答对其余 90%」的模型反超「答对 60%」的
+    模型——对按 $/solve 选型是直接误导；三列同报，读者可自行取口径。
+    """
+    cap = [r for r in results if r.role != "safety"]
+    n_total = len(cap)
+    scored = [r.score for r in cap if r.score is not None]
+    rate = (len(scored) / n_total) if n_total else None
+    out: dict = {
+        "n_capability": n_total,
+        "n_scored": len(scored),
+        "scored_rate": rate,
+        "scored_rate_str": fmt2(100.0 * rate) if rate is not None else "n/a",
+        "machine_mean_na0_str": (
+            fmt2(sum(scored) / n_total) if n_total else "n/a"
+        ),  # 保守口径：n/a 计 0
+        "warning": None,
+    }
+    if rate is not None and rate < 0.90:
+        out["warning"] = (
+            f"n/a 率 {100.0 * (1.0 - rate):.1f}% 超过 10%：均值分母剔除了失败题，"
+            "偏乐观；请同时参考 machine_mean_na0（n/a 计 0）"
+        )
+    return out
+
+    @property
+    def text_hashes(self) -> list[str]:
+        return [h for r in self.results for h in r.text_hashes]
+
+
 def load_task_package(task_dir: Path) -> JsonTask:
     """加载 task.yaml + predicates.yaml（pydantic 校验，失败即抛）。"""
     task = TaskManifest.model_validate(
@@ -179,6 +211,11 @@ def evaluate_item(
                            and item.state_goal.get("expect") == "refuse") else "answer"
     abst = label_abst(completion.text, expect=_expect)
     contam = scan_output(item.id, completion.text, canary=item.canary)
+    # v0.6：服务端截断（finish_reason=length）→ n/a + truncated，不与「格式不守约」
+    # 混淆——截断是基建/上下文限制，判 0.00 会把两类失败错误归因到模型能力。
+    if getattr(completion, "finish_reason", None) == "length":
+        return result(None, ["truncated"], error="服务端截断（finish_reason=length）",
+                      answer_text=completion.text, contamination=contam)
     # P2：tool_call 任务——沙箱随题建，调用日志即轨迹；
     #     gold.initial_state 为案管预置环境（§5.3 在办案件），随题注入；
     #     gold.fault 为故障注入规格（§5.4 tool_fault_recovery）

@@ -10,8 +10,11 @@ ftp:
     required: [matter_type, parties, key_facts, next_steps, risk_note]
     on_fail: flag
 ptp:
+  # v0.6：state 由 zero（全有全无）改 partial（键均比例计分）——自由文本字段
+  # （risk_note/next_steps）逐字包含匹配对真考生结构性必败（E17 实测 0.00），
+  # 红线仍由 risk_disclosure zero 承担；mock:gold 自证不受影响（满分路径不变）。
   - type: state
-    on_fail: zero
+    on_fail: partial
   - type: field_keep
     path: parties.0
     on_fail: cap_50

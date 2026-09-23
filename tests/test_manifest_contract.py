@@ -73,8 +73,8 @@ def test_report_csv_exported(tmp_path, monkeypatch):
     text = (out / "report.csv").read_text(encoding="utf-8-sig")
     lines = text.strip().splitlines()
     assert lines[0].split(",") == ["模型", "rev", "cap±CI", "hard±CI", "safety", "solve%",
-                                   "e2e%", "fail2pass%", "recovery%", "$/solve", "p95",
-                                   "flip%", "provisional"]
+                                   "scored%", "e2e%", "fail2pass%", "recovery%", "$/solve", "p95",
+                                   "flip%", "provisional"]  # v0.6：scored% = n/a 率披露列
     assert "100.00" in lines[1]  # mock:gold 满分
     assert lines[1].endswith("True")  # 单跑缺 flip_rate/锁 → provisional 诚实标注
     assert "n/a" in lines[1]  # 工具轨列与 flip% 不编造

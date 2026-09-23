@@ -59,36 +59,46 @@ def field_keep(ctx: EvalContext, p, index: int) -> PredicateResult:
 
 
 def state(ctx: EvalContext, p, index: int) -> PredicateResult:
-    """终态子集匹配：expect 键值须悉数出现在 answer（键别名 + 归一化）。
+    """终态匹配：expect 键值逐键打分，pass_ratio = 键均分（v0.6 部分得分改造）。
 
     期望值来源：谓词 ``expect`` > ``item.state_goal``（τ-Jud 金样，去掉元键）。
+    - 标量键：精确/归一化/severity 同义命中 = 1.0；未命中退化为 set_f1 重叠
+      （自由文本字段的同义改写可获部分分，不再全有全无）；
+    - 列表键：set_f1 元素级得分。
+    ok 语义不变（全部键 ≥0.999）；ratio 供 on_fail=partial 比例计分。
     """
-    from ..score.norm import find_key, labels_match
+    from ..score.norm import find_key, labels_match, set_f1, text_coverage
 
     extra = p.model_extra or {}
     expect: dict = extra.get("expect") or {}
-    if not expect and isinstance(ctx.item.state_goal, dict):
+    if not expect and isinstance(getattr(ctx.item, "state_goal", None), dict):
         expect = {
             k: v for k, v in ctx.item.state_goal.items()
             if k not in ("expect", "progress", "calls", "negative", "citations", "law_anchors")
         }
     actual = _walk(extra.get("path", ""), ctx.answer) if ctx.answer else None
     actual = actual if isinstance(actual, dict) else (ctx.answer if isinstance(ctx.answer, dict) else {})
-    missing = {}
+    from ..score.norm import normalize_severity
+
+    per_key: dict[str, float] = {}
     for k, v in expect.items():
         got = find_key(actual, k) if isinstance(actual, dict) else None
         if isinstance(v, list):
-            from ..score.norm import set_f1
             f1, _, n = set_f1(got, v)
-            if n and f1 < 0.999:
-                missing[k] = v
-        elif got is None or not (got == v or labels_match(got, v)):
-            # severity 枚举
-            from ..score.norm import normalize_severity
-            if not (got is not None and normalize_severity(got) == normalize_severity(v)
-                    and normalize_severity(v) in ("high", "medium", "low")):
-                missing[k] = v
-    ok = not missing
-    return PredicateResult("ptp", index, "state", ok, 1.0 if ok else 0.0, p.on_fail,
-                           detail=f"终态不符: {missing}" if missing else "终态一致",
+            per_key[k] = f1 if n else 1.0  # 金样无该键目标 → 不扣（与 state_f1 一致）
+        elif got is None:
+            per_key[k] = 0.0
+        elif got == v or labels_match(got, v):
+            per_key[k] = 1.0
+        elif (normalize_severity(got) == normalize_severity(v)
+              and normalize_severity(v) in ("high", "medium", "low")):
+            per_key[k] = 1.0
+        else:
+            # 未达二元命中阈值：按 bigram 覆盖率给连续部分分（同义改写不再归零）
+            per_key[k] = min(1.0, text_coverage(got, v))
+    ratio = sum(per_key.values()) / len(per_key) if per_key else 1.0
+    ok = all(s >= 0.999 for s in per_key.values()) if per_key else True
+    missed = {k: round(s, 2) for k, s in per_key.items() if s < 0.999}
+    return PredicateResult("ptp", index, "state", ok, min(1.0, ratio), p.on_fail,
+                           detail=f"终态键分: {per_key}" if per_key else "终态一致（无期望键）",
                            failure_taxonomy=None if ok else "state_drift")

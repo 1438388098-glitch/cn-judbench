@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# CI 门禁（impl-P1-rest §5）：validate → pytest → mock run-all → 产物断言 → 翻转率=0。
+# CI 门禁（impl-P1-rest §5 + v0.6 第 8 步锚审计）：validate → pytest → mock run-all → 产物断言 → 翻转率=0 → 锚审计。
 # 任一步失败即 exit 1。CI 只跑 Mock，不烧真 API、不需要任何密钥。
 set -euo pipefail
 cd "$(dirname "$0")/.."
@@ -80,5 +80,8 @@ assert ng["n"] == 8 and ng["max_overlap"] > 0.5, f"题面本源命中语料应�
 print(f"ngram wiring gate: max_overlap={ng['max_overlap']:.2f} top={ng['top_item']}")
 PY
 rm -rf "$GATE_TMP"
+
+echo "== [8/8] 锚×as_of 审计（E14 脚本化；惰性锚白名单见 reports/anchor-whitelist.json）=="
+"$PY" scripts/audit_anchors.py
 
 echo "CI GATE: ALL GREEN"

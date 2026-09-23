@@ -124,3 +124,12 @@ def test_summarize_and_limits():
     md = limits_md(flip_rate=0.0, unknown_in_lawkb=3, pending_text_review=["spc_pl_25_2015"])
     assert "0.0000" in md or "0.0" in md
     assert DISCLAIMER in md
+
+
+# ---------- v0.6：诊断集高于主集（负差）→ 钳 0 不警报 ----------
+
+def test_diagnostic_drop_negative_clamped_no_alert():
+    drop, alert = diagnostic_drop(70.0, 90.0)
+    assert drop == 0.0 and not alert  # 伪影非作弊；raw 差值由 diag_diff_raw 披露
+    drop2, alert2 = diagnostic_drop(90.0, 79.9)
+    assert abs(drop2 - 10.1) < 1e-9 and alert2

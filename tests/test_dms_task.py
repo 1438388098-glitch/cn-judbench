@@ -135,3 +135,64 @@ def test_env_diff_events_order_and_duplicate():
     dup = copy.deepcopy(gold["calls"]) + [gold["calls"][0]]  # 排期重复执行
     r = run(dup)
     assert r.pass_ratio < 1.0 and r.failure_taxonomy == "env_state_mismatch"
+
+
+# ---------- v0.6：env_diff 双向 F1 + 禁止原地改写 gold ----------
+
+def test_env_diff_extra_case_penalized():
+    """金样枚举子树内多建的案卡 → 多余叶计 precision，召回-only 不再放过乱建。"""
+    from types import SimpleNamespace
+
+    from cnjudbench.predicates.base import EvalContext
+    from cnjudbench.predicates.ftp import env_diff
+    from cnjudbench.schemas.item import Item
+    from cnjudbench.schemas.task import PredicatesFile
+
+    items = {i["id"]: i for i in _items()}
+    it = Item.model_validate(items["d-104"])
+    gold = it.gold
+    pf = PredicatesFile.model_validate({"ftp": [{"type": "env_diff", "on_fail": "partial"}]})
+
+    def run(entries):
+        ctx = EvalContext(task=None, item=it, answer=None, answer_text="",
+                          claims=[], claim_status="ok",
+                          store=LawkbStore.load(REPO / "lawkb"), tool_log=entries)
+        return env_diff(ctx, pf.ftp[0], 0)
+
+    good = [SimpleNamespace(name=c["name"], args=c["args"]) for c in gold["calls"]]
+    r0 = run(good)
+    assert r0.pass_ratio == 1.0
+    # 干净轨迹之外多建一张金样没有的案卡（4 叶：court/cause/party + 案号键）→ F1 < 1
+    extra = SimpleNamespace(
+        name="create_case_card",
+        args={"case_no": "（2024）京0105民初999号", "court": "北京市朝阳区人民法院",
+              "cause": "民间借贷", "party": "张三"},
+    )
+    r1 = run(good + [extra])
+    assert r1.pass_ratio < 1.0
+    assert "多余叶" in r1.detail
+
+
+def test_env_diff_does_not_mutate_item_gold():
+    """排序 events 不得改写题对象上的 gold（活数据保持不变）。"""
+    import copy as _copy
+    import json as _json
+    from types import SimpleNamespace
+
+    from cnjudbench.predicates.base import EvalContext
+    from cnjudbench.predicates.ftp import env_diff
+    from cnjudbench.schemas.item import Item
+    from cnjudbench.schemas.task import PredicatesFile
+
+    items = {i["id"]: i for i in _items()}
+    it = Item.model_validate(items["d-104"])
+    pf = PredicatesFile.model_validate({"ftp": [{"type": "env_diff", "on_fail": "partial"}]})
+    before = _copy.deepcopy(it.gold)
+    ctx = EvalContext(task=None, item=it, answer=None, answer_text="",
+                      claims=[], claim_status="ok",
+                      store=LawkbStore.load(REPO / "lawkb"),
+                      tool_log=[SimpleNamespace(name=c["name"], args=c["args"])
+                                for c in it.gold["calls"]])
+    env_diff(ctx, pf.ftp[0], 0)
+    assert _json.dumps(it.gold, sort_keys=True, ensure_ascii=False) == \
+        _json.dumps(before, sort_keys=True, ensure_ascii=False)

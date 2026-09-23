@@ -21,6 +21,11 @@ class CompletionResult:
     cache_hit_tokens: int = 0
     cache_miss_tokens: int = 0
     raw: Any = field(default=None, repr=False)
+    # v0.6：服务端结束原因（"stop"=正常；"length"=截断 → 判分记 n/a + truncated，
+    # 不与「格式不守约」混淆）；mock/file 适配器不设置（None=未知，按原语义判分）。
+    finish_reason: str | None = None
+    # v0.6：缓存命中标记——命中时 latency/tokens 是旧值重放，p95 与费用分析应分列。
+    cache_hit: bool = False
 
 
 @runtime_checkable

@@ -35,7 +35,7 @@ from .metrics.cost import dollar_per_solve
 from .providers import apply_profile_to_args, load_env_local, resolve_profile
 from .report.writeup import limits_md
 from .runner.account import Accountant, price_key_from_model
-from .runner.evaluate import DISCLAIMER, TaskRun, load_task_package, run_task, run_tasks
+from .runner.evaluate import DISCLAIMER, TaskRun, load_task_package, run_task, run_tasks, scored_rate_stats
 from .runner.guards import HoldoutPathError, assert_items_not_holdout, assert_no_holdout
 from .runner.manifest import (
     build_manifest,
@@ -293,6 +293,8 @@ def _build_summary(
         entry["n_hard"] = len(hard)
         entry["safety_mean_str"] = fmt2(_mean([r.score for r in safety])) if safety else "n/a"
         entry["n_safety"] = len(safety)
+        # v0.6 n/a 口径：scored_rate / n-a计0保守均值 / 低scored率告警
+        entry.update(scored_rate_stats(run.results))
         if args.blend == "weighted":
             combined = combine(ts.mean_machine(), ts.mean_judge(), mode="weighted")
             entry["combined_str"] = fmt2(combined) if combined is not None else "n/a"
@@ -340,6 +342,7 @@ def _build_summary(
         drop, alert = diagnostic_drop(sum(main) / len(main), sum(diag) / len(diag))
         diagnostics[run.task_id] = {
             "diag_drop": fmt2(drop),
+            "diag_diff_raw": fmt2(sum(main) / len(main) - sum(diag) / len(diag)),  # 含负值，如实披露
             "reward_hacking_alert": alert,
         }
 
@@ -599,6 +602,10 @@ def _write_report_csv(out_dir: Path, summary: dict, manifest: dict) -> None:
                   if i.get("score") not in (None, "n/a")]
         return f"{sum(scores) / len(scores):.2f}" if scores else "n/a"
 
+    # v0.6：全任务最差 scored_rate 进主表（n/a 率披露，防「跑完即胜」误读）
+    rates = [task.get("scored_rate") for task in summary.get("per_task", {}).values()
+             if isinstance(task.get("scored_rate"), float)]
+    worst_rate = min(rates) if rates else None
     row = {
         "模型": summary.get("model_id", "n/a"),
         "rev": f"{manifest.get('harness_sha', 'unknown')}"
@@ -607,6 +614,7 @@ def _write_report_csv(out_dir: Path, summary: dict, manifest: dict) -> None:
         "hard±CI": hard_str,
         "safety": summary.get("safety_score", "n/a"),
         "solve%": (f"{100.0 * solved / solve:.2f}" if solve else "n/a"),
+        "scored%": (f"{100.0 * worst_rate:.2f}" if worst_rate is not None else "n/a"),
         "e2e%": "n/a",
         "fail2pass%": _task_cap("calc_fail_to_pass"),
         "recovery%": _task_cap("tool_fault_recovery"),
@@ -680,7 +688,7 @@ def _cmd_run_dialog(args: argparse.Namespace) -> int:
     import yaml as _yaml
 
     from .dialog.session import dump_dialog, run_dialog
-    from .metrics.variance import decompose_variance, format_stability, score_time_auc
+    from .metrics.variance import decompose_variance, format_stability
     from .schemas.user_script import UserScript
 
     try:
@@ -761,12 +769,17 @@ def _cmd_run_dialog(args: argparse.Namespace) -> int:
     pk_user = _ppk(_bool_runs(swap_runs, k), k=k)
     var = decompose_variance(model_scores=model_scores, user_scores=user_scores)
 
-    # score–time：若有进度点则算 AUC，否则 n/a（不编造）
-    st_points = [
-        (1.0, (r.state_f1 if r.state_f1 is not None else 0.0))
-        for r in last.values() if isinstance(r, DialogResult) and not r.item_id.endswith("0")
+    # v0.6 语义修复：原「两点 AUC」数学上恒等于 50×mean(state_f1)，且键过滤
+    # 误伤以 0 结尾的真实题——挂 AUC 名会误导读者。改为如实输出终态 state_f1
+    # 均值；真实进度点 AUC 待 turn 级 progress 数据（FRAMEWORK §5 原义）。
+    final_state_f1_vals = [
+        (r.state_f1 if r.state_f1 is not None else 0.0)
+        for r in last.values() if isinstance(r, DialogResult) and "#" not in r.item_id
     ]
-    st_auc = score_time_auc([(0.0, 0.0), (1.0, sum(x[1] for x in st_points) / max(1, len(st_points)))] ) if st_points else None
+    final_state_f1_mean = (
+        sum(final_state_f1_vals) / len(final_state_f1_vals)
+        if final_state_f1_vals else None
+    )
 
     scores = [last[it.id].score for it in items if last[it.id].score is not None]
     mean = sum(scores) / len(scores) if scores else None
@@ -793,8 +806,9 @@ def _cmd_run_dialog(args: argparse.Namespace) -> int:
             pass_k_model=pk_model, pass_k_user=pk_user, variance=var,
             lawyer_baseline="未测",
         ),
-        "score_time_auc_str": fmt2(st_auc) if st_auc is not None else "n/a",
-        "score_time_auc_note": "approx" if st_auc is not None else None,
+        "final_state_f1_str": fmt2(100.0 * final_state_f1_mean) if final_state_f1_mean is not None else "n/a",
+        "score_time_auc_str": "n/a",
+        "score_time_auc_note": "n/a：缺 turn 级进度点，两点近似已于 v0.6 移除（见 final_state_f1）",
         "cost": accountant.cost_ledger(),
         "disclaimer": DISCLAIMER,
     }
