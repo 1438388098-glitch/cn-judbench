@@ -35,3 +35,7 @@ dist/
 
 # 评测运行产物（含考生答案与打分，不入库）
 runs/
+
+# ZCode 宿主忽略文件与抓取草稿目录（永不提交内容）
+.zcodeignore
+.tmp_fetch/
