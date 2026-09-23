@@ -205,11 +205,13 @@ acceptable 多解口径）、cx-007 期望值把三年算成三期（7470→1186
 改写为显式案卡字段契约）。缺陷率 4/62：**金样错误时「模型分」测的是
 金样与模型的分歧，不是能力——fresh 题入库前必须过真考生轮**。
 
-**harness 局限（v0.6 待修）**：tau 的 state 谓词对自由文本字段（risk_note）
-与措辞敏感列表（next_steps）做逐字包含匹配，真考生结构性不可能通过
-（mock:gold 满分系复制金样），tau 分数不进主表；修复方向为可枚举终态
-字段或语义判分。τ 轨其余谓词（schema/risk_disclosure/refuse）对考生
-答案均正常判过。
+**harness 局限（v0.6 已修，修复实证见下 E18；c290 收尾）**：tau 的 state
+谓词曾对自由文本字段（risk_note）与措辞敏感列表（next_steps）做逐字包含
+匹配，真考生结构性不可能通过（mock:gold 满分系复制金样），修复前 tau
+分数不进主表。v0.6 改为标量命中 1.0 / 未命中 text_coverage 连续分 /
+列表 set_f1、on_fail=partial（tests/test_state_partial_v06.py 锁定语义）；
+tau 分数是否恢复进主表待真实 API 轮复测后定。τ 轨其余谓词
+（schema/risk_disclosure/refuse）对考生答案均正常判过。
 
 ### E18 v0.6 判分效度修复的真考生重判实证（2026-09-23）
 E17 暴露的 harness 局限在 v0.6 修复后，用**同一份真考生答案**重判验证：
@@ -231,6 +233,12 @@ E17 暴露的 harness 局限在 v0.6 修复后，用**同一份真考生答案**
    diff=4.08 不显著。「口径选择改变结论」正是 §3.4 预注册单元存在的理由：
    排名主张必须在数据收集前锁定口径，禁止事后挑选显著口径（本处两种口径
    同时披露，写作时以预注册口径为正式、全集口径为敏感性分析）。
+   **预注册剔除规则（c282 透明化）**：`--preregistered` 只保留
+   task ∈ 核心六包的 capability 题（FRAMEWORK §8.3 预注册单元），其余
+   （安全夹具与 calc/gaia/dms/fault/tool/tau 等非预注册单元）计入
+   `n_dropped_by_filter`（本对 run 剔 22/62）；剔除集可由
+   `--items-out` 附录表的 `task` 列逐行重算（机检
+   test_audit_matrix_v06），无人工挑选空间。
 3. **scored_rate 三件套**：n/a 静默退出均值会让「跑完 60% 且其余对 90%」
    反超「答对 60%」，误导 $/solve 选型——summary 同报 scored_rate、
    n/a 计 0 保守均值与低 scored 率告警（<90% 触发）。

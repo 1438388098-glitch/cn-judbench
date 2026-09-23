@@ -25,6 +25,10 @@
 ### 修正
 - 预注册核心六包合计题数勘误：162 → **168**（cit 27 + u 49 + s_charge 20 +
   contract 23 + a_irac 34 + long_horizon 15），FRAMEWORK 与论文提纲同步。
+- tau state 谓词部分得分化：自由文本字段（risk_note/next_steps）由逐字
+  包含匹配（真考生结构性 0 分）改为标量命中/文本覆盖连续分/列表 set_f1，
+  `on_fail` 由 zero 改 partial（c290 收尾，语义锁定于
+  `tests/test_state_partial_v06.py`）。
 - 解析失败语义收紧：解析失败 = 0 分（format_fail，考生责任）；
   `finish_reason=length` 才记 n/a（截断非考生能力）。
 - 密钥取用顺序：进程环境变量优先于 `.env.local`（防旧键遮蔽会话新键）。

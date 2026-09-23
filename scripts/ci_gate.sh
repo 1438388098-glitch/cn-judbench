@@ -55,6 +55,19 @@ for tid, task in s.get("tasks", {}).items():
 print("v0.4 tasks mock gate: all 100")
 PY
 
+echo "== [4c/7] 金样自证全覆盖：非工具 5 包 mock:gold（9+3 包矩阵补全） =="
+"$PY" -m cnjudbench run-all   --tasks calc_fail_to_pass,gaia_fee_deadline,contract_risk,tau_jud_intake,long_horizon_case   --model mock:gold   --out reports/runs/ci-gold-all
+"$PY" - <<'PY'
+import json
+from pathlib import Path
+s = json.loads(Path("reports/runs/ci-gold-all/summary.json").read_text(encoding="utf-8"))
+for tid, task in s.get("tasks", {}).items():
+    for row in task.get("items", []):
+        assert float(row["score"]) == 100.0, \
+            f"金样自证失败 {tid}/{row['id']} = {row['score']}（mock:gold 应满分——非满分即金样 bug）"
+print(f"gold self-proof gate: {len(s.get('tasks', {}))} tasks all 100")
+PY
+
 echo "== [5/7] assert run gate =="
 "$PY" scripts/assert_run_gate.py reports/runs/ci
 
