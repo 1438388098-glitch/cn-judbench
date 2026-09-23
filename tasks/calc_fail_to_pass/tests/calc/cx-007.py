@@ -1,6 +1,6 @@
-"""隐藏单测：cx-007（半年复利+第2期末部分还款冲抵：实际利息 7470（不冲抵 9272.70 / 误单利 9000 判错））。fail-to-pass oracle，禁读 gold。"""
+"""隐藏单测：cx-007（半年复利+第2期末部分还款冲抵：三年6期利息总额 11863.40（只计3期 7470 / 误单利 9000 判错））。fail-to-pass oracle，禁读 gold。"""
 
-_EXPECTED = 7470.0
+_EXPECTED = 11863.40
 _FORMULA_ID = 'compound_semiannual_offset'
 
 

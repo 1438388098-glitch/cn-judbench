@@ -107,7 +107,7 @@ dms 的 env_diff 基座直接复用，是律师助理真实日常工作。
 起诉状诉讼请求审查/答辩要点提纲。判分走 with_judge rubric（judge_mean 列现在全库 n/a，
 这是让 Judge 轨产出真数据的天然场景）。若 rubric 质量不达标则推迟，不硬上。
 
-## 5. Phase 4：全量实测与文档（2 轮）
+## 5. Phase 4：全量实测与文档（2 轮）✅ 已执行（2026-09-23，双隔离考生 ×62 题 pass^k 实测；结论入 paper-outline §9 E17：at/lh/c 三族有效区分，cx/u/g/d 饱和，tau state 谓词自由文本包含匹配结构性挡真考生记 n/a（v0.6 修），f-105..108 工具轨留 API 轮；环内抓出 4 处金样/题面缺陷并修复）
 
 - 新增/改编题全量 subagent 真考生实测（export → guard → 作答 → 回灌 → pass^k ≥2 样本）
 - 每个家族出区分度结论：命中轴（mean<85 或翻转>5%）记入 paper-outline §9 实验表

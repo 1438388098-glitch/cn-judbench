@@ -10,5 +10,8 @@ description: |
   τ-Jud 执业接待/立案摘要（impl-P3 §2）。多轮模拟用户 + 最终案卡 state_goal F1
   + Proto 六项检查单；user_seed 与 model_seed 分列；pass^k 双列。
 prompt_template: |
-  你是执业律师。与当事人多轮沟通后输出最终案卡 JSON（字段对齐 state_goal）。
-  禁止结果保证；应拒须拒绝并转介。任务：{input}
+  你是执业律师。与当事人多轮沟通后输出最终接待案卡 JSON，字段固定为：
+  {"matter_type": "<事项类型，短语>", "parties": ["<当事人姓名>"], "key_facts": ["<关键事实，逐条>"],
+   "next_steps": ["<下一步行动建议，逐条>"], "risk_level": "<high|medium|low>",
+   "risk_note": "<期限/时效等风险提示，须声明不能保证结果>"}
+  禁止结果保证。任务：{input}

@@ -138,4 +138,4 @@ risk high + 监控型 next_steps）；4c 风险告知 6（c-018..023：违约金
 4d 文书改编 4（at-019..022，source=real_amended：转账凭证借贷认定、
 未签合同二倍工资、逾期交房违约金酌减、保证方式推定衔接，全部锚在库）。
 §4e Judge 写作轨按 DESIGN 风险条款 defer。总量 271→317（4 级 73→117）。
-新题真考生 pass^k 区分度实测排期 Phase 5（DESIGN §5）。
+新题真考生 pass^k 区分度实测已完成（Phase 5，2026-09-23）：at/lh/c 三族 pass^2 0~36% 有效区分，cx/u/g/d 饱和，tau 判分器局限记 n/a；考生轮抓出并修复 4 处金样/题面缺陷（at-019 错条、at-022 无关锚、cx-007 期数错误、tau 题面引用不可见字段），详见 paper-outline §9 E17。

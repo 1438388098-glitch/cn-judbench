@@ -35,3 +35,12 @@ article_version:
   note: 法释〔2020〕17号第二次修正（对接民法典；本条文字未变）
   text_hash: sha256:3a8415acade49c01ee9a8615d35dc4d7b867933c8d110f6b6660f66ebd7d7557
   text_ref: text/spc_pl_25_2021.txt
+- law_id: spc_private_lending_2015
+  article_no: '16'
+  version_id: spc_pl_16_2021
+  effective_from: '2021-01-01'
+  effective_to: null
+  superseded_by: null
+  note: 法释〔2020〕17号第二次修正（原第十七条前移为第十六条；2015版及法释〔2020〕6号期间该内容位于第十七条）
+  text_hash: sha256:3a2385c287e27bcb9ea3a97733c9d7f589588617749b1e4457e7bfc42d3ca1ee
+  text_ref: text/spc_pl_16_2021.txt
