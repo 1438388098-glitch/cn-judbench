@@ -1,0 +1,44 @@
+{
+ "as_of": "2021-06-01",
+ "canary": "CNJB-CANARY-draft-ct-202",
+ "capability": "Cit",
+ "contamination_risk": "low",
+ "difficulty": 3,
+ "domain": "civil_commercial",
+ "draft": true,
+ "draft_notes": "附录 B 规格 at-202 判定窗（R28 草稿；规格另窗=民法典1127@2021-06-01 ok）。预期错误模式=答 ok（未意识到民法典施行日继承法整体废止）或 stale_statute。考点=继承开始日决定继承法/民法典适用（顺位内容两版一致，陷阱在版本归属）。（草稿 id 用 ct- 前缀：规格 at-XXX 的引用效力判定面草稿，与 ah 系 IRAC 叙事草稿、at 规格号三方区分。）",
+ "draft_status": "awaiting_examinee",
+ "gold": [
+  {
+   "article": "10",
+   "as_of": "2021-06-01",
+   "expect_status": "wrong_vintage",
+   "law": "中华人民共和国继承法"
+  }
+ ],
+ "hcut": [
+  "Cit",
+  "Hall"
+ ],
+ "id": "ct-202",
+ "input": "引用：《中华人民共和国继承法》第十条（法定继承顺位）；as_of：2021-06-01。",
+ "instruction": "判断下列引用在 as_of 当日是否指向当时有效的条文版本，按任务 prompt_template 输出 JSON。",
+ "interaction": "L1",
+ "law_anchors": [
+  {
+   "article": "10",
+   "effective_on": "1985-10-01",
+   "law": "中华人民共和国继承法"
+  }
+ ],
+ "output_type": "structured",
+ "predicates_ref": "tasks/cit_validity/predicates.yaml",
+ "roles": [
+  "lawyer"
+ ],
+ "rubric_id": null,
+ "source": "synthetic",
+ "split": "draft",
+ "state_goal": null,
+ "task_id": "cit_validity"
+}

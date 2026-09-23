@@ -1,0 +1,44 @@
+{
+ "as_of": "2021-06-01",
+ "canary": "CNJB-CANARY-draft-ct-211",
+ "capability": "Cit",
+ "contamination_risk": "low",
+ "difficulty": 4,
+ "domain": "civil_commercial",
+ "draft": true,
+ "draft_notes": "规格外对照题（R28 增补，at-210 的施行后对偶窗；成对出题让考生轮能测「同条引用跨施行日」翻转率）。预期=多数考生判对 ok；若考生在 at-210 判错而本对判对，即时间效力轴有区分度的直接证据。（草稿 id 用 ct- 前缀：规格 at-XXX 的引用效力判定面草稿，与 ah 系 IRAC 叙事草稿、at 规格号三方区分。）",
+ "draft_status": "awaiting_examinee",
+ "gold": [
+  {
+   "article": "1",
+   "as_of": "2021-06-01",
+   "expect_status": "ok",
+   "law": "最高人民法院关于适用《中华人民共和国民法典》时间效力的若干规定"
+  }
+ ],
+ "hcut": [
+  "Cit",
+  "Hall"
+ ],
+ "id": "ct-211",
+ "input": "引用：《最高人民法院关于适用〈中华人民共和国民法典〉时间效力的若干规定》第一条；as_of：2021-06-01。",
+ "instruction": "判断下列引用在 as_of 当日是否指向当时有效的条文版本，按任务 prompt_template 输出 JSON。",
+ "interaction": "L1",
+ "law_anchors": [
+  {
+   "article": "1",
+   "effective_on": "2021-01-01",
+   "law": "最高人民法院关于适用《中华人民共和国民法典》时间效力的若干规定"
+  }
+ ],
+ "output_type": "structured",
+ "predicates_ref": "tasks/cit_validity/predicates.yaml",
+ "roles": [
+  "lawyer"
+ ],
+ "rubric_id": null,
+ "source": "synthetic",
+ "split": "draft",
+ "state_goal": null,
+ "task_id": "cit_validity"
+}

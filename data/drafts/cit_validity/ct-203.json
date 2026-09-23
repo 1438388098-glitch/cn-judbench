@@ -1,0 +1,44 @@
+{
+ "as_of": "2014-06-01",
+ "canary": "CNJB-CANARY-draft-ct-203",
+ "capability": "Cit",
+ "contamination_risk": "low",
+ "difficulty": 3,
+ "domain": "civil_commercial",
+ "draft": true,
+ "draft_notes": "附录 B 规格 at-203 判定窗（R28 草稿；规格另窗=25条@2021-06-01 ok 4倍LPR版）。预期错误模式=答 ok（未核对司法解释施行日 2015-09-01）。考点=施行前窗 not_yet_effective。（草稿 id 用 ct- 前缀：规格 at-XXX 的引用效力判定面草稿，与 ah 系 IRAC 叙事草稿、at 规格号三方区分。）",
+ "draft_status": "awaiting_examinee",
+ "gold": [
+  {
+   "article": "25",
+   "as_of": "2014-06-01",
+   "expect_status": "not_yet_effective",
+   "law": "最高人民法院关于审理民间借贷案件适用法律若干问题的规定"
+  }
+ ],
+ "hcut": [
+  "Cit",
+  "Hall"
+ ],
+ "id": "ct-203",
+ "input": "引用：《最高人民法院关于审理民间借贷案件适用法律若干问题的规定》第二十五条；as_of：2014-06-01。",
+ "instruction": "判断下列引用在 as_of 当日是否指向当时有效的条文版本，按任务 prompt_template 输出 JSON。",
+ "interaction": "L1",
+ "law_anchors": [
+  {
+   "article": "25",
+   "effective_on": "2015-09-01",
+   "law": "最高人民法院关于审理民间借贷案件适用法律若干问题的规定"
+  }
+ ],
+ "output_type": "structured",
+ "predicates_ref": "tasks/cit_validity/predicates.yaml",
+ "roles": [
+  "lawyer"
+ ],
+ "rubric_id": null,
+ "source": "synthetic",
+ "split": "draft",
+ "state_goal": null,
+ "task_id": "cit_validity"
+}

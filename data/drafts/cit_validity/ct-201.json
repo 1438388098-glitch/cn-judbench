@@ -1,0 +1,44 @@
+{
+ "as_of": "2021-06-01",
+ "canary": "CNJB-CANARY-draft-ct-201",
+ "capability": "Cit",
+ "contamination_risk": "low",
+ "difficulty": 3,
+ "domain": "civil_commercial",
+ "draft": true,
+ "draft_notes": "附录 B 规格 at-201 判定窗（R28 草稿；规格双窗=民法总则188@2019-06-01 ok / 民法典188@2021-06-01 ok，判分面取 gold[0] 单窗故拆题）。预期错误模式=答 stale_statute（版本族档位 40 vs 判对 100）或仍按二年旧规则叙述。真考生轮须验证双考生独立判出 wrong_vintage。（草稿 id 用 ct- 前缀：规格 at-XXX 的引用效力判定面草稿，与 ah 系 IRAC 叙事草稿、at 规格号三方区分。）",
+ "draft_status": "awaiting_examinee",
+ "gold": [
+  {
+   "article": "188",
+   "as_of": "2021-06-01",
+   "expect_status": "wrong_vintage",
+   "law": "中华人民共和国民法总则"
+  }
+ ],
+ "hcut": [
+  "Cit",
+  "Hall"
+ ],
+ "id": "ct-201",
+ "input": "引用：《中华人民共和国民法总则》第一百八十八条（普通诉讼时效）；as_of：2021-06-01。",
+ "instruction": "判断下列引用在 as_of 当日是否指向当时有效的条文版本，按任务 prompt_template 输出 JSON。",
+ "interaction": "L1",
+ "law_anchors": [
+  {
+   "article": "188",
+   "effective_on": "2017-10-01",
+   "law": "中华人民共和国民法总则"
+  }
+ ],
+ "output_type": "structured",
+ "predicates_ref": "tasks/cit_validity/predicates.yaml",
+ "roles": [
+  "lawyer"
+ ],
+ "rubric_id": null,
+ "source": "synthetic",
+ "split": "draft",
+ "state_goal": null,
+ "task_id": "cit_validity"
+}

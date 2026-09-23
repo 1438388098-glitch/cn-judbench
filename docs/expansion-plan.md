@@ -91,6 +91,11 @@
 > 6 题需补库（BLOCKED）**。机检（tests/test_pipeline_v06.py）逐条验证：
 > READY 两窗解析 ok 且版本不同；BLOCKED 列出的缺库条目确实解析失败
 > （补库后须同步把状态翻成 READY 并补齐规格行）。
+>
+> **R28 进展（2026-09-24）**：READY 4 规格已出判定面草稿
+> `data/drafts/cit_validity/ct-201/202/203/210(+211 对照).json`——cit 谓词
+> status_ladder 只判单窗（gold[0]），规格双窗按判定窗拆题，11 窗全部经
+> resolve_article 探针验证状态符合规格（tests/test_temporal_drafts_v06.py）。
 
 ```yaml
 specs_ready:

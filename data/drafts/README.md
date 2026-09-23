@@ -31,4 +31,12 @@ draft（草稿，本目录） → examinee_round（真考生轮：两名隔离�
 | a_irac_reason/ah-203.json | at-203（借贷利率 4×LPR：受理日错位） | awaiting_examinee |
 | a_irac_reason/ah-210.json | at-210（民法典施行前事实适用旧法） | awaiting_examinee |
 
-规格依据见 docs/expansion-plan.md 附录 B/B-2（READY 4 题 = 本目录 4 草稿）。
+| cit_validity/ct-201.json | at-201 判定窗（民法总则188@2021-06-01 → wrong_vintage） | awaiting_examinee |
+| cit_validity/ct-202.json | at-202 判定窗（继承法10@2021-06-01 → wrong_vintage） | awaiting_examinee |
+| cit_validity/ct-203.json | at-203 判定窗（借贷规定25@2014-06-01 → not_yet_effective） | awaiting_examinee |
+| cit_validity/ct-210.json | at-210 判定窗（时间效力规定1@2019-06-01 → not_yet_effective） | awaiting_examinee |
+| cit_validity/ct-211.json | 规格外对照（时间效力规定1@2021-06-01 → ok，ct-210 对偶窗） | awaiting_examinee |
+
+规格依据见 docs/expansion-plan.md 附录 B/B-2。三方编号约定：**at-XXX = 规格
+id；ah-XXX = 同规格的 a_irac IRAC 叙事草稿；ct-XXX = 同规格的 cit_validity
+引用效力判定面草稿**（cit 谓词 status_ladder 只判单窗，故规格双窗拆题）。
