@@ -37,7 +37,7 @@
 ## 3. 方法章骨架
 
 ### 3.1 任务与能力维
-八维 K/U/R/S/A/O/G/C（FRAMEWORK §3 权威字典 `cnjudbench.capabilities`，validate 强制值域）映射 12 任务包 323 题（口径、题量、样例）；法条版本库 lawkb（as_of 时点解析 + 废止窗口 + 人工校对纪律，v0.5：12 法 60 版本）。
+八维 K/U/R/S/A/O/G/C（FRAMEWORK §3 权威字典 `cnjudbench.capabilities`，validate 强制值域）映射 12 任务包 323 题（口径、题量、样例）；法条版本库 lawkb（as_of 时点解析 + 废止窗口 + 人工校对纪律，12 法 61 版本）。
 
 ### 3.2 Oracle 硬度阶梯（C2）
 `隐藏单测/精确计算 > 环境终态 > 结构化 exact > 受约束 F1 > Judge（辅列）`；
