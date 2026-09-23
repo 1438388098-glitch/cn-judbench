@@ -32,3 +32,7 @@
 
 - [ ] 批准转正式（历史先例：batch1-3 均已获准）
 - [ ] 6 题难度标注（3/3/3/3/4/4）是否认可
+7. **基线泄题扫描（§3.5 协议 #2，scripts/scan_baseline_leak.py）**：rules 对
+   expect=ok 题恒 100 系全包结构性行为（恒答 ok 策略，老题同分布），在
+   expect=wrong_vintage 新题上 rules=0（无法伪装版本意识）——无泄题信号；
+   random 包均值 45.93 ≈ 五档理论期望 44，无漂移。

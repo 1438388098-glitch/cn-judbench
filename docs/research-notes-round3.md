@@ -1,6 +1,6 @@
 # 研究笔记 · Round 3（v0.5→v0.6 冲刺：三路审计与判分效度）
 
-> 时间：2026-09-23 ～ 09-24（auto-iterate 循环 R1–R5）。本文是论文 C5 章
+> 时间：2026-09-23 ～ 09-24（auto-iterate 循环 R1–R7）。本文是论文 C5 章
 > （测量效度审计协议）的过程素材：审计怎么做的、发现了什么、各自去了哪里。
 
 ## 1. 审计方法
@@ -35,6 +35,15 @@
   陷阱自相矛盾的旧口径，本轮纠正）、compare macro（六包等权）与 CLI e2e、
   E18 复现命令落档、MANIFEST saturation_flag、pass^k 饱和过滤开关、
   holdout 冻结包 harness 锁定。
+- **R6 代码卫生与数据质量**：run_task/run_tasks 合并收尾、capability 值域
+  进 validate、batch4 扩题 cit-022..027（对偶 stale 族 + canary，全链自证）、
+  dataset-card 323 题对齐、lawkb 入队清单、gold 复核台账回填：386 绿。
+- **R7 基线重导与文档守卫**：batch4 泄题扫描（期望感知：rules 恒答 ok 对
+  expect=ok 题恒满是结构性、random 单题满分是词汇运气，6 题均 ≤50 通过）、
+  基线表 v0.6 重导（random 7.96 / rules 27.03）、难度分布修正 + 守卫测试、
+  cache 适配器语义测试、pass^k 剔除饱和对照行写进 markdown、audit_anchors
+  硬失败路径 tmp 测试、FRAMEWORK §8.4 预注册/solve 口径补记：R7 收官见
+  git log（本文随轮追加，数字以当轮 commit 为准）。
 
 ## 3. 未入轮次发现的去向
 

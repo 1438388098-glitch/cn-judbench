@@ -133,6 +133,10 @@ def main() -> int:
         f"（题目在任一 run 缺分按未通过计，结果为保守下界）",
         f"- **grand pass^{k} = {100 * grand:.2f} "
         f"[{100 * lo:.2f}, {100 * hi:.2f}]**（bootstrap 95%，n={N_BOOT}，seed={SEED}）",
+        (f"- 剔除饱和对照：含饱和 grand pass^{k} = {100 * baseline_grand[0]:.2f} "
+         f"[{100 * baseline_grand[1]:.2f}, {100 * baseline_grand[2]:.2f}]"
+         f"（n={before}；当前表为剔除 {before - len(ids)} 题后的口径）"
+         ) if baseline_grand is not None else None,
         (f"- 逐对题级翻转率 = {flips}/{total} = {100 * flip_rate:.1f}%"
          + ("（>5% 门禁：本组 run 不得进正式表）" if flip_rate and flip_rate > 0.05
             else "（≤5% 门禁内）")) if flip_rate is not None else "- 翻转率：run 不足",

@@ -375,6 +375,8 @@ contract_risk · a_irac_reason · long_horizon_case`（合计 162 题，v0.4 起
 ### 8.4 统计
 
 - 同题 **paired bootstrap 95% CI**（或 McNemar）；差值单位「分」；实现：`cnjudbench compare --run-a <dir> --run-b <dir>`（metrics/compare.py）。  
+- **预注册比较口径**：`--preregistered` 只比 CORE_SIX_TASKS 六包（cit/u_element/s_charge/contract/a_irac/long_horizon），输出六包等权 macro CI 与逐题 diff（`--items-out`）；其余包仅描述。
+- **solve%（解决率）保守口径**：分母含判为 n/a 的题（n/a 计未解决，与 machine_mean 的 n/a 剔除口径不同）；与 scored_rate 的 <90% 警告阈值联动——scored_rate 低于 90% 时 solve% 是系统性低估，报告须并列 scored_rate_str 提示。  
 - 排序用未舍入分；展示 `xx.xx`。  
 - n 分档与 §8.3 两档制一致：`n ≥ 100` 可排名；`50 ≤ n < 100` 报 CI 标 descriptive；`n < 50` 只描述。
 

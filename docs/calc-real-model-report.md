@@ -166,6 +166,11 @@ a_irac 19 题真考生回灌 mean 37.68（runs/airac-glm/scored）——**数据
 金样自检全绿（8 包 mock:gold 全 100）——这是金样质量回归基线，后续任何
 gold/谓词/lawkb 改动都应保持本表可复现。
 
+**v0.6 重导（2026-09-24，reports/runs/baseline-v06；323 题 8 包）**：
+random 7.96 / rules 27.03 / mock:gold 100×8 包。判分语义收紧（set_f1 1-1、
+中文数字归一、any-of 精确率）使基线小幅下降——方向与反刷分一致；
+论文引用基线数字时以本行为准（v0.4.1 行为历史记录）。
+
 ## C6. a_irac k=3 稳定性实测（R20）
 
 GLM 考生 3 个独立 run（runs/airac-k3-run{1,2,3}，25 题，EXAMINEE.md 落盘

@@ -107,3 +107,21 @@ def test_dataset_card_task_table_matches_data():
         assert letters <= primaries[tid] | {"O"}, \
             f"{tid}: 卡片 capability {cap} 与数据主维 {primaries[tid]} 不符"
     assert sum(counts.values()) == 323
+
+
+def test_dataset_card_difficulty_distribution():
+    """c163：dataset-card 难度分布行与 data/public 实测一致（batch4 曾漂移）。"""
+    import json
+    from collections import Counter
+
+    card = (REPO / "docs" / "dataset-card.md").read_text(encoding="utf-8")
+    diff = Counter()
+    for f in (REPO / "data" / "public").glob("*.jsonl"):
+        for line in f.read_text(encoding="utf-8-sig").splitlines():
+            if line.strip():
+                diff[json.loads(line)["difficulty"]] += 1
+    m = re.search(r"1 基础 (\d+) 题 / 2 基础-中 (\d+) / 3 中 (\d+) / 4 难 (\d+)", card)
+    assert m, "难度分布行格式变化，需同步测试"
+    claimed = [int(x) for x in m.groups()]
+    actual = [diff[1], diff[2], diff[3], diff[4]]
+    assert claimed == actual, f"卡片难度分布 {claimed} vs 实测 {actual}"

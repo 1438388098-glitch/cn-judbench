@@ -2,7 +2,7 @@
 
 - 快照：2026-09-24 · public split 共 **323 题**（v0.5：Phase 1 剖减 a_irac 全分饱和题 20 题入 data/archive，Phase 3a/3b/3c 新增难题 18+8+10=36 题，Phase 4 新增实务题 30 题；v0.6 batch4 新增 cit stale 族 6 题；原 271；holdout/live 冻结见 docs/holdout-live-protocol.md，本卡不含）
 - 口径：题面 schema/适用面校验 `python -m cnjudbench validate` 全过（12 任务包）；
-  金样自检基线 random 9.03 / rules 29.25 / mock:gold 8 包全 100（reports/runs/baseline-v041）
+  金样自检基线 v0.6：random 7.96 / rules 27.03 / mock:gold 8 包全 100（reports/runs/baseline-v06；v0.4.1 历史值 9.03/29.25 见 calc-real-model-report）
 
 ## 1. 动机与用途
 
@@ -40,7 +40,7 @@ oracle 硬度阶梯（隐藏单测 > 状态 diff > exact > 受约束 F1 > Judge�
 - **8 科目全覆盖**：每任务包在 民商事/刑事/合同合规/劳动/家事/知产/行政/执行
   至少各 1 题（validate 网格强制）；民商事为天然大头（诉讼费/利息/期间类计算
   题集中在民商事）。
-- **难度**：1–4 级作者标注（1 基础 6 题 / 2 基础-中 81 / 3 中 113 / 4 难 117）；
+- **难度**：1–4 级作者标注（1 基础 6 题 / 2 基础-中 81 / 3 中 117 / 4 难 119；batch4 后实测，交叉核验见 test_sample_saturation_v06）；
   实证重标（difficulty_emp，按通过率分带）工具已备（scripts/calibrate_difficulty.py），
   待真实模型数据冻结后回写。
 - **来源**：synthetic（结构化生成，参数化题目+程序化金样）为主；

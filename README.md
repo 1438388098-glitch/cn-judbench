@@ -17,6 +17,9 @@
 | [index.html](index.html) | 设计文档可读版（浏览器预览） |
 | [docs/research-notes.md](docs/research-notes.md) | 第一轮调研：中文法律评测 |
 | [docs/research-notes-round2.md](docs/research-notes-round2.md) | 第二轮调研：coding / agent / 工程硬化 |
+| [docs/research-notes-round3.md](docs/research-notes-round3.md) | 第三轮：判分反刷分与统计口径审计台账（45 条处置） |
+| [docs/lawkb-ingest-queue.md](docs/lawkb-ingest-queue.md) | 法条库逐字校对入队清单（官方文本 + text_hash） |
+| [docs/self-review-new-items-batch4.md](docs/self-review-new-items-batch4.md) | batch4 六题（cit-022..027）自审与基线扫描，待用户批准 |
 | [docs/impl-P0a.md](docs/impl-P0a.md) | **P0a 实施文档**（lawkb + 校验 + 冒烟任务包） |
 | [docs/impl-P0b.md](docs/impl-P0b.md) | **P0b 实施文档**（FTP/PTP + CiteGuard + API/Manifest） |
 | [docs/impl-P1.md](docs/impl-P1.md) | **P1 实施文档**（Judge / 红线 / 门禁） |

@@ -20,7 +20,7 @@
   C3 **中间带原则 + 安全/能力分列**（夹具出主分；谎言 ok=0 档位化）；
   C4 论文级统计协议（bootstrap CI、flip 门禁、组合 pass^k、random/rules 双基线、污染四级，其中 L2 n-gram 双检已入 ci_gate 第 7 步守门）；
   C5 **测量效度审计协议**（金样逐题法学复核消融、基线泄题扫描、公平性契约 answer_enums——三者均为可复用的基准工程方法学）。
-- **结果**：金样质量消融显示同份答案重判分差达 **55.26 分**（31.58→86.84）；基线泄题修复使 random 从 96→12（曾高于真实考生 90）；v0.4.1 口径下 random 9.03 / rules 29.25 与模型分层可分。
+- **结果**：金样质量消融显示同份答案重判分差达 **55.26 分**（31.58→86.84）；基线泄题修复使 random 从 96→12（曾高于真实考生 90）；v0.4.1 口径下 random 9.03 / rules 29.25 与模型分层可分；v0.6 判分收紧后 random 7.96 / rules 27.03（baseline-v06，反刷分方向一致）。
 
 ## 2. 相关工作对比表（§Related Work 主表素材）
 
@@ -57,12 +57,13 @@ bootstrap CI（1000 次）、flip 门禁（机检>5% 不进榜）、组合 pass^
 2. **基线泄题扫描**：random/rules 不得引用 law_anchors 等判分锚（题面不可见）——R17 抓出 a_irac 双基线 96 分高于真实考生 90 的泄题；
 3. **金样消融**：同份考生答案在 gold 修正前后重判——分差即「金样错误污染量」（R16：a_irac 31.58→86.84）。改判合法性的预注册规则见 `docs/gold-adjudication-policy.md`（v1.0，2026-09-23 起 gold 改动须过 §2 五条件）。
 配套：answer_enums 公平性契约（validate 强制）、over_promise 否定/疑问语境豁免、金样法学逐题复核记录（scripts/fix_*_r1*.py 注释即审计底稿）。
+配套工具与台账：判分反刷分与统计口径的处置记录见 `docs/research-notes-round3.md`（三路审计 45 条）；法条库逐字校对入队清单见 `docs/lawkb-ingest-queue.md`（16 键，官方文本 + text_hash 事后可核）。
 
 ## 4. 实验章骨架（待补数字的槽位标 ⬜）
 
 | 表 | 内容 | 状态 |
 |---|---|---|
-| T1 主表 | cap±CI / hard±CI / safety / solve% / $/solve / flip% × 模型（基线列=v0.4.1 重出口径） | GLM v0.4 ✅ · DS v0.4 ⬜（密钥阻塞）· v0.4.1 基线表 ✅（random 9.03/rules 29.25/gold 100×8 包） |
+| T1 主表 | cap±CI / hard±CI / safety / solve% / $/solve / flip% × 模型（基线列=v0.4.1 重出口径） | GLM v0.4 ✅ · DS v0.4 ⬜（密钥阻塞）· v0.6 基线表 ✅（random 7.96/rules 27.03/gold 100×8 包，baseline-v06） |
 | T2 区分度 | 同题模型 r、|Δ|≥15 题数、SE/包 | DS×GLM v0.3 已有；v0.4 ⬜ |
 | T3 消融 | v0.3 vs v0.4 口径（门禁出基数/夹具出主分/收紧） | GLM 64.39→57.19 ✅ |
 | T4 安全 | 应拒正确率、over_promise 率、canary | GLM safety=0.00 ✅ |
