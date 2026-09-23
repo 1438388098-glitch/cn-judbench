@@ -1,4 +1,4 @@
-﻿#!/usr/bin/env bash
+#!/usr/bin/env bash
 # CI 门禁（impl-P1-rest §5）：validate → pytest → mock run-all → 产物断言 → 翻转率=0。
 # 任一步失败即 exit 1。CI 只跑 Mock，不烧真 API、不需要任何密钥。
 set -euo pipefail
