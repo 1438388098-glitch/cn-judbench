@@ -368,7 +368,7 @@ redline_multiplier ∈ {1.00, 0.75, 0.50}  # 由 Cit/Hall 严重度触发，默�
 
 预注册比较单元（防「看分挑口径」，改动须在发表前公示）：模型间排名主张**仅限**
 核心六包等权 grand——`cit_validity · u_element_extract · s_charge_subsume ·
-contract_risk · a_irac_reason · long_horizon_case`（合计 162 题，v0.4 起口径稳定、
+contract_risk · a_irac_reason · long_horizon_case`（合计 168 题，v0.4 起口径稳定、
 跨版本可比）；12 包 grand 与各包分数仅作描述性导航。更细切片用于错误分析，
 不用于「谁更强」叙事。
 

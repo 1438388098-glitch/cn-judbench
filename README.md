@@ -23,6 +23,9 @@
 | [docs/research-notes-round3.md](docs/research-notes-round3.md) | 第三轮：判分反刷分与统计口径审计台账（45 条处置） |
 | [docs/lawkb-ingest-queue.md](docs/lawkb-ingest-queue.md) | 法条库逐字校对入队清单（官方文本 + text_hash） |
 | [docs/self-review-new-items-batch4.md](docs/self-review-new-items-batch4.md) | batch4 六题（cit-022..027）自审与基线扫描，待用户批准 |
+| `reports/baseline-report.md` | 基线分布与接近满分警告（R17 泄题监控常驻化） |
+| `reports/headroom-report.md` | 扩题/削题余量报告（饱和率×rules×实证 p） |
+| `reports/repro-inventory.md` | paper-outline 引用资产存在性盘点 |
 | [docs/impl-P0a.md](docs/impl-P0a.md) | **P0a 实施文档**（lawkb + 校验 + 冒烟任务包） |
 | [docs/impl-P0b.md](docs/impl-P0b.md) | **P0b 实施文档**（FTP/PTP + CiteGuard + API/Manifest） |
 | [docs/impl-P1.md](docs/impl-P1.md) | **P1 实施文档**（Judge / 红线 / 门禁） |

@@ -81,3 +81,14 @@ oracle 硬度阶梯（隐藏单测 > 状态 diff > exact > 受约束 F1 > Judge�
 
 - 代码 MIT；数据/题面/任务包 CC BY 4.0；lawkb 法条为官方作品（随附 sha256 text_hash 与来源注记）——分表声明见仓库根 LICENSE 尾部。
 - 引用格式与版本号以 FRAMEWORK.md 头部为准（v0.6，2026-09-23）。
+
+```bibtex
+@misc{cnjudbench2026,
+  title  = {CN-JudBench: A Multi-dimensional Benchmark for Large Language Models
+            in Chinese Judicial Workflows},
+  author = {{CN-JudBench (法衡) Authors}},
+  year   = {2026},
+  note   = {v0.6, 323 items, 12 task packages; MIT (code) / CC BY 4.0 (data)},
+  url    = {https://github.com/TODO-assign-repo}
+}
+```
