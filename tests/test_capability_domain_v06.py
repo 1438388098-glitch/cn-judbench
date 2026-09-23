@@ -49,4 +49,4 @@ def test_all_public_items_in_domain():
                 continue
             parse_capability(json.loads(line)["capability"])
             n += 1
-    assert n >= 300
+    assert n >= 320

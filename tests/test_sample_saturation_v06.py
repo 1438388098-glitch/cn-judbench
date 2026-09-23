@@ -47,7 +47,7 @@ def test_saturation_priority_applies_per_stratum_on_real_data():
 
 
 def test_dataset_card_numbers_match_data():
-    """c139：dataset-card 披露的 68 / 317 与 data/public 实测交叉核验。"""
+    """c139：dataset-card 披露的 68 / 323 与 data/public 实测交叉核验。"""
     card = (REPO / "docs" / "dataset-card.md").read_text(encoding="utf-8")
     items = load_all_items()
     n_total = len(items)
@@ -71,3 +71,39 @@ def test_release_manifest_saturation_flags():
                    for iid, it in p["items"].items()}
     assert in_manifest == truth
     assert sum(in_manifest.values()) == 68
+
+
+def test_force_fixture_ids_resolve():
+    """c157：FORCE_IDS 若随包更新消失会静默不入样（夹具丢失=门禁削弱）。"""
+    from cnjudbench.sample import FORCE_IDS
+
+    all_ids = {it.id for it in load_all_items()}
+    missing = [fid for fid in FORCE_IDS if fid not in all_ids]
+    assert missing == [], f"FORCE_IDS 夹具在 data/public 中不存在: {missing}"
+
+
+def test_dataset_card_task_table_matches_data():
+    """c155：dataset-card §2 任务表逐行核验——题数与 capability 主维并集。"""
+    import json
+    from collections import defaultdict
+
+    card = (REPO / "docs" / "dataset-card.md").read_text(encoding="utf-8")
+    rows = re.findall(
+        r"^\| ([a-z_]+) \| (L\d\w*) \| .+? \| (\d+) \| ([A-Za-z/O]+) \|$",
+        card, re.M)
+    assert len(rows) == 12, f"卡片任务表应有 12 行，实得 {len(rows)}"
+    counts: dict[str, int] = defaultdict(int)
+    primaries: dict[str, set] = defaultdict(set)
+    for f in sorted((REPO / "data" / "public").glob("*.jsonl")):
+        for line in f.read_text(encoding="utf-8-sig").splitlines():
+            if not line.strip():
+                continue
+            r = json.loads(line)
+            counts[f.stem] += 1
+            primaries[f.stem].add(r["capability"].split("/")[0])
+    for tid, _lvl, n_str, cap in rows:
+        assert counts[tid] == int(n_str), f"{tid}: 卡片 {n_str} vs 实测 {counts[tid]}"
+        letters = set(cap.split("/"))
+        assert letters <= primaries[tid] | {"O"}, \
+            f"{tid}: 卡片 capability {cap} 与数据主维 {primaries[tid]} 不符"
+    assert sum(counts.values()) == 323

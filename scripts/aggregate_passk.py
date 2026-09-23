@@ -46,6 +46,23 @@ def load_runs(runs: list[Path]) -> tuple[list[str], list[dict[str, float]]]:
     return ids, per_run
 
 
+def _grand_passk(ids, per_run, k, threshold):
+    """grand pass^k + bootstrap CI（c158：供剔除饱和前后对照复用）。"""
+    flags = [[s.get(i, float("nan")) >= threshold for i in ids] for s in per_run]
+    per_item_flags = [[f[j] for f in flags] for j in range(len(ids))]
+    item_passk = pass_power_k_per_item(per_item_flags, k)
+    if len(item_passk) < len(ids):
+        item_passk += [0.0] * (len(ids) - len(item_passk))
+    grand = sum(item_passk) / len(item_passk) if item_passk else 0.0
+    rng = random.Random(SEED)
+    boots = []
+    for _ in range(N_BOOT):
+        idx = [rng.randrange(len(item_passk)) for _ in range(len(item_passk))]
+        boots.append(sum(item_passk[j] for j in idx) / len(idx))
+    boots.sort()
+    return grand, boots[int(0.025 * (N_BOOT - 1))], boots[int(0.975 * (N_BOOT - 1))]
+
+
 def drop_saturated(ids: list[str]) -> list[str]:
     """c152：剔除 saturation_flag=true 的题 id（以 data/public 现行标注为准）。"""
     from cnjudbench.sample import load_all_items
@@ -69,11 +86,14 @@ def main() -> int:
 
     k = args.k or len(args.runs)
     ids, per_run = load_runs(args.runs)
+    baseline_grand = None  # c158：剔除前的对照 grand（同表输出）
     if args.exclude_saturation:
         before = len(ids)
+        baseline_grand = _grand_passk(ids, per_run, k, args.threshold)
         ids = drop_saturated(ids)
         if len(ids) != before:
-            print(f"[exclude-saturation] {before - len(ids)}/{before} 题为饱和标注，已剔除")
+            print(f"[exclude-saturation] {before - len(ids)}/{before} 题为饱和标注，已剔除"
+                  f"（对照 grand pass^{k} = {100*baseline_grand[0]:.2f} [{100*baseline_grand[1]:.2f}, {100*baseline_grand[2]:.2f}]）")
         else:
             print("[exclude-saturation] 0 题命中饱和标注")
         if not ids:

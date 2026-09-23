@@ -14,7 +14,7 @@
 |---|---|---|---|
 | a_irac_reason | 34 | 11 (10/11 hard) | 32/34 |
 | calc_fail_to_pass | 54 | 17 (13/17 hard) | 41/54 |
-| cit_validity | 21 | 7 (2/7 hard) | 6/21 |
+| cit_validity | 27 | 9 (4/9 hard) | 12/27 |
 | contract_risk | 23 | 7 (4/7 hard) | 14/23 |
 | dms_side_effect_intake | 20 | 6 (6/6 hard) | 19/20 |
 | gaia_fee_deadline | 23 | 7 (6/7 hard) | 20/23 |
@@ -25,7 +25,7 @@
 | tool_search_statute | 26 | 8 (2/8 hard) | 5/26 |
 | u_element_extract | 49 | 15 (10/15 hard) | 34/49 |
 
-**合计拟冻结 99 题。**
+**合计拟冻结 101 题。**
 
 ## 签字栏
 

@@ -48,13 +48,20 @@
 
 ```bash
 py -3.13 -m venv .venv && .venv/Scripts/python -m pip install -e ".[dev]"
-.venv/Scripts/python -m pytest -q                 # 296 项测试全绿
+.venv/Scripts/python -m pytest -q                 # 384 项测试全绿
 .venv/Scripts/python -m cnjudbench run-all   --tasks cit_validity,dms_side_effect_intake,tool_fault_recovery   --model mock:gold --out reports/runs/demo
-cat reports/runs/demo/report.csv                  # §6.1 论文表直贴列
+cat reports/runs/demo/report.csv                  # §6.1 论文表直贴列（solve% 为保守口径：n/a 计未解决）
 ```
 
 换真实模型：`--model openai:<model> --base-url …`（密钥仅经环境变量）；已有答案文件用
 `--model file:<answers 目录>` 回灌（全管线同 API 跑法，见 docs/paper-outline.md §7）。
+
+两 run 配对比较（排名主张必带 CI 与 p 值；排名用 `--preregistered` 六包等权口径）：
+
+```bash
+.venv/Scripts/python -m cnjudbench compare --run-a reports/runs/A --run-b reports/runs/B     --preregistered --items-out reports/compare/items.csv
+# 输出：micro diff±CI + McNemar p；preregistered 时另报 macro(六包等权) diff±CI
+```
 
 ## 如何跑（完整）
 

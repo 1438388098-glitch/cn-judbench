@@ -2,8 +2,8 @@
  "note": "CN-JudBench public split 发布清单：逐题 item_line_hash 与 run manifest 同源（runner.manifest.item_line_hash），任何题面改动可被第三方检测。",
  "generated": "2026-09-24",
  "lawkb_store_version": "lawkb-2026.09.2",
- "dataset_content_hash": "sha256:89d93f5e330461f2c74698738847cd2039f8077c1477579afeec65189bd59c7b",
- "n_items_total": 317,
+ "dataset_content_hash": "sha256:da0db3df1537bb60e13369b0442b54216f42015faf4a3ae9763cf9c75fe51a96",
+ "n_items_total": 323,
  "packages": {
   "a_irac_reason": {
    "n_items": 34,
@@ -632,7 +632,7 @@
    }
   },
   "cit_validity": {
-   "n_items": 21,
+   "n_items": 27,
    "items": {
     "cit-001": {
      "item_line_hash": "sha256:6ca1e86948d38f510e9239784620662ac2c7d263123579f950706ada89af4781",
@@ -780,6 +780,48 @@
      "difficulty": 2,
      "saturation_flag": false,
      "bytes": 816
+    },
+    "cit-022": {
+     "item_line_hash": "sha256:5478c8d8ec49e128d268b1a2c49fd0cb45a51e2cf499c1639e1d8af6d6d0ef5c",
+     "canary": "CNJB-CANARY-cd01",
+     "difficulty": 3,
+     "saturation_flag": false,
+     "bytes": 841
+    },
+    "cit-023": {
+     "item_line_hash": "sha256:1b151aa989f0e91029f0aad36ad8106a6889e63cf2337fc1a4c9155aeb1719af",
+     "canary": "CNJB-CANARY-cd02",
+     "difficulty": 3,
+     "saturation_flag": false,
+     "bytes": 830
+    },
+    "cit-024": {
+     "item_line_hash": "sha256:5fd8671bc2a1c9c95ab65f5e560e152fbb9c0f3ff14d8bd5d0002b4e834f70c0",
+     "canary": "CNJB-CANARY-cd03",
+     "difficulty": 3,
+     "saturation_flag": false,
+     "bytes": 808
+    },
+    "cit-025": {
+     "item_line_hash": "sha256:4f8c889524ffd5c09ae7be2d23f8752ae2106ae511c606ade91e9054f39dc27e",
+     "canary": "CNJB-CANARY-cd04",
+     "difficulty": 3,
+     "saturation_flag": false,
+     "bytes": 797
+    },
+    "cit-026": {
+     "item_line_hash": "sha256:aad0e465b4504a1d97a0b6e4f58a2374ed9dddb1d1e64d13708fbd03202ebdf8",
+     "canary": "CNJB-CANARY-cd05",
+     "difficulty": 4,
+     "saturation_flag": false,
+     "bytes": 902
+    },
+    "cit-027": {
+     "item_line_hash": "sha256:4e8bee581186e16b87e7a029abf1b8eb363869c9c1983c54702f8464b54c87d6",
+     "canary": "CNJB-CANARY-cd06",
+     "difficulty": 4,
+     "saturation_flag": false,
+     "bytes": 831
     }
    }
   },

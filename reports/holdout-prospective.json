@@ -83,28 +83,32 @@
    }
   },
   "cit_validity": {
-   "n_total": 21,
-   "n_chosen": 7,
-   "n_hard_total": 6,
-   "n_hard_chosen": 2,
+   "n_total": 27,
+   "n_chosen": 9,
+   "n_hard_total": 12,
+   "n_hard_chosen": 4,
    "seed": "3a440e45",
    "ids": [
-    "cit-002",
+    "cit-001",
     "cit-004",
-    "cit-007",
+    "cit-009",
     "cit-012",
     "cit-014",
-    "cit-018",
-    "cit-021"
+    "cit-015",
+    "cit-016",
+    "cit-024",
+    "cit-026"
    ],
    "item_line_hashes": {
-    "cit-002": "sha256:e91243a91e8b5c3308498ea84080bb463fb4444def0cb473accaf07be82bc462",
+    "cit-001": "sha256:6ca1e86948d38f510e9239784620662ac2c7d263123579f950706ada89af4781",
     "cit-004": "sha256:a5cb85eb536ba1e5494adaf65f9be69731fd8a9393e43159c2a195354832618e",
-    "cit-007": "sha256:2f354c77ca1e41d0724aa4665ac0766bd423685e5ebddbe2263819cb6a1f71ee",
+    "cit-009": "sha256:8491401b2f2cdececcfbbf0f91aee81ce5e6d7879ca46f3aef53ee4195910123",
     "cit-012": "sha256:21a0da5261e2dcd514fa743fef2156a6b5cb031056fccab084bfe46eab033ef4",
     "cit-014": "sha256:3667462ae95bb54288f59835b0f330dcda220e61869456ddb3d022591c54b43f",
-    "cit-018": "sha256:2c9abbed959644656e0c8624787f1f6550d921a46e7802d12ed83fa265074e54",
-    "cit-021": "sha256:a8b1c6e116bf7bf2097cd3e6fd04c2fdad9fc57c1b4023132e1051a41e3a2c9a"
+    "cit-015": "sha256:c56aecf40ace115d22c4927abada13d1b5d1256fbf466b16ddc518b3957faa13",
+    "cit-016": "sha256:7445642458bc1c49759de742b1510f19fe45c707adf7242551f115e6ddfad251",
+    "cit-024": "sha256:5fd8671bc2a1c9c95ab65f5e560e152fbb9c0f3ff14d8bd5d0002b4e834f70c0",
+    "cit-026": "sha256:aad0e465b4504a1d97a0b6e4f58a2374ed9dddb1d1e64d13708fbd03202ebdf8"
    }
   },
   "contract_risk": {
@@ -335,9 +339,9 @@
    }
   }
  },
- "harness_sha": "56646aa",
+ "harness_sha": "1b8e50f",
  "dataset": {
   "items_root": "data/public",
-  "public_items_total": 317
+  "public_items_total": 323
  }
 }

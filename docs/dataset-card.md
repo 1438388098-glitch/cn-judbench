@@ -1,6 +1,6 @@
 # CN-JudBench 数据集卡片（Dataset Card, v0.5 · Phase 1）
 
-- 快照：2026-09-23 · public split 共 **317 题**（v0.5：Phase 1 剖减 a_irac 全分饱和题 20 题入 data/archive，Phase 3a/3b/3c 新增难题 18+8+10=36 题，Phase 4 新增实务题 30 题；原 271；holdout/live 冻结见 docs/holdout-live-protocol.md，本卡不含）
+- 快照：2026-09-24 · public split 共 **323 题**（v0.5：Phase 1 剖减 a_irac 全分饱和题 20 题入 data/archive，Phase 3a/3b/3c 新增难题 18+8+10=36 题，Phase 4 新增实务题 30 题；v0.6 batch4 新增 cit stale 族 6 题；原 271；holdout/live 冻结见 docs/holdout-live-protocol.md，本卡不含）
 - 口径：题面 schema/适用面校验 `python -m cnjudbench validate` 全过（12 任务包）；
   金样自检基线 random 9.03 / rules 29.25 / mock:gold 8 包全 100（reports/runs/baseline-v041）
 
@@ -17,22 +17,22 @@ oracle 硬度阶梯（隐藏单测 > 状态 diff > exact > 受约束 F1 > Judge�
 发布统计与论文表建议剔除或单列（逐题名单见 reports/difficulty-audit-v05.json
 与 data/public/MANIFEST.json 的 difficulty/saturation 字段）。
 
-## 2. 任务包构成（12 包 / 317 题）
+## 2. 任务包构成（12 包 / 323 题）
 
 | 任务包 | L 层 | oracle | 题数 | 主要能力维 |
 |---|---|---|---|---|
-| cit_validity | L1 | 机检（引用效力 status_ladder） | 21 | K |
+| cit_validity | L1 | 机检（引用效力 status_ladder；v0.6 batch4 增 stale 对偶族 6 题：民法总则/继承法废止前后、合同法解释二废止前、刑法修正案九前） | 27 | Cit |
 | u_element_extract | L1 | element 抽取（含 hard 34 题；v0.5 Phase 3c 增否定式要件/多日期歧义 6 题） | 49 | U |
 | calc_fail_to_pass | L1 | **隐藏单测**（tests/calc/*.py，54 题；v0.5 Phase 3b 增 cx 硬变体 8 题：期间顺延/时效中断/封顶冲抵/复利竞合） | 54 | U |
 | s_charge_subsume | L1 | 罪名归并 exact | 20 | S |
-| tool_search_statute | L2 | tool_sequence/ast + exact | 26 | R |
-| gaia_fee_deadline | L3a | 金额阶梯 + progress（v0.5 Phase 4a 增时间线综合 6 题） | 23 | U/O |
+| tool_search_statute | L2 | tool_sequence/ast + exact | 26 | G/R/U |
+| gaia_fee_deadline | L3a | 金额阶梯 + progress（v0.5 Phase 4a 增时间线综合 6 题） | 23 | K/U |
 | dms_side_effect_intake | L3a | **env_diff 终态 diff**（state0 预置 4 题 + 半角镜像 3 题 + v0.5 期限监控 4 题） | 20 | O |
 | tool_fault_recovery | L2 | **fault_recovery**（recovery×final；nth=2 进阶 4 + v0.5 nth=3 故障链/部分成功状态判断 4 题） | 16 | O |
 | contract_risk | L1 | must_not/风险披露（v0.5 Phase 4c 增风险告知 6 题） | 23 | C |
 | a_irac_reason | L1 | 结构化 IRAC（v0.5 重构后 34 题：Phase 1 留存 12 + 时间效力轴 18 + 文书改编 4；原 32 题中 20 题对头部模型全分饱和，移入 data/archive） | 34 | A |
 | tau_jud_intake | L3b | 终态 F1 + Proto（多轮；v0.5 Phase 4b 增临期接待 4 题） | 16 | C |
-| long_horizon_case | L4 | score–time 多日流程（v0.5 Phase 4a 增六域整案 6 题） | 15 | O |
+| long_horizon_case | L4 | score–time 多日流程（v0.5 Phase 4a 增六域整案 6 题） | 15 | U |
 | （另：dms/fault 冒烟与负例夹具见 reference.md） | | | | |
 
 ## 3. 科目与难度分布
