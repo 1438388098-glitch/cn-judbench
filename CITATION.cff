@@ -1,0 +1,23 @@
+cff-version: 1.2.0
+title: "CN-JudBench: A Multi-dimensional Benchmark for Evaluating Chinese Legal AI"
+message: "若在论文中引用本基准，请使用本文件元数据；BibTeX 版本见 docs/dataset-card.md §7。"
+type: dataset
+version: "0.6.0"
+date-released: "2026-09-24"
+url: "https://github.com/TODO-assign-repo"
+# 双许可：代码 MIT / 数据 CC BY 4.0（分表见 LICENSE 与 docs/dataset-card.md §6）
+license:
+  - MIT
+  - CC-BY-4.0
+keywords:
+  - legal reasoning
+  - benchmark
+  - large language models
+  - Chinese law
+  - evaluation
+  - tool use
+abstract: >-
+  CN-JudBench 是面向中国法律场景的大模型多维评测基准：323 题 / 12 任务包，
+  覆盖引用效力、要件抽取、计算与隐藏单测、罪名涵摄、工具调用与故障恢复、
+  多轮接待与多日长程案管；机检谓词判分 + 失败 taxonomy + 预注册统计协议
+  （pass^k 组合语义、paired bootstrap CI、McNemar、随机/规则基线泄题监控）。

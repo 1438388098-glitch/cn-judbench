@@ -66,6 +66,20 @@ for tid, task in s.get("tasks", {}).items():
         assert float(row["score"]) == 100.0, \
             f"金样自证失败 {tid}/{row['id']} = {row['score']}（mock:gold 应满分——非满分即金样 bug）"
 print(f"gold self-proof gate: {len(s.get('tasks', {}))} tasks all 100")
+
+# 12 包自证矩阵完整性：3/4/4b/4c 四步产物并集必须恰为核心 12 包
+ALL = set()
+for d in ("reports/runs/ci", "reports/runs/ci-l2",
+          "reports/runs/ci-v04", "reports/runs/ci-gold-all"):
+    sp = Path(d) / "summary.json"
+    assert sp.is_file(), f"{d} 缺 summary.json（自证步骤须全部成功）"
+    ALL |= set(json.loads(sp.read_text(encoding="utf-8")).get("tasks", {}))
+EXPECT = {"cit_validity", "u_element_extract", "s_charge_subsume", "a_irac_reason",
+          "tool_search_statute", "dms_side_effect_intake", "tool_fault_recovery",
+          "calc_fail_to_pass", "gaia_fee_deadline", "contract_risk",
+          "tau_jud_intake", "long_horizon_case"}
+assert ALL == EXPECT, f"12 包自证矩阵不完整：缺 {EXPECT - ALL} 多 {ALL - EXPECT}"
+print(f"self-proof matrix: {len(ALL)}/12 packages covered")
 PY
 
 echo "== [5/7] assert run gate =="

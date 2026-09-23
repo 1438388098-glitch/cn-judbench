@@ -64,6 +64,7 @@ CN-JudBench 全部文档的分组导航（c276）。新增 `docs/*.md` 时必须
 |---|---|
 | [paper-outline.md](paper-outline.md) | 论文提纲（实验口径与数字锚点） |
 | [paper-outline-todos.md](paper-outline-todos.md) | 提纲待办 |
+| [paper-numbers.md](paper-numbers.md) | 论文数字溯源清单（数字→来源→机检） |
 | [paper-tables.md](paper-tables.md) | 论文表格模板（列 ↔ summary 字段映射） |
 | [research-notes.md](research-notes.md) · [research-notes-round2.md](research-notes-round2.md) · [research-notes-round3.md](research-notes-round3.md) | 研究笔记 |
 | prompts/ | 隔离测试 agent 提示词等论文复现材料 |

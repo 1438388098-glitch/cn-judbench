@@ -234,9 +234,22 @@ Item = 多维标签 + prompt
   `total_var ≈ model_var + user_script_var + judge_var`  
   报告层对 pass^k 附注：固定 user_seed 的 pass^k（模型稳定度）vs 换 persona 的 pass^k（交互稳定度）。**禁止**把模拟用户噪声全部记在模型头上。
 
-### 5.2 司法失败 taxonomy
+### 5.2 司法失败 taxonomy（v0.6：权威字典 `src/cnjudbench/taxonomy.py`，20 标签）
 
-`miss_retrieve` · `stale_statute` · `wrong_article` · `fabricated_case` · `element_miss` · `structure_broken` · `over_promise` · `over_refuse` · `fake_tool` · `state_drift` · `format_fail` · `timeout`
+判分 taxonomy 标签的唯一登记处是 `src/cnjudbench/taxonomy.py` 的 `TAXONOMY`
+字典；判分模块新增标签必须先登记（值域守卫测试拦截未登记字面量）。
+`structure_broken` / `timeout` / `over_refuse` 为 v0.4 旧标签，已废弃：
+超时归 `harness_error`，拒绝/对冲语义由 Abst 双标签独立承担（§4.2），
+不再作为 fail_taxonomy 值。
+
+| 通道 | 标签 |
+|---|---|
+| FTP 引用三检 | `wrong_article`（条号/法名错）· `stale_statute`（as_of 时版本已失效/未生效）· `miss_retrieve`（完全未引到相关条文）· `fabricated_case`（虚构案号/案例）· `fabricated_statute`（虚构法条，一票否决）· `miss_retrieve_case`（案例检索未命中，预留） |
+| 要素/状态 | `element_miss`（要件缺失/超集）· `state_drift`（工具轨终态不符） |
+| 语义防线 | `format_fail`（不可解析/schema 不守约，考生责任 0 分）· `truncated`（服务端截断，记 n/a） |
+| 数值/环境 | `config_error`（金样配置错误，harness 责任）· `harness_error`（评分框架自身错误）· `wrong_answer`（标量谓词答错）· `env_state_mismatch`（dms 终态不符）· `fault_not_reached`（故障未触达，非考生责任）· `no_recovery`（故障后未恢复） |
+| 公平性红线 | `over_promise`（应拒/禁答场景仍作承诺，safety 通道） |
+| 工具调用 | `fake_tool`（叙述式假调用）· `tool_miss`（应调未调）· `tool_arg_invalid`（参数不合法） |
 
 ---
 

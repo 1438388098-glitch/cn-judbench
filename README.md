@@ -7,6 +7,20 @@
 **非法律意见**：评测结果不得用于司法裁判、合规放行或当事人决策。
 **EN**：CN-JudBench is a multi-dimensional benchmark for Chinese judicial workflows — measuring *which* legal capability a model can perform, *where* it is dangerous, *whether* it is stable across runs, and *at what cost* (0–100 scale, two decimals).
 
+**Abstract (EN)**: CN-JudBench evaluates large language models on Chinese judicial
+workflows across 12 task packages (323 public items) spanning citation validity,
+element extraction, calculation with hidden unit tests, charge subsumption,
+tool invocation with fault injection, multi-turn intake and multi-day case
+management. Scoring is machine-checked at the predicate level with a registered
+failure taxonomy, contamination canaries, random/rules baseline leak monitoring,
+and a preregistered statistical protocol (pass^k combinational semantics, paired
+bootstrap CIs, McNemar exact tests, two-tier ranking granularity). Version 0.6
+closes three scoring-validity gaps found via live examinee rounds: free-text
+state predicates now award partial credit, reward-hacking via answer dumping is
+blocked by one-to-one set matching, and per-package baselines guard against
+scoring shortcuts. Code is MIT-licensed; the public split is CC BY 4.0
+(see CITATION.cff).
+
 > 命令跨平台：Windows 用 `.venv/Scripts/python`，Linux/macOS 等价 `.venv/bin/python`（或激活 venv 后直接 `python`）。
 
 ## 文档
@@ -64,6 +78,7 @@ cat reports/runs/demo/report.csv                  # §6.1 论文表直贴列（s
 
 换真实模型：`--model openai:<model> --base-url …`（密钥仅经环境变量）；已有答案文件用
 `--model file:<answers 目录>` 回灌（全管线同 API 跑法，见 docs/paper-outline.md §7）。
+  回灌前必跑换答对齐 guard：`python scripts/check_answer_alignment.py`（bigram Dice + 反向最佳确认，已两次抓到 subagent 答案错位事故）。
 
 两 run 配对比较（排名主张必带 CI 与 p 值；排名用 `--preregistered` 六包等权口径）：
 

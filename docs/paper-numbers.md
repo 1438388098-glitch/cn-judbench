@@ -1,0 +1,42 @@
+# 论文数字溯源清单（c293）
+
+> 论文与提纲中出现的实验数字的**唯一对账表**：每个数字标注来源（金样测试 /
+> 报告文件 / MANIFEST），可机检的由 `tests/test_paper_numbers_v06.py` 守卫。
+> 写作引用任何数字前先在此登记；数字变更必须同步来源与提纲。
+
+## 总量口径
+
+| 数字 | 含义 | 来源 | 机检 |
+|---|---|---|---|
+| 323 / 12 包 | 公开集题量 / 包数 | `data/public/MANIFEST.json` `n_items_total` | c271/c274 |
+| 168 | 预注册核心六包合计（cit 27+u 49+s_charge 20+contract 23+a_irac 34+lh 15） | MANIFEST 六包 `n_items` 和 | c262 |
+| 6/81/117/119 | 难度 1–4 档分布 | MANIFEST items.difficulty 统计 | c291 |
+| 8 域 | 科目全覆盖 | `data/public/*.jsonl` domain 字段 | c299 |
+
+## 统计与区分度（金样锁定）
+
+| 数字 | 含义 | 来源 | 机检 |
+|---|---|---|---|
+| diff 4.08 [−2.80, 10.26]、McNemar p=0.3438、n=62 | E18 全集口径 S1 vs S2 | 金样 `tests/test_e18_repro_golden_v06.py`（compare v05new-s1m/s2m-score） | ✓ |
+| macro 14.67 [8.41, 21.05]、n=40、剔 22 | E18 预注册口径（六包等权） | 同上 + `n_dropped_by_filter` | c282 |
+| pass^2 = 46.77 [33.87, 59.68] | E17 双考生组合通过率 | 金样 `tests/test_passk_golden_v06.py` | ✓ |
+| 剔除饱和 30 题 / 余 46 | pass^k 剔饱和口径 | `reports/passk-repro.md`（`scripts/aggregate_passk.py --exclude-saturation`） | c301 |
+
+## 判分效度审计（历史运行记录，报告留档）
+
+| 数字 | 含义 | 来源 |
+|---|---|---|
+| 31.58 → 86.84（Δ55.26） | a_irac 金样消融：同批答案修正金样后重判 | `docs/calc-real-model-report.md` §C3–C7 |
+| 96 → 12 | random/rules 基线泄题修复前后（a_irac） | R16-R25 技术账（记忆/夜报），回归测试 `test_baselines_never_cite_scoring_anchors` |
+| 33.9% / ρ=+0.152 | 作者难度×实证通过率对角一致率 / Spearman | `reports/difficulty-emp-crosstab.md`（`scripts/calibrate_difficulty.py`） |
+| S1 0.00→13.09、S2 0.00→5.56 | tau state partial 化后真考生重判 | `docs/paper-outline.md` §E18（同份答案重判运行记录） |
+| 6/62（缺陷率 9.7%） | fresh 题真考生轮抓出金样/题面缺陷 | `docs/paper-outline.md` §E17、`docs/self-review-new-items-*.md` |
+
+> 「历史运行记录」类数字无法 pytest 机检（依赖本地考生 run 目录），
+> 以报告文件 + 提纲双重留档为准；引用时注明口径与运行日期。
+
+## 对账纪律
+
+1. 论文表（paper-tables.md）列值只能来自本表登记的来源，禁止临场报数。
+2. 新实验数字：先跑实验 → 生成报告 → 本表登记 → 提纲引用。
+3. 每轮 autopilot 收官时 `--brief` 检查本表机检全绿。
