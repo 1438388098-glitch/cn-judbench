@@ -9,7 +9,7 @@
 | 数字 | 含义 | 来源 | 机检 |
 |---|---|---|---|
 | 323 / 12 包 | 公开集题量 / 包数 | `data/public/MANIFEST.json` `n_items_total` | c271/c274 |
-| 168 | 预注册核心六包合计（cit 27+u 49+s_charge 20+contract 23+a_irac 34+lh 15） | MANIFEST 六包 `n_items` 和 | c262 |
+| 168 / 161 | 预注册核心六包合计 / capability 可比较（s_charge 7 道 safety 夹具不进配对样本；n_aligned 实测值） | MANIFEST 六包 `n_items` 和；`data/public` role 字段实数 | c262/c367 |
 | 6/81/117/119 | 难度 1–4 档分布 | MANIFEST items.difficulty 统计 | c291 |
 | 8 域 | 科目全覆盖 | `data/public/*.jsonl` domain 字段 | c299 |
 

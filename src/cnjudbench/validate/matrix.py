@@ -103,4 +103,30 @@ def check_predicate_set(
                 f"{set_name}[{i}] 谓词 {p.type!r} 不适用于 output_type={output_type!r}"
                 f"（§4.2.1 适用面矩阵）"
             )
+        errors.extend(_check_numeric_extra(set_name, i, p))
     return errors
+
+
+def _check_numeric_extra(set_name: str, i: int, p: Predicate) -> list[str]:
+    """c369：数值扩展键值域校验（extra="allow" 的自由键曾经静默改判分语义）。
+
+    - threshold ∈ [0,1]：越界值如 1.5 会让该字段所有考生静默全零；非数字
+      经 evaluate 单题兜底变成整题 n/a；
+    - tolerance ≥ 0 且有限：坏值静默退化为精确匹配（如 "0,05" → 0.0），
+      负值静默全零。
+    """
+    extra = p.model_extra or {}
+    errs: list[str] = []
+    if "threshold" in extra:
+        v = extra["threshold"]
+        if isinstance(v, bool) or not isinstance(v, (int, float)) \
+                or not (0.0 <= float(v) <= 1.0):
+            errs.append(f"{set_name}[{i}] 谓词 {p.type!r} threshold={v!r} 越界"
+                        f"（须为 [0,1] 数值）")
+    if "tolerance" in extra:
+        v = extra["tolerance"]
+        if v is not None and (isinstance(v, bool) or not isinstance(v, (int, float))
+                              or float(v) < 0 or float(v) != float(v)):
+            errs.append(f"{set_name}[{i}] 谓词 {p.type!r} tolerance={v!r} 非法"
+                        f"（须为 ≥0 的有限数值）")
+    return errs

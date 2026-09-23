@@ -20,7 +20,8 @@ from .bootstrap import paired_bootstrap_ci
 
 SOLVE_THRESHOLD_DEFAULT = 60.0  # 与 report.csv solve% 同一口径
 
-# 预注册比较单元（FRAMEWORK §8.3）：核心六包等权 grand，168 题（c262 勘误口径）。
+# 预注册比较单元（FRAMEWORK §8.3）：核心六包等权 grand——合计 168 题，
+# capability 可比较 161 题（s_charge 7 道 safety 夹具被 role 过滤排除）。
 # 事后挑比较子集是排名作弊的主要通道——凡用于排名主张的 A-B 比较，
 # 必须同时给出本口径（--preregistered）。
 CORE_SIX_TASKS = frozenset({
@@ -125,6 +126,10 @@ def compare_runs(
     preregistered=True 时只比核心六包（CORE_SIX_TASKS，FRAMEWORK §8.3
     预注册单元）；输出带 preregistered 标记与被剔除题数，供论文口径审计。
     """
+    # c368：threshold 是百分制通过线（与 report.csv solve% 同口径），越界
+    # 会静默产出全对/全错的 McNemar 位与显著性结论——c343 同纪律
+    if not (0.0 <= threshold <= 100.0):
+        raise ValueError(f"threshold={threshold} 越界：须在 [0,100]（百分制题分）")
     scores_a, roles_a, tasks_a = _item_scores(Path(run_a) / "summary.json")
     scores_b, roles_b, tasks_b = _item_scores(Path(run_b) / "summary.json")
     common_all = [i for i in scores_a if i in scores_b

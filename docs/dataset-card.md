@@ -46,8 +46,10 @@ oracle 硬度阶梯（隐藏单测 > 状态 diff > exact > 受约束 F1 > Judge�
 - **难度**：1–4 级作者标注（1 基础 6 题 / 2 基础-中 81 / 3 中 117 / 4 难 119；batch4 后实测，交叉核验见 test_sample_saturation_v06）；
   实证重标（difficulty_emp，按通过率分带）工具已备（scripts/calibrate_difficulty.py），
   待真实模型数据冻结后回写。
-- **来源**：synthetic（结构化生成，参数化题目+程序化金样）为主；
-  synthetic_adversarial 13 题为对抗注入（干扰段/陷阱/负例夹具）。
+- **来源**（323 题实测分布，机检 c370）：synthetic 305（结构化生成，参数化
+  题目+程序化金样）为主；synthetic_adversarial 14 题为对抗注入（干扰段/
+  陷阱/负例夹具含 t-fake-001 假调用负例）；real_amended 4 题（at-019..022，
+  真实裁定书的**改编**重构题——无任何个人信息，非卷宗原文）。
   **不含任何真实案件卷宗、个人身份信息或受版权保护的文本。**
 
 ## 4. 标注与金样质量

@@ -140,7 +140,7 @@ def _build_parser() -> argparse.ArgumentParser:
     cmp_.add_argument("--items-out", type=Path, default=None,
                       help="逐题分差 CSV 输出路径（论文附录用）")
     cmp_.add_argument("--preregistered", action="store_true",
-                      help="只比核心六包（FRAMEWORK §8.3 预注册比较单元，162 题）")
+                      help="只比核心六包（FRAMEWORK §8.3 预注册比较单元，capability 可比较 161 题；含 safety 夹具合计 168）")
 
     return p
 

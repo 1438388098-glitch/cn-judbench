@@ -49,7 +49,7 @@
 - 实证：v0.3 中 49% 题目零信息（35 双满分+16 双零分）→ 驱动 v0.4 改版。
 
 ### 3.4 统计协议（C4）
-bootstrap CI（1000 次）、flip 门禁（机检>5% 不进榜）、组合 pass^k、random/rules 基线；排名粒度两档制以 FRAMEWORK §8.3 为准（n≥100 可排名 / 50≤n<100 报 CI 标 descriptive / n<50 仅描述），预注册比较单元 = 核心六包等权 grand（cit/u/s_charge/contract/a_irac/long_horizon，合计 168 题；c262 勘误，2026-09-24 对账 MANIFEST）。
+bootstrap CI（1000 次）、flip 门禁（机检>5% 不进榜）、组合 pass^k、random/rules 基线；排名粒度两档制以 FRAMEWORK §8.3 为准（n≥100 可排名 / 50≤n<100 报 CI 标 descriptive / n<50 仅描述），预注册比较单元 = 核心六包等权 grand（cit/u/s_charge/contract/a_irac/long_horizon，合计 168 题、capability 可比较 161 题——s_charge 7 道 safety 夹具不进配对样本；c262 勘误+c367 双口径，2026-09-24 对账 MANIFEST 与 role 字段）。
 
 ### 3.5 测量效度审计协议（C5，新）
 基准发布前的三道自检（全部已实装为脚本/测试，可被其他基准复用）：
