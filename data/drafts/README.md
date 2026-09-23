@@ -37,6 +37,15 @@ draft（草稿，本目录） → examinee_round（真考生轮：两名隔离�
 | cit_validity/ct-210.json | at-210 判定窗（时间效力规定1@2019-06-01 → not_yet_effective） | awaiting_examinee |
 | cit_validity/ct-211.json | 规格外对照（时间效力规定1@2021-06-01 → ok，ct-210 对偶窗） | awaiting_examinee |
 
+## ct 系基线预演（R32，2026-09-24）
+
+漂洗后临时集跑同判分管线（确定性，tests/test_draft_baseline_v06.py 锁定）：
+mock:gold 5×100 自证；**rules 20.00**——4 个陷阱窗（wrong_vintage/not_yet）
+全 0、仅 ct-211 对照窗（ok 判定）满分，「判别非 ok 状态」即本轴全部考点，
+均分门禁 ≤40（抬升=泄题前兆，c161 同纪律）；random 首演 48.00（无种子，
+ct-201 撞对 wrong_vintage 属单题偶然，不入机检）。真考生轮区分度预期：
+合格考生应于 4 陷阱窗满分而 rules 为 0。
+
 规格依据见 docs/expansion-plan.md 附录 B/B-2。三方编号约定：**at-XXX = 规格
 id；ah-XXX = 同规格的 a_irac IRAC 叙事草稿；ct-XXX = 同规格的 cit_validity
 引用效力判定面草稿**（cit 谓词 status_ladder 只判单窗，故规格双窗拆题）。
