@@ -274,12 +274,12 @@ def test_u_element_distractor_invariants():
     items = [json.loads(l) for l in
              (REPO / "data" / "public" / "u_element_extract.jsonl").read_text(
                  encoding="utf-8-sig").splitlines() if l.strip()]
-    # 原 19 题干扰注入批 + hard 批（v1 8 + v2 10 + v3 6）
-    assert len(items) == 43
+    # 原 19 题干扰注入批 + hard 批（v1 8 + v2 10 + v3 6）+ v0.5 Phase 3c 批 6（u-044..049）
+    assert len(items) == 49
     assert len({it["id"] for it in items}) == len(items)
     assert len({it["canary"] for it in items}) == len(items)
     assert all(set(it["gold"]) == {"amount", "date", "case_no"} for it in items)
-    assert len([it for it in items if it.get("difficulty", 0) >= 3]) == 28
+    assert len([it for it in items if it.get("difficulty", 0) >= 3]) == 34
     injected = [it for it in items if it["id"] <= "u-019"]
     assert len(injected) == 19
     for it in injected:

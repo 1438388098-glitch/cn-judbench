@@ -26,11 +26,11 @@ def test_pick_ids_deterministic_and_ratio():
     a = pick_ids("u_element_extract", items)
     b = pick_ids("u_element_extract", items)
     assert a == b  # 预注册名单：任何人复算同一份
-    assert len(a) == 13  # ceil(43*0.3)
-    # hard（difficulty≥3，包内 28 题，占比 65%）分层保比例：入选 hard 数应接近占比
+    assert len(a) == 15  # ceil(49*0.3)（v0.5 Phase 3c 后 u_element 49 题）
+    # hard（difficulty≥3，包内 34 题，占比 ~69%）分层保比例：入选 hard 数应接近占比
     hard_picked = sum(1 for i in a if next(x for x in items if x["id"] == i)
                       .get("difficulty", 0) >= 3)
-    assert hard_picked >= 5  # 13×0.65≈8.5，容忍抽样波动但不得塌成全 easy
+    assert hard_picked >= 5  # 15×0.69≈10.4，容忍抽样波动但不得塌成全 easy
 
 
 def test_pick_ids_min_per_task():
