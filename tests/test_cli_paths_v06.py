@@ -126,6 +126,15 @@ def test_c250_run_artifacts_complete(tmp_path):
         (d / "summary.json").read_text(encoding="utf-8"))["disclaimer"]
     assert limits  # limits.md 非空
 
+    # c261：manifest.prompt_hash 与按同源渲染重算的 prompts_hash 一致
+    from cnjudbench.runner.evaluate import _build_prompt, load_items_file
+    from cnjudbench.runner.manifest import prompts_hash
+    task, _ = load_task_package(REPO / "tasks" / "cit_validity")
+    prompts = [_build_prompt(task, it) for _ln, it in
+               load_items_file(REPO / "data" / "public" / "cit_validity.jsonl")]
+    man = json.loads((d / "manifest.json").read_text(encoding="utf-8"))
+    assert man["prompt_hash"] == prompts_hash(prompts)  # 复现承诺口径一致
+
 
 def test_c251_run_task_wrapper_matches_run_tasks():
     store = LawkbStore.load(REPO / "lawkb")

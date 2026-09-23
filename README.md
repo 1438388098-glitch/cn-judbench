@@ -5,6 +5,9 @@
 **目标**：测出模型在中国司法工作流里「哪一维能用、哪一维危险、是否稳定、代价多少」。  
 **分数**：百分制，保留两位小数（0.00–100.00）。  
 **非法律意见**：评测结果不得用于司法裁判、合规放行或当事人决策。
+**EN**：CN-JudBench is a multi-dimensional benchmark for Chinese judicial workflows — measuring *which* legal capability a model can perform, *where* it is dangerous, *whether* it is stable across runs, and *at what cost* (0–100 scale, two decimals).
+
+> 命令跨平台：Windows 用 `.venv/Scripts/python`，Linux/macOS 等价 `.venv/bin/python`（或激活 venv 后直接 `python`）。
 
 ## 文档
 

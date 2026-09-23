@@ -12,7 +12,10 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
-          python-version: "3.11"
+          python-version: ${{ matrix.python-version }}
+      strategy:
+        matrix:
+          python-version: ["3.11", "3.13"]
       - name: Install
         run: pip install -e ".[dev]"
       - name: CI gate（Mock 全链路，不烧真 API）
