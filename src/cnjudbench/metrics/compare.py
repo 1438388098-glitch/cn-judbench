@@ -18,6 +18,14 @@ from .bootstrap import paired_bootstrap_ci
 
 SOLVE_THRESHOLD_DEFAULT = 60.0  # 与 report.csv solve% 同一口径
 
+# 预注册比较单元（FRAMEWORK §8.3）：核心六包等权 grand，162 题。
+# 事后挑比较子集是排名作弊的主要通道——凡用于排名主张的 A-B 比较，
+# 必须同时给出本口径（--preregistered）。
+CORE_SIX_TASKS = frozenset({
+    "cit_validity", "u_element_extract", "s_charge_subsume",
+    "contract_risk", "a_irac_reason", "long_horizon_case",
+})
+
 
 def mcnemar_exact(a_pass: list[bool], b_pass: list[bool]) -> dict:
     """位级通过/未通过的 McNemar 精确检验（只看不一致对）。
@@ -37,18 +45,20 @@ def mcnemar_exact(a_pass: list[bool], b_pass: list[bool]) -> dict:
     return {"n_discordant": n, "n_01": n01, "n_10": n10, "p_exact": p}
 
 
-def _item_scores(summary_path: Path) -> tuple[dict[str, float], dict[str, str]]:
-    """读 summary.json → ({item_id: score}, {item_id: role})；n/a 剔除。"""
+def _item_scores(summary_path: Path) -> tuple[dict[str, float], dict[str, str], dict[str, str]]:
+    """读 summary.json → ({item_id: score}, {item_id: role}, {item_id: task_id})；n/a 剔除。"""
     summary = json.loads(summary_path.read_text(encoding="utf-8"))
     scores: dict[str, float] = {}
     roles: dict[str, str] = {}
-    for task in summary.get("tasks", {}).values():
+    tasks: dict[str, str] = {}
+    for task_id, task in summary.get("tasks", {}).items():
         for it in task.get("items", []):
             if it.get("score") in (None, "n/a"):
                 continue
             scores[it["id"]] = float(it["score"])
             roles[it["id"]] = it.get("role", "capability")
-    return scores, roles
+            tasks[it["id"]] = task_id
+    return scores, roles, tasks
 
 
 def compare_runs(
@@ -58,12 +68,24 @@ def compare_runs(
     threshold: float = SOLVE_THRESHOLD_DEFAULT,
     n_boot: int = 1000,
     seed: int = 42,
+    preregistered: bool = False,
 ) -> dict:
-    """两个 run 的同题配对比较：分差 CI + McNemar（capability 题）。"""
-    scores_a, roles_a = _item_scores(Path(run_a) / "summary.json")
-    scores_b, roles_b = _item_scores(Path(run_b) / "summary.json")
-    common = [i for i in scores_a if i in scores_b
-              and roles_a.get(i) == "capability" and roles_b.get(i) == "capability"]
+    """两个 run 的同题配对比较：分差 CI + McNemar（capability 题）。
+
+    preregistered=True 时只比核心六包（CORE_SIX_TASKS，FRAMEWORK §8.3
+    预注册单元）；输出带 preregistered 标记与被剔除题数，供论文口径审计。
+    """
+    scores_a, roles_a, tasks_a = _item_scores(Path(run_a) / "summary.json")
+    scores_b, roles_b, tasks_b = _item_scores(Path(run_b) / "summary.json")
+    common_all = [i for i in scores_a if i in scores_b
+                  and roles_a.get(i) == "capability" and roles_b.get(i) == "capability"]
+    n_dropped = 0
+    if preregistered:
+        common = [i for i in common_all
+                  if tasks_a.get(i) in CORE_SIX_TASKS and tasks_b.get(i) in CORE_SIX_TASKS]
+        n_dropped = len(common_all) - len(common)
+    else:
+        common = common_all
     a = [scores_a[i] for i in common]
     b = [scores_b[i] for i in common]
     out: dict = {
@@ -71,6 +93,15 @@ def compare_runs(
         "n_aligned": len(common),
         "n_only_a": sum(1 for i in scores_a if i not in scores_b),
         "n_only_b": sum(1 for i in scores_b if i not in scores_a),
+        "preregistered": preregistered,
+        "n_dropped_by_filter": n_dropped,
+        # 逐题 diff（c137）：id/task/双侧分/通过位，供 --items-out 出附录表
+        "items": [
+            {"id": i, "task": tasks_a.get(i), "score_a": scores_a[i],
+             "score_b": scores_b[i], "diff": scores_a[i] - scores_b[i],
+             "a_pass": scores_a[i] >= threshold, "b_pass": scores_b[i] >= threshold}
+            for i in common
+        ],
     }
     if not common:
         out["error"] = "无共同 capability 题分，无法配对"

@@ -133,6 +133,10 @@ def _build_parser() -> argparse.ArgumentParser:
     cmp_.add_argument("--threshold", type=float, default=60.0,
                       help="McNemar 通过阈值（缺省 60，同 report.csv solve 口径）")
     cmp_.add_argument("--out", type=Path, default=None, help="compare.json 输出路径")
+    cmp_.add_argument("--items-out", type=Path, default=None,
+                      help="逐题分差 CSV 输出路径（论文附录用）")
+    cmp_.add_argument("--preregistered", action="store_true",
+                      help="只比核心六包（FRAMEWORK §8.3 预注册比较单元，162 题）")
 
     return p
 
@@ -262,6 +266,8 @@ def _build_summary(
         return sum(xs) / len(xs) if xs else None
 
     per_task: dict[str, dict] = {}
+    _cap_scored_total = 0
+    _cap_total = 0
     cap_all: list[float] = []
     hard_all: list[float] = []
     safety_all: list[float] = []
@@ -294,7 +300,10 @@ def _build_summary(
         entry["safety_mean_str"] = fmt2(_mean([r.score for r in safety])) if safety else "n/a"
         entry["n_safety"] = len(safety)
         # v0.6 n/a 口径：scored_rate / n-a计0保守均值 / 低scored率告警
-        entry.update(scored_rate_stats(run.results))
+        _stats = scored_rate_stats(run.results)
+        entry.update(_stats)
+        _cap_scored_total += _stats["n_scored"]
+        _cap_total += _stats["n_capability"]
         if args.blend == "weighted":
             combined = combine(ts.mean_machine(), ts.mean_judge(), mode="weighted")
             entry["combined_str"] = fmt2(combined) if combined is not None else "n/a"
@@ -318,6 +327,10 @@ def _build_summary(
         "n_capability": len(cap_all),
         "n_hard": len(hard_all),
         "n_safety": len(safety_all),
+        # c138：全局 scored_rate（跨包聚合；读者无需自行加权）
+        "scored_rate": (_cap_scored_total / _cap_total) if _cap_total else None,
+        "scored_rate_str": (fmt2(100.0 * _cap_scored_total / _cap_total)
+                            if _cap_total else "n/a"),
     }
 
     # baselines 两列（§6.3）：同判分管线口径；未覆盖任务不计入均值
@@ -567,6 +580,11 @@ def _print_runs(runs: list[TaskRun], artifacts: dict) -> None:
         print(f"{run.task_id} mean: {mean} (n={n_cap}, capability)"
               + (f" [safety {fmt2(run.safety_mean)} n={len(run.safety_results)}]"
                  if run.safety_results else ""))
+        stats = scored_rate_stats(run.results)
+        print(f"{run.task_id} scored: {stats['scored_rate_str']}%"
+              f" (scored={stats['n_scored']}/{stats['n_capability']},"
+              f" n/a计0均值={stats['machine_mean_na0_str']})"
+              + (f" [警告: {stats['warning']}]" if stats.get("warning") else ""))
     for tid, entry in judge_scores.items():
         print(f"{tid} judge_mean: {entry['judge_mean_str']} (n_judge={entry['n_judge']})")
     print(f"slice_union_hash={artifacts['manifest']['lawkb']['slice_union_hash']}")
@@ -882,13 +900,16 @@ def _cmd_compare(args: argparse.Namespace) -> int:
     """两 run 同题配对比较（FRAMEWORK §8：分差 CI + McNemar；论文"A 比 B"依据）。"""
     from .metrics.compare import compare_runs
 
-    rep = compare_runs(Path(args.run_a), Path(args.run_b), threshold=args.threshold)
+    rep = compare_runs(Path(args.run_a), Path(args.run_b), threshold=args.threshold,
+                       preregistered=args.preregistered)
     if "error" in rep:
         print(f"compare: {rep['error']}")
         return 1
     ci = rep["paired_ci"]
     m = rep["mcnemar"]
-    print(f"n_aligned={rep['n_aligned']} (only_a={rep['n_only_a']}, only_b={rep['n_only_b']})")
+    filter_note = (f", 六包外剔除={rep['n_dropped_by_filter']}" if rep["preregistered"] else "")
+    print(f"n_aligned={rep['n_aligned']} (only_a={rep['n_only_a']}, "
+          f"only_b={rep['n_only_b']}{filter_note})")
     print(f"mean_a={rep['mean_a']:.2f} mean_b={rep['mean_b']:.2f} "
           f"diff={ci['point']:.2f} [{ci['ci95_low']:.2f}, {ci['ci95_high']:.2f}] "
           f"(n_boot={ci['n_boot']}, seed={ci['seed']})")
@@ -897,6 +918,15 @@ def _cmd_compare(args: argparse.Namespace) -> int:
     if args.out:
         args.out.write_text(json.dumps(rep, ensure_ascii=False, indent=1), encoding="utf-8")
         print(f"written: {args.out}")
+    if args.items_out:
+        import csv as _csv
+
+        with args.items_out.open("w", newline="", encoding="utf-8-sig") as f:
+            w = _csv.DictWriter(f, fieldnames=["id", "task", "score_a", "score_b",
+                                               "diff", "a_pass", "b_pass"])
+            w.writeheader()
+            w.writerows(rep["items"])
+        print(f"written: {args.items_out} ({len(rep['items'])} 行)")
     sig = "显著（CI 不含 0）" if (ci["ci95_low"] > 0 or ci["ci95_high"] < 0) else "不显著（CI 含 0）"
     print(f"结论：A-B 分差 {sig}")
     return 0

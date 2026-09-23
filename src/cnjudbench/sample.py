@@ -29,8 +29,16 @@ def load_all_items(items_root: Path | None = None) -> list[Any]:
     return out
 
 
-def sample_items(items: Iterable[Any] | None = None, k: int = DEFAULT_K) -> list[Any]:
-    """分层抽样：task × domain，层内 id 序取前 k；强制夹具并入。"""
+def sample_items(
+    items: Iterable[Any] | None = None, k: int = DEFAULT_K, *,
+    prefer_unsaturated: bool = False,
+) -> list[Any]:
+    """分层抽样：task × domain，层内 id 序取前 k；强制夹具并入。
+
+    prefer_unsaturated=True（c136）：层内排序键改为 (saturation_flag, id)——
+    未饱和题优先入样。用途：区分度敏感的抽样评测（mock 门禁与测试用缺省
+    False 保持既有行为不变；68 题饱和标注见 docs/dataset-card.md §1.1）。
+    """
     items = list(items) if items is not None else load_all_items()
     by_id = {it.id: it for it in items}
     strata: dict[tuple[str, str], list[Any]] = defaultdict(list)
@@ -38,7 +46,9 @@ def sample_items(items: Iterable[Any] | None = None, k: int = DEFAULT_K) -> list
         strata[(it.task_id, getattr(it, "domain", "") or "")].append(it)
     picked: dict[str, Any] = {}
     for key in sorted(strata):
-        for it in sorted(strata[key], key=lambda x: x.id)[: max(1, k)]:
+        order = ((lambda x: (bool(getattr(x, "saturation_flag", False)), x.id))
+                 if prefer_unsaturated else (lambda x: x.id))
+        for it in sorted(strata[key], key=order)[: max(1, k)]:
             picked[it.id] = it
     for fid in FORCE_IDS:
         if fid in by_id:
@@ -52,6 +62,16 @@ def coverage_report(items: Iterable[Any] | None = None) -> dict[str, set]:
     for it in items:
         grid[it.task_id].add(getattr(it, "domain", "") or "?")
     return dict(grid)
+
+
+def saturation_counts(items: Iterable[Any] | None = None) -> dict[str, int]:
+    """各包饱和题（saturation_flag=true）计数（c136）：抽样与报告的区分度口径。"""
+    items = list(items) if items is not None else load_all_items()
+    out: dict[str, int] = defaultdict(int)
+    for it in items:
+        if getattr(it, "saturation_flag", False):
+            out[it.task_id] += 1
+    return dict(out)
 
 
 if __name__ == "__main__":

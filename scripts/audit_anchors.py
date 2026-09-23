@@ -37,6 +37,13 @@ HARD_FAIL = {
 }
 
 
+def _bump_date_if_same(old_payload: dict, new_anchors: dict, today: str) -> str:
+    """c140 幂等：anchors 内容未变时沿用原 updated 日期（文件字节不变）。"""
+    if old_payload.get("anchors") == new_anchors and old_payload.get("updated"):
+        return old_payload["updated"]
+    return today
+
+
 def _anchors_of(item: dict):
     """收集题内全部锚引用：(来源, law, article, as_of)。"""
     out = []
@@ -85,14 +92,26 @@ def main() -> int:
                     lazy[key].append(item["id"])
 
     if args.update:
+        # c140 幂等：anchors 内容未变时保留原 updated 日期（内容相同则整文件
+        # 字节不变），避免每日 --update 产生仅日期行的 diff 噪声
+        new_anchors = {k: sorted(set(v)) for k, v in sorted(lazy.items())}
+        old = {}
+        if WHITELIST_PATH.is_file():
+            try:
+                old = json.loads(WHITELIST_PATH.read_text(encoding="utf-8"))
+            except (json.JSONDecodeError, OSError):
+                old = {}
+        updated = _bump_date_if_same(old, new_anchors, date.today().isoformat())
+        payload = json.dumps({
+            "note": "惰性锚白名单：库外 lawkb 锚显式登记（audit_anchors.py --update 生成）",
+            "updated": updated,
+            "anchors": new_anchors,
+        }, ensure_ascii=False, indent=1)
+        if WHITELIST_PATH.is_file() and WHITELIST_PATH.read_text(encoding="utf-8") == payload:
+            print(f"whitelist unchanged: {WHITELIST_PATH} ({len(lazy)} keys)")
+            return 0
         WHITELIST_PATH.parent.mkdir(parents=True, exist_ok=True)
-        WHITELIST_PATH.write_text(
-            json.dumps({
-                "note": "惰性锚白名单：库外 lawkb 锚显式登记（audit_anchors.py --update 生成）",
-                "updated": date.today().isoformat(),
-                "anchors": {k: sorted(set(v)) for k, v in sorted(lazy.items())},
-            }, ensure_ascii=False, indent=1),
-            encoding="utf-8")
+        WHITELIST_PATH.write_text(payload, encoding="utf-8")
         print(f"whitelist written: {WHITELIST_PATH} ({len(lazy)} keys)")
         return 0
 
