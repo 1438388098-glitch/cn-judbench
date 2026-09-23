@@ -37,7 +37,7 @@
 ## 3. 方法章骨架
 
 ### 3.1 任务与能力维
-六维 K/U/R/S/A/G/O/C 映射 12 任务包 317 题（口径、题量、样例）；法条版本库 lawkb（as_of 时点解析 + 废止窗口 + 人工校对纪律，v0.5：12 法 60 版本）。
+八维 K/U/R/S/A/O/G/C（FRAMEWORK §3 权威字典 `cnjudbench.capabilities`，validate 强制值域）映射 12 任务包 317 题（口径、题量、样例）；法条版本库 lawkb（as_of 时点解析 + 废止窗口 + 人工校对纪律，v0.5：12 法 60 版本）。
 
 ### 3.2 Oracle 硬度阶梯（C2）
 `隐藏单测/精确计算 > 环境终态 > 结构化 exact > 受约束 F1 > Judge（辅列）`；
@@ -207,4 +207,24 @@ acceptable 多解口径）、cx-007 期望值把三年算成三期（7470→1186
 （mock:gold 满分系复制金样），tau 分数不进主表；修复方向为可枚举终态
 字段或语义判分。τ 轨其余谓词（schema/risk_disclosure/refuse）对考生
 答案均正常判过。
+
+### E18 v0.6 判分效度修复的真考生重判实证（2026-09-23）
+E17 暴露的 harness 局限在 v0.6 修复后，用**同一份真考生答案**重判验证：
+
+1. **tau state 谓词部分得分化**：逐字匹配 → 标量命中 1.0 / 未命中
+   text_coverage 连续分 / 列表 set_f1，on_fail 由 zero 改 partial。E17 的
+   真考生答案重判：S1 0.00→**13.09**、S2 0.00→**5.56**——结构性必败解除，
+   且 S1≠S2 可区分（E17 时 tau 双考生均为 n/a）。
+2. **成对比较统计落地**（`cnjudbench compare`）：paired bootstrap 95% CI +
+   McNemar 精确检验。同一批题 S1 vs S2：grand diff=4.08 [−2.80, 10.26]，
+   McNemar p=0.34（不显著）——为「区分度」结论提供假设检验表述范式，
+   排名主张从此必须带 CI 与 p 值（§3.4 两档制的配套工具）。
+3. **scored_rate 三件套**：n/a 静默退出均值会让「跑完 60% 且其余对 90%」
+   反超「答对 60%」，误导 $/solve 选型——summary 同报 scored_rate、
+   n/a 计 0 保守均值与低 scored 率告警（<90% 触发）。
+4. **诊断集语义与伪指标清理**：诊断分高于主分（负差）系诊断集偏易伪影，
+   不再误报为「主分虚高」警报；st_points 伪 AUC（散点非概率）从 run-dialog
+   移除，换报可解释的 final_state_f1。
+5. **截断 taxonomy**：finish_reason=length → 本题 n/a（error=truncated），
+   服务端截断不再伪装成低能力分。
 

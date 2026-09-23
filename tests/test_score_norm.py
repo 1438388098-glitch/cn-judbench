@@ -31,13 +31,16 @@ def test_labels_containment():
 
 
 def test_set_f1_loose_elements():
+    # v0.6 c131 改 1-1 贪心：got[0] 松匹配消费 want[0] 后不再供 want[1] 复用，
+    # tp=2、f1=0.8（旧语义 tp=3/f1=1.0 即整段倾倒刷满漏洞，见
+    # tests/test_setf1_onetoone_v06.py 的攻击样例）
     f1, tp, n = set_f1(
         ["以非法占有为目的、秘密窃取", "数额较大"],
         ["非法占有目的", "秘密窃取", "数额较大"],
     )
     assert n == 3
-    assert tp == 3
-    assert f1 == 1.0
+    assert tp == 2
+    assert abs(f1 - 0.8) < 1e-9
 
 
 def test_article_set_extracts():

@@ -197,6 +197,8 @@ def field(ctx: EvalContext, p, index: int) -> PredicateResult:
     mode = str(extra.get("match") or "exact")
     ok = False
     ratio = 1.0
+    # c132：acceptable any-of 命中时 pass_ratio 保留精确率梯度（不被尾部 1.0 抹平）
+    graded_ok = False
     detail = f"{path}: {got!r} vs {want!r}"
     if mode == "article_set":
         gs, ws = article_set(got), article_set(want)
@@ -204,11 +206,16 @@ def field(ctx: EvalContext, p, index: int) -> PredicateResult:
         if acceptable:
             # 多解口径（R16）：金样主条号 ∪ acceptable_articles，命中任一即覆盖。
             # 单金样条号 vs 事实多解（同一争点多条可引）会把正确专业作答误判 0。
+            # v0.6 c132 双口径：ok 仍 any-of（合法替代路径不出 0），ratio 改引用
+            # 精确率 |gs∩union|/|gs|——干净作答恒 1.0，倾倒垃圾条按占比降档
+            # （旧二元 1.0/0.0 让 partial 通道无梯度、倾倒与干净作答同分）。
             union = ws | acceptable
             hit = gs & union
             ok = bool(hit)
-            ratio = 1.0 if hit else 0.0
-            detail = f"{path}: arts {sorted(gs)} ∩ {sorted(union)} (any-of={bool(hit)})"
+            ratio = (len(hit) / len(gs)) if gs else 0.0
+            graded_ok = True
+            detail = (f"{path}: arts {sorted(gs)} ∩ {sorted(union)} "
+                      f"(any-of={bool(hit)}, prec={ratio:.2f})")
         else:
             ok = bool(ws) and ws <= gs
             ratio = (len(gs & ws) / len(ws)) if ws else 0.0
@@ -248,8 +255,12 @@ def field(ctx: EvalContext, p, index: int) -> PredicateResult:
         ok = got is not None and str(got).strip() in accepted
         ratio = 1.0 if ok else 0.0
     taxonomy = None if ok else extra.get("fail_taxonomy", "element_miss")
-    # partial 时把覆盖率写入 pass_ratio（与 element 一致进基数）
-    pass_ratio = 1.0 if ok else (ratio if p.on_fail == "partial" else 0.0)
+    # partial 时把覆盖率写入 pass_ratio（与 element 一致进基数）；
+    # graded_ok（c132 article_set any-of）在 ok 时也保留精确率，不抹平为 1.0
+    if p.on_fail == "partial":
+        pass_ratio = ratio if (not ok or graded_ok) else 1.0
+    else:
+        pass_ratio = 1.0 if ok else 0.0
     return PredicateResult("ftp", index, "field", ok, pass_ratio, p.on_fail,
                            detail=detail, failure_taxonomy=taxonomy)
 

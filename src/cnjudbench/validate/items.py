@@ -59,6 +59,14 @@ def validate_items_file(path: Path, tasks: dict[str, TaskManifest]) -> list[str]
                 f"{prefix}: output_type={item.output_type!r} 与任务 {task.task_id!r}"
                 f" 声明的 {task.output_type!r} 不一致"
             )
+        # 能力维值域（v0.6 c125）：八维 K/U/R/S/A/O/G/C + 横切 Cit，
+        # 复合标注（C/G）允许；权威字典在 capabilities.py，报表/论文同源。
+        try:
+            from ..capabilities import parse_capability
+
+            parse_capability(item.capability)
+        except ValueError as e:
+            errors.append(f"{prefix}: {e}")
         # 公平性（R38/E16）：refuse 协议一致性——判分走 refuse 谓词文件的题，
         # state_goal.expect 必须为 refuse（渲染器据此输出拒绝协议题面）；
         # 反之 expect=refuse 的题不得指向常规判分文件，否则题面契约与判分口径脱节。

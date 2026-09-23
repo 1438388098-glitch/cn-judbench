@@ -367,25 +367,13 @@ def run_task(
     accountant: Accountant | None = None,
     max_workers: int = 1,
 ) -> TaskRun:
-    task, preds = load_task_package(task_dir)
-    entries = list(load_items_file(items_path))
-
-    def _one(entry) -> ItemResult:
-        _lineno, item = entry
-        return evaluate_item(
-            task, _resolve_predicates(item, task_dir, preds), item,
-            adapter_factory(item), store,
-            temperature=temperature, seed=seed, accountant=accountant,
-        )
-
-    if max_workers <= 1:
-        results = [_one(e) for e in entries]
-    else:
-        from concurrent.futures import ThreadPoolExecutor
-
-        with ThreadPoolExecutor(max_workers=max_workers) as ex:
-            results = list(ex.map(_one, entries))
-    return TaskRun(task_id=task.task_id, results=results)
+    """单包 = 单任务 jobs 的 run_tasks（v0.6 合并双实现，消除漂移）。"""
+    task, _preds = load_task_package(task_dir)
+    return run_tasks(
+        [(task.task_id, task_dir, items_path)], adapter_factory, store,
+        temperature=temperature, seed=seed, accountant=accountant,
+        max_workers=max_workers,
+    )[0]
 
 
 def run_tasks(
@@ -422,6 +410,7 @@ def run_tasks(
                 item_id=item.id, score=None, display="n/a",
                 predicate_lines=[f"ERROR: {type(e).__name__}: {e}"],
                 error=f"{type(e).__name__}: {e}",
+                role=item.role, difficulty=item.difficulty,  # v0.6：兜底不得丢统计维度
             )
 
     flat = []

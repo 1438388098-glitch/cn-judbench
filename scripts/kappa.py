@@ -55,12 +55,27 @@ def inter_rater_kappa(pairs: list[tuple[float, float]], cats: list[float],
             "n": len(pairs), "n_boot": n_boot, "seed": seed}
 
 
+def _average_ranks(values: list[float]) -> list[float]:
+    """平均秩（并列取均值）：0-3 档位天然大量并列，dense rank 使 ρ 有偏。"""
+    order = sorted(range(len(values)), key=lambda i: values[i])
+    ranks = [0.0] * len(values)
+    i = 0
+    while i < len(order):
+        j = i
+        while j + 1 < len(order) and values[order[j + 1]] == values[order[i]]:
+            j += 1
+        avg = (i + j) / 2 + 1  # 1-based 平均秩
+        for k in range(i, j + 1):
+            ranks[order[k]] = avg
+        i = j + 1
+    return ranks
+
+
 def spearman_rho(xs: list[float], ys: list[float]) -> float | None:
     if len(xs) < 3 or len(xs) != len(ys):
         return None
-    rank_map = lambda v: {val: r for r, val in enumerate(sorted(set(v)), 1)}  # noqa: E731
-    rx = [rank_map(xs)[v] for v in xs]
-    ry = [rank_map(ys)[v] for v in ys]
+    rx = _average_ranks(xs)
+    ry = _average_ranks(ys)
     mx, my = sum(rx) / len(rx), sum(ry) / len(ry)
     num = sum((a - mx) * (b - my) for a, b in zip(rx, ry))
     den = (sum((a - mx) ** 2 for a in rx) * sum((b - my) ** 2 for b in ry)) ** 0.5

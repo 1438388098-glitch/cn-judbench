@@ -42,7 +42,7 @@
 - [x] **v0.4 翻转实证** GLM 考生模式 k=3 复测：逐对题级翻转 6/11≈55% ≫ 5% 门禁（docs/u-hard-subset-report.md 追加节）→ 单样本 run 一律 provisional，主表强制 pass^k
 - [x] **v0.4.1 测量效度审计** 金样法学复核消融（同答案重判 31.58→86.84，acceptable_articles any-of 多解口径）· 基线泄题修复与扫描（law_anchors 判分锚禁入基线，a_irac random/rules 96→12）· lh-06 锚点时效修正（继承法10 带废止窗口）· lawkb v0.4.1 扩库（12 法 51 版本）· v0.4.1 基线表（random 9.03 / rules 29.25 / mock:gold 8 包全 100，见 docs/calc-real-model-report.md §C5） · E12+ 要素不点名实测（ah-101..104 仍饱和，as_of 版本选择是唯一实质错因）· E15 引用括注假阴性修复（2/29 题误罚 50→100，引用侧剥尾括注）
 - [x] **v0.5 难度重构 Phase 1+2a+3a+3b+3c+4** 全库四级盘点（38 实难 / 88 砍候选 / 143 待测，docs/difficulty-audit-v05.md）· a_irac 剖减 32→12（20 题全分饱和入 data/archive，8 科目×每包网格不变量保留）· lawkb 增补法释〔2020〕15号时间效力规定 10 条（12 法 60 版本，公报官方文本 + 逐条 text_hash 可事后核，docs/sources/spc_civil_temporal_2020_gongbao.html）· 时间效力轴难题 18 题（at-001..018：新旧法衔接 8/程序时效交叉 5/民间借贷三版 5，as_of 驱动版本解析，负例已验证）· 计算硬变体 8 题（cx-001..008：期间顺延/时效中断/封顶冲抵/复利竞合，隐藏单测 oracle + 陷阱值负例验证）· 抽取与工具进阶 10 题（u-044..049 否定式要件/多日期 + f-105..108 nth=3 故障链/部分成功状态判断）· 实务题 30 题（gaia 时间线 6/lh 六域整案 6/dms 期限监控 4/tau 临期接待 4/contract 风险告知 6/文书改编 4；4e Judge 写作轨按风险条款 defer）· Phase 5 双隔离考生 ×62 题实测（pass^2=46.77，at/lh/c 三族有效区分；环内修复 4 处金样/题面缺陷：at-019 锚 25→16、at-022 锚 27→1+acc19、cx-007 期望值 7470→11863.40、tau 题面显式化；lawkb 61 版本，docs/paper-outline.md §9 E17）
-- [ ] 待办：DS v0.4 复跑（密钥）· holdout 冻结执行（协议已备）· 人评 κ 试点（方案已备）· v0.6 tau state 谓词自由文本判分改造（E17 harness 发现）· f-105..108 工具轨真考生实测（需 API 轮）
+- [ ] 待办：DS v0.4 复跑（密钥）· holdout 冻结执行（协议已备）· 人评 κ 试点（方案已备）· f-105..108 工具轨真考生实测（需 API 轮）· tau 真考生扩样（v0.6 部分得分判分已实测可区分，见 paper-outline E18）
 
 ## 快速开始（5 分钟）
 

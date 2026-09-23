@@ -35,7 +35,7 @@ from .metrics.cost import dollar_per_solve
 from .providers import apply_profile_to_args, load_env_local, resolve_profile
 from .report.writeup import limits_md
 from .runner.account import Accountant, price_key_from_model
-from .runner.evaluate import DISCLAIMER, TaskRun, load_task_package, run_task, run_tasks, scored_rate_stats
+from .runner.evaluate import DISCLAIMER, TaskRun, _build_prompt, load_task_package, run_task, run_tasks, scored_rate_stats
 from .runner.guards import HoldoutPathError, assert_items_not_holdout, assert_no_holdout
 from .runner.manifest import (
     build_manifest,
@@ -436,15 +436,16 @@ def _execute_runs(args: argparse.Namespace, task_ids: list[str]) -> tuple[list[T
         task, _ = load_task_package(task_dir)
         task_dirs[tid] = task_dir
         jobs.append((tid, task_dir, items_path))
-        for line in items_path.read_text(encoding="utf-8-sig").splitlines():
+        # v0.6：manifest prompt 一律经 _build_prompt（refuse 协议覆盖与实际发送一致，
+        # prompt_hash 复现承诺才成立）；item hash 直接按行号取原文，去掉 O(n²) 子串扫描
+        file_lines = items_path.read_text(encoding="utf-8-sig").splitlines()
+        for line in file_lines:
             if line.strip():
                 raw_lines.append(line)
-        for _lineno, item in load_items_file(items_path):
+        for lineno, item in load_items_file(items_path):
             all_items.append(item)
-            prompts.append(task.prompt_template.replace("{input}", item.input))
-        for _lineno, item in load_items_file(items_path):
-            raw = next((ln for ln in raw_lines if f'"{item.id}"' in ln or f"'{item.id}'" in ln), item.input)
-            item_hashes[item.id] = item_line_hash(item.id, raw)
+            prompts.append(_build_prompt(task, item))
+            item_hashes[item.id] = item_line_hash(item.id, file_lines[lineno - 1])
 
     workers = max(1, int(getattr(args, "concurrency", 1) or 1))
     runs = run_tasks(

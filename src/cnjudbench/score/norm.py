@@ -26,6 +26,46 @@ SEVERITY_MAP = {
 }
 
 
+# 中文数字（含大写金额用字）；仅当数字串后紧跟量词/单位字才转阿拉伯数字，
+# 避免误伤「一般」「百分之五十」等非计量词。
+_CN_DIG = {"零": 0, "〇": 0, "一": 1, "壹": 1, "二": 2, "两": 2, "贰": 2, "三": 3,
+           "叁": 3, "四": 4, "肆": 4, "五": 5, "伍": 5, "六": 6, "陆": 6, "七": 7,
+           "柒": 7, "八": 8, "捌": 8, "九": 9, "玖": 9}
+_CN_SMALL = {"十": 10, "拾": 10, "百": 100, "佰": 100, "千": 1000, "仟": 1000}
+_CN_RUN = re.compile(r"[零〇一二壹二两贰三四叁肆五伍六陆七柒八捌九十拾百佰千仟万]+")
+_CN_UNITS = set("元角分厘毫年月日天小时个件次人台辆项笔名口间层条款项章页字张枚位号")
+
+def _cn_run_to_arabic(run: str) -> str | None:
+    mult = ""
+    if run.endswith(("亿", "万")):  # 万/亿保留为字面乘数：十万 → 10万（非 100000）
+        mult = run[-1]
+        run = run[:-1]
+        if not run:
+            return None
+    total, num, section = 0, 0, 0
+    for ch in run:
+        if ch in _CN_DIG:
+            num = _CN_DIG[ch]
+        elif ch in _CN_SMALL:
+            total += (num or 1) * _CN_SMALL[ch]
+            num = 0
+        else:
+            return None
+    n = total + num
+    return f"{n}{mult}" if n else None
+
+def _norm_quant(s: str) -> str:
+    out, last = [], 0
+    for m in _CN_RUN.finditer(s):
+        nxt = s[m.end()] if m.end() < len(s) else ""
+        if nxt not in _CN_UNITS or s[m.end():m.end() + 2] == "分之":
+            continue  # 「百分之X」的百不是数量（分在此是分数不是单位）
+        conv = _cn_run_to_arabic(m.group(0))
+        if conv:
+            out.append(s[last:m.start()]); out.append(conv); last = m.end()
+    out.append(s[last:])
+    return "".join(out)
+
 def normalize_label(v: Any) -> str:
     if v is None:
         return ""
@@ -34,6 +74,7 @@ def normalize_label(v: Any) -> str:
     s = _BRACKETS.sub("", s)
     s = _TRAIL.sub("", s)
     s = _WS.sub("", s)
+    s = _norm_quant(s)
     return s.lower() if s.isascii() else s
 
 
@@ -104,8 +145,12 @@ def text_coverage(got: Any, want: Any) -> float:
 def set_f1(got: list | tuple | set | str | None, want: list | tuple | set | str | None) -> tuple[float, int, int]:
     """返回 (f1, tp, |want|)。
 
-    真实输出常见「一句话含多个要件」——want 覆盖采用**非独占**包含匹配
-    （任一 got 命中即计）；precision 用 min(1, tp/|got|) 防止长句刷满。
+    v0.6 改 **1-1 贪心配对**（want 顺序 × got 顺序，确定性）：每个 got 元素
+    至多消费一次，tp ≤ min(|got|, |want|)，prec=tp/|got| 自然 ≤1。旧规则
+    （非独占 + prec 封顶）允许整段案情塞 1 个元素刷满 F1——u_element 的
+    reward hacking 主分不可见。抽取题「拆元素」本身是被测技能：一句话含
+    多要件的紧凑写法按 1-1 计部分分，属预期语义（tests/test_setf1_onetoone_v06.py
+    金样锁定）。|want|=1 / 精确集 / extra 惩罚等行为不变。
     want 为空 → (1.0, 0, 0) 表示无可比目标（调用方据此跳过/记满）。
     """
     g_list = [x for x in (
@@ -116,24 +161,29 @@ def set_f1(got: list | tuple | set | str | None, want: list | tuple | set | str 
     ) if x is not None and str(x).strip() != ""]
     if not w_list:
         return 1.0, 0, 0
-    blob = " | ".join(normalize_label(x) for x in g_list)
+    consumed = [False] * len(g_list)
+
+    def _take(pred) -> int | None:
+        for i, g in enumerate(g_list):
+            if not consumed[i] and pred(g):
+                consumed[i] = True
+                return i
+        return None
+
     tp = 0
     for w in w_list:
-        hit = any(labels_match(g, w) for g in g_list)
-        if not hit and blob:
+        idx = _take(lambda g: labels_match(g, w))
+        if idx is None:
             nw = normalize_label(w)
-            if nw and len(nw) >= 2 and nw in blob:
-                hit = True
-            else:
-                # severity 同义
-                sw = normalize_severity(w)
-                if sw in ("high", "medium", "low") and any(
-                    normalize_severity(g) == sw for g in g_list
-                ):
-                    hit = True
-        if hit:
+            if nw and len(nw) >= 2:
+                idx = _take(lambda g: nw in normalize_label(g))
+        if idx is None:
+            sw = normalize_severity(w)
+            if sw in ("high", "medium", "low"):
+                idx = _take(lambda g: normalize_severity(g) == sw)
+        if idx is not None:
             tp += 1
-    prec = min(1.0, tp / len(g_list)) if g_list else 0.0
+    prec = (tp / len(g_list)) if g_list else 0.0
     rec = tp / len(w_list)
     f1 = 0.0 if prec + rec == 0 else 2 * prec * rec / (prec + rec)
     return f1, tp, len(w_list)
