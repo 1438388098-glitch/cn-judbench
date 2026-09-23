@@ -20,10 +20,15 @@ def check(answer: dict) -> tuple[int, int]  # (passed, total)
 ```
 
 - 期望值在**生成期**由独立脚本按上述规则计算后硬编码（判分路径不读 gold，防金样泄漏）；
-- 容差：相对误差 ≤0.5% 或绝对误差 ≤1 元（`_close`）；
+- 容差：金额题相对误差 ≤0.5% 或绝对误差 ≤1 元；期间/天数题 ±0.01 天（v0.5 Phase 3b：
+  差一天即届满日不同，法律意义不同，沿用 period_days 族严格容差）；
 - `work.formula_id` 核对规则标识，防止数值碰巧命中而规则错误。
 - **规范标识（题面 prompt_template 必须枚举告知，v0.4.1 教训）**：
-  `fee_tiered_2007` / `simple_interest_365` / `period_days`。
+  `fee_tiered_2007` / `simple_interest_365` / `period_days` /
+  `compound_interest_semiannual` / `fee_preservation_2007` /
+  `interest_cap_offset_365` / `interest_cap_formation` / `compound_annual_cap` /
+  `remedy_max_interest_penalty` / `compound_semiannual_offset` /
+  `compound_interest_total_cap`（v0.5 Phase 3b 新增后 6 个）。
   初版未在题面告知规范标识，GLM 数值全对却 11/12 因自由文本标识被记半分——
   属 oracle 公平性缺陷而非模型缺陷，已修复并复测（见 docs/calc-hidden-test-report.md）。
 

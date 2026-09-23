@@ -8,7 +8,7 @@ oracle: fail_to_pass
 status: draft
 description: 法条计算 fail-to-pass（DESIGN v0.4 §5.2）——分段受理费/利息/期间计算，隐藏单测 oracle（容差 0.5%/1 元），无关键词。
 answer_enums:
-  formula_id: [fee_tiered_2007, simple_interest_365, period_days, compound_interest_semiannual, fee_preservation_2007]
+  formula_id: [fee_tiered_2007, simple_interest_365, period_days, compound_interest_semiannual, fee_preservation_2007, interest_cap_offset_365, interest_cap_formation, compound_annual_cap, remedy_max_interest_penalty, compound_semiannual_offset, compound_interest_total_cap]
 prompt_template: |
   你是中国司法计算助手。按题面给定的法条规则完成计算，输出 JSON 对象：
   {"answer": 计算结果（元/天，纯数字）, "work": {"formula_id": 所用规则标识}}
@@ -18,4 +18,10 @@ prompt_template: |
   - "period_days"：期间计算（起算日不计入；含天数或节假日顺延后的届满日）
   - "compound_interest_semiannual"：半年复利（每半年计息一次的复利终值利息额）
   - "fee_preservation_2007"：财产保全申请费分段（《诉讼费用交纳办法》第十四条）
+  - "interest_cap_offset_365"：上限利率×部分还款冲抵本金后的分段单利（一年 365 天）
+  - "interest_cap_formation"：上限锁定合同成立时 LPR 四倍的单利利息
+  - "compound_annual_cap"：年复利、以利率上限为有效利率的利息额
+  - "remedy_max_interest_penalty"：逾期利息与违约金竞合择高
+  - "compound_semiannual_offset"：半年复利、含部分还款冲抵的实际利息总额
+  - "compound_interest_total_cap"：复利利息受约定总额封顶
   题面：{input}

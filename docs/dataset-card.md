@@ -1,6 +1,6 @@
 # CN-JudBench 数据集卡片（Dataset Card, v0.5 · Phase 1）
 
-- 快照：2026-09-23 · public split 共 **269 题**（v0.5：Phase 1 剖减 a_irac 全分饱和题 20 题入 data/archive，Phase 3a 新增时间效力轴 as_of 难题 18 题；原 271；holdout/live 冻结见 docs/holdout-live-protocol.md，本卡不含）
+- 快照：2026-09-23 · public split 共 **277 题**（v0.5：Phase 1 剖减 a_irac 全分饱和题 20 题入 data/archive，Phase 3a 新增时间效力轴 as_of 难题 18 题，Phase 3b 新增计算硬变体 8 题；原 271；holdout/live 冻结见 docs/holdout-live-protocol.md，本卡不含）
 - 口径：题面 schema/适用面校验 `python -m cnjudbench validate` 全过（12 任务包）；
   金样自检基线 random 9.03 / rules 29.25 / mock:gold 8 包全 100（reports/runs/baseline-v041）
 
@@ -10,13 +10,13 @@
 oracle 硬度阶梯（隐藏单测 > 状态 diff > exact > 受约束 F1 > Judge）支持论文级
 可复现对比。**不得用于司法裁判、合规放行或当事人决策。**
 
-## 2. 任务包构成（12 包 / 269 题）
+## 2. 任务包构成（12 包 / 277 题）
 
 | 任务包 | L 层 | oracle | 题数 | 主要能力维 |
 |---|---|---|---|---|
 | cit_validity | L1 | 机检（引用效力 status_ladder） | 21 | K |
 | u_element_extract | L1 | element 抽取（含 hard 28 题） | 43 | U |
-| calc_fail_to_pass | L1 | **隐藏单测**（tests/calc/*.py，46 题） | 46 | U |
+| calc_fail_to_pass | L1 | **隐藏单测**（tests/calc/*.py，54 题；v0.5 Phase 3b 增 cx 硬变体 8 题：期间顺延/时效中断/封顶冲抵/复利竞合） | 54 | U |
 | s_charge_subsume | L1 | 罪名归并 exact | 20 | S |
 | tool_search_statute | L2 | tool_sequence/ast + exact | 26 | R |
 | gaia_fee_deadline | L3a | 金额阶梯 + progress | 17 | U/O |
@@ -33,7 +33,7 @@ oracle 硬度阶梯（隐藏单测 > 状态 diff > exact > 受约束 F1 > Judge�
 - **8 科目全覆盖**：每任务包在 民商事/刑事/合同合规/劳动/家事/知产/行政/执行
   至少各 1 题（validate 网格强制）；民商事为天然大头（诉讼费/利息/期间类计算
   题集中在民商事）。
-- **难度**：1–4 级作者标注（1 基础 6 题 / 2 基础-中 81 / 3 中 96 / 4 难 86）；
+- **难度**：1–4 级作者标注（1 基础 6 题 / 2 基础-中 81 / 3 中 96 / 4 难 94）；
   实证重标（difficulty_emp，按通过率分带）工具已备（scripts/calibrate_difficulty.py），
   待真实模型数据冻结后回写。
 - **来源**：synthetic（结构化生成，参数化题目+程序化金样）为主；

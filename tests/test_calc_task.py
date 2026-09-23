@@ -29,10 +29,11 @@ def _items() -> list[dict]:
 def test_gold_consistent_with_hidden_tests():
     """两套真相源必须同真：check(gold) == (total, total)（漂移即失败）。"""
     items = _items()
-    assert len(items) == 46
-    # hard 变体（v0.4 硬度阶梯）：复利 / 保全费 / 节假日顺延届满日
+    assert len(items) == 54  # v0.5 Phase 3b +8（cx-001..008 计算硬变体）
+    # hard 变体（v0.4 硬度阶梯 / v0.5 Phase 3b）：复利 / 保全费 / 节假日顺延届满日 / cx 硬变体
     assert {"ci-hard-001", "cf-hard-001", "cp-hard-001"} <= {i["id"] for i in items}
-    prefixes = {"cf-", "ci-", "cp-"}
+    assert {"cx-001", "cx-003", "cx-005", "cx-007", "cx-008"} <= {i["id"] for i in items}
+    prefixes = {"cf-", "ci-", "cp-", "cx-"}
     assert all(any(i["id"].startswith(p) for p in prefixes) for i in items)
     domains = {i["domain"] for i in items}
     assert domains == {
