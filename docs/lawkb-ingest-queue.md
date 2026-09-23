@@ -1,6 +1,6 @@
 # lawkb 惰性锚入库队列（自动生成，勿手改；`scripts/gen_lawkb_ingest_queue.py`）
 
-> 生成：2026-09-24 · harness=1b8e50f · 锚白名单共 16 键（lazy：库内暂无法条版本、不扣分但显式登记）。
+> 生成：2026-09-24 · harness=a7a19d7 · 锚白名单共 16 键（lazy：库内暂无法条版本、不扣分但显式登记）。
 > 入库纪律：仅收官方文本（国家法律法规数据库 flk.npc.gov.cn / 最高法官网），
 > 逐字比对后写入 lawkb/laws + lawkb/text，附 text_hash；无法逐字校对的文本不入库。
 
