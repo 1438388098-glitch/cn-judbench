@@ -64,6 +64,8 @@ def test_c338_placeholder_repo_not_scattered():
         rel = p.relative_to(ROOT).as_posix()
         if rel.startswith((".autopilot", ".git", ".venv", "runs", "reports/runs", "node_modules")):
             continue
+        if rel.startswith("docs/night-report"):
+            continue  # 历史夜报可提及占位符名称（记录性引用，非使用）
         try:
             text = p.read_text(encoding="utf-8")
         except (UnicodeDecodeError, PermissionError):
