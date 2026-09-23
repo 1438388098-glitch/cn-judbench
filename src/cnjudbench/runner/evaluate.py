@@ -420,6 +420,8 @@ def run_tasks(
             flat.append((task_id, i, task, task_dir, preds, entry))
     n_per: dict[str, int] = {tid: len(entries) for tid, _t, _d, _p, entries in loaded}
 
+    # 并发保护：≤0 回落串行；上限 256 防误传大值线程爆炸（限流由适配器重试兜底）
+    max_workers = max(1, min(int(max_workers), 256))
     if max_workers <= 1:
         outs = [_one(t, d, p, e) for _tid, _i, t, d, p, e in flat]
     else:

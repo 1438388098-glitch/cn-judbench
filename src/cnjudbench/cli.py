@@ -373,6 +373,7 @@ def _build_summary(
     est = ledger["est_cost_usd"]
     dps = dollar_per_solve(est, scores_flat) if est is not None else None
     summary = {
+        "schema_version": "0.6",  # 产物契约版本；第三方校验以此判定字段集
         "run_id": manifest["run_id"],
         "created_at": manifest["created_at"],
         "model_id": args.model,
@@ -810,6 +811,7 @@ def _cmd_run_dialog(args: argparse.Namespace) -> int:
     scores = [last[it.id].score for it in items if last[it.id].score is not None]
     mean = sum(scores) / len(scores) if scores else None
     summary = {
+        "schema_version": "0.6",
         "task_id": args.task,
         "model_id": args.model,
         "user_seed": args.user_seed,
