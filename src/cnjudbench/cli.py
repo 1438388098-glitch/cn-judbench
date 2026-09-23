@@ -127,6 +127,13 @@ def _build_parser() -> argparse.ArgumentParser:
     d.add_argument("--user-script", default=None, help="缺省取任务包 user_scripts/ 下第一份")
     d.add_argument("--k-pass", type=int, default=3, help="同题复跑次数（pass^k）")
 
+    cmp_ = sub.add_parser("compare", help="两 run 同题配对比较（分差 bootstrap CI + McNemar）")
+    cmp_.add_argument("--run-a", required=True, help="run A 目录（含 summary.json）")
+    cmp_.add_argument("--run-b", required=True, help="run B 目录（含 summary.json）")
+    cmp_.add_argument("--threshold", type=float, default=60.0,
+                      help="McNemar 通过阈值（缺省 60，同 report.csv solve 口径）")
+    cmp_.add_argument("--out", type=Path, default=None, help="compare.json 输出路径")
+
     return p
 
 
@@ -463,7 +470,9 @@ def _execute_runs(args: argparse.Namespace, task_ids: list[str]) -> tuple[list[T
     judge_scores: dict[str, dict] = {}
     if judge is not None:
         rubrics = {tid: load_rubric(d) for tid, d in task_dirs.items()}
-        judge_scores = apply_judge(runs, judge, rubrics, accountant=accountant, k_pass=args.k_pass)
+        items_by_id = {item.id: item for item in all_items}  # v2 prompt：Judge 吃题面+参考答案
+        judge_scores = apply_judge(runs, judge, rubrics, accountant=accountant,
+                                   k_pass=args.k_pass, items_by_id=items_by_id)
 
     accountant.stop_timer()
     # DESIGN v0.4 §8：stats/judge 块进 manifest；provisional 由缺件情况自动判定
@@ -854,6 +863,30 @@ def _cmd_run_dialog(args: argparse.Namespace) -> int:
     return 0 if mean is not None else 1
 
 
+def _cmd_compare(args: argparse.Namespace) -> int:
+    """两 run 同题配对比较（FRAMEWORK §8：分差 CI + McNemar；论文"A 比 B"依据）。"""
+    from .metrics.compare import compare_runs
+
+    rep = compare_runs(Path(args.run_a), Path(args.run_b), threshold=args.threshold)
+    if "error" in rep:
+        print(f"compare: {rep['error']}")
+        return 1
+    ci = rep["paired_ci"]
+    m = rep["mcnemar"]
+    print(f"n_aligned={rep['n_aligned']} (only_a={rep['n_only_a']}, only_b={rep['n_only_b']})")
+    print(f"mean_a={rep['mean_a']:.2f} mean_b={rep['mean_b']:.2f} "
+          f"diff={ci['point']:.2f} [{ci['ci95_low']:.2f}, {ci['ci95_high']:.2f}] "
+          f"(n_boot={ci['n_boot']}, seed={ci['seed']})")
+    print(f"mcnemar: 01(a错b对)={m['n_01']} 10(a对b错)={m['n_10']} "
+          f"p_exact={m['p_exact']:.4f}")
+    if args.out:
+        args.out.write_text(json.dumps(rep, ensure_ascii=False, indent=1), encoding="utf-8")
+        print(f"written: {args.out}")
+    sig = "显著（CI 不含 0）" if (ci["ci95_low"] > 0 or ci["ci95_high"] < 0) else "不显著（CI 含 0）"
+    print(f"结论：A-B 分差 {sig}")
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     try:
         sys.stdout.reconfigure(encoding="utf-8", errors="replace")
@@ -867,6 +900,7 @@ def main(argv: list[str] | None = None) -> int:
         "run": _cmd_run_generic,
         "run-all": _cmd_run_generic,
         "run-dialog": _cmd_run_dialog,
+        "compare": _cmd_compare,
     }
     return handlers[args.cmd](args)
 

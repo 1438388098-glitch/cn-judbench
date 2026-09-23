@@ -9,6 +9,10 @@ from __future__ import annotations
 
 from decimal import ROUND_HALF_EVEN, Decimal
 
+# over_refuse（应答而空拒）的能力分惩罚系数（DESIGN v0.4 §4.1 ②）。
+# 集中定义：消融/敏感性分析改这里，调用点不许各写一个字面量。
+OVER_REFUSE_PENALTY = 0.50
+
 
 def to_percent_unit(x: float) -> float:
     """``acc/F1/EM/NDCG ∈ [0,1]`` → 百分制（×100）。"""

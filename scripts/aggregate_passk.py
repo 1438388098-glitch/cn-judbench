@@ -73,7 +73,8 @@ def main() -> int:
         idx = [rng.randrange(len(item_passk)) for _ in range(len(item_passk))]
         boots.append(sum(item_passk[j] for j in idx) / len(idx))
     boots.sort()
-    lo, hi = boots[int(0.025 * N_BOOT)], boots[int(0.975 * N_BOOT) - 1]
+    # 分位数口径与 metrics/bootstrap.py 一致：int(q*(n_boot-1))
+    lo, hi = boots[int(0.025 * (N_BOOT - 1))], boots[int(0.975 * (N_BOOT - 1))]
 
     # flip：相邻 run 题分不同（共同题）
     flips = total = 0

@@ -1,6 +1,10 @@
 """OpenAIJudge：真 Judge，复用 adapters（impl-P1-rest §4）。
 
 - k_pass 默认 2（FRAMEWORK §8.2 主观题），每次 pass 一次 adapter.complete；
+  注意：适配器默认 temperature=0.0 时多 pass 只反映解析/门禁方差，
+  不反映 Judge 采样方差（无 adapter 级采样接口，FRAMEWORK 统计节如实陈述）；
+- prompt v2 起含「案情题面 + 参考答案」（score 支持 item_input/gold）——
+  Judge 必须能看到案情与标准答案才能评对错，而非只评文风；
 - 输出要求模型按 rubric 各项给原始分 JSON；解析失败/越界 → 该 pass 各项记 lo
   （即 0 分贡献）并记 ``format_fail``，**不重试刷分**；
 - 多 pass 取各项原始分均值后过 rubric 映射；成本（tokens）随 JudgeResult 返回，
@@ -10,6 +14,7 @@
 from __future__ import annotations
 
 import hashlib
+import json
 from typing import Any
 
 from ..adapters.base import ModelAdapter
@@ -17,28 +22,50 @@ from ..citeguard.extract import parse_answer_json
 from . import Rubric, JudgeResult
 
 FORMAT_FAIL_GATE = "format_fail"
+PROMPT_VERSION = "v2-context"  # v1 = 仅 rubric+答案（盲判）；v2 起可含题面/参考答案
 
-_PROMPT_TMPL = """你是司法评测 Judge。依据 rubric 对「模型答案」逐项打原始分，只输出 JSON 对象：
+_PROMPT_TMPL = """你是司法评测 Judge。依据 rubric {basis}逐项打原始分，只输出 JSON 对象：
 {{"{item_id1}": <{lo1}~{hi1} 的数值>, "{item_id2}": <{lo2}~{hi2} 的数值>, ...}}
 不要输出其他文字、不要解释。
 
-rubric：
+{context}rubric：
 {rubric}
 
-模型答案：
+{reference}模型答案：
 {answer}"""
 
 
-def judge_prompt(answer_text: str, rubric: Rubric) -> str:
+def _fmt_gold(gold: Any) -> str:
+    if isinstance(gold, (dict, list)):
+        return json.dumps(gold, ensure_ascii=False, sort_keys=True, indent=1)
+    return str(gold)
+
+
+def judge_prompt(
+    answer_text: str,
+    rubric: Rubric,
+    *,
+    item_input: str | None = None,
+    gold: Any = None,
+) -> str:
     rows = "\n".join(
         f"- {it.id}（weight={it.weight}，范围 {it.lo:g}~{it.hi:g}）：{it.prompt or it.id}"
         for it in rubric.items
     )
+    context = ""
+    if item_input:
+        context = f"案情题面：\n{str(item_input).strip()}\n\n"
+    reference = ""
+    basis = "对「模型答案」"
+    if gold is not None:
+        reference = f"参考答案（评分参照；模型措辞不同但要点一致仍应给分）：\n{_fmt_gold(gold)}\n\n"
+        basis = "与「参考答案」对「模型答案」"
     return _PROMPT_TMPL.format(
         item_id1=rubric.items[0].id, lo1=rubric.items[0].lo, hi1=rubric.items[0].hi,
         item_id2=rubric.items[1].id if len(rubric.items) > 1 else "…",
         lo2=rubric.items[1].lo if len(rubric.items) > 1 else 0,
         hi2=rubric.items[1].hi if len(rubric.items) > 1 else 4,
+        basis=basis, context=context, reference=reference,
         rubric=rows, answer=(answer_text or "").strip() or "（空答案）",
     )
 
@@ -50,11 +77,19 @@ class OpenAIJudge:
         self.k_pass = k_pass
         self.prompt_hash = "sha256:" + hashlib.sha256(judge_id.encode()).hexdigest()[:16]
 
-    def score(self, answer_text: str, rubric: Rubric, *, gold: Any = None, k_pass: int = 2) -> JudgeResult:
+    def score(
+        self,
+        answer_text: str,
+        rubric: Rubric,
+        *,
+        gold: Any = None,
+        k_pass: int = 2,
+        item_input: str | None = None,
+    ) -> JudgeResult:
         k = k_pass or self.k_pass
-        prompt = judge_prompt(answer_text, rubric)
+        prompt = judge_prompt(answer_text, rubric, item_input=item_input, gold=gold)
         ph = "sha256:" + hashlib.sha256(
-            (self.judge_id + rubric.prompt_fingerprint()).encode()
+            (self.judge_id + PROMPT_VERSION + rubric.prompt_fingerprint()).encode()
         ).hexdigest()[:16]
 
         passes: list[dict[str, float]] = []

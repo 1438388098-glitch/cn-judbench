@@ -63,7 +63,7 @@ oracle 硬度阶梯（隐藏单测 > 状态 diff > exact > 受约束 F1 > Judge�
    「要素不点名」事实链题（docs/calc-real-model-report.md §C4）。
 3. d-fake-001 类负例夹具对真实模型无区分度（功能为 harness 自检）。
 4. 单法官域（劳动/家事等）题量仅满足域覆盖网格，分域细分排名不具统计力
-   （§6.1 n 规则：单维 n<50 不排名）。
+   （§6.1 n 规则以 FRAMEWORK §8.3 两档制为准：n≥100 可排名 / 50≤n<100 报 CI 标 descriptive / n<50 仅描述）。
 5. fault 任务 final_exact 口径公平性修正进行中
    （docs/fault-dms-real-model-report.md 发现 2/3）。
 6. lawkb 为节录口径（12 法 61 版本，v0.5 增补法释〔2020〕15号 10 条时间效力条文 + 民间借贷16条2021版）：statute 类谓词的判别力受库覆盖约束，
@@ -72,5 +72,5 @@ oracle 硬度阶梯（隐藏单测 > 状态 diff > exact > 受约束 F1 > Judge�
 
 ## 7. 许可与引用
 
-- 数据与代码：项目仓库许可（见 LICENSE）；lawkb 法条文本来自权威公开文本。
-- 引用格式与版本号以 FRAMEWORK.md 头部为准（v0.4）。
+- 代码 MIT；数据/题面/任务包 CC BY 4.0；lawkb 法条为官方作品（随附 sha256 text_hash 与来源注记）——分表声明见仓库根 LICENSE 尾部。
+- 引用格式与版本号以 FRAMEWORK.md 头部为准（v0.5）。

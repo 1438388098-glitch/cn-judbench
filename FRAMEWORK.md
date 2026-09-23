@@ -1,6 +1,7 @@
 # CN-JudBench（法衡）：中国司法多维度大模型评测框架
 
-> **v0.4** · 计分架构升级落地（Sprint A 已实现；依据 `docs/DESIGN-benchmark-optimization-v0.4.md`）  
+> **v0.5** · 难度重构与实务扩展落地（依据 `docs/DESIGN-difficulty-practice-v05.md`）：12 任务包 317 题（剖减饱和题入 archive、新增时间效力轴/计算硬变体/抽取进阶/实务 30 题）、lawkb 12 法 61 版本、双考生 pass^k 区分度实测（E17）；v0.4 计分架构（Sprint A）沿用。  
+> v0.4→v0.5 变更细节：`docs/difficulty-audit-v05.md`、`docs/paper-outline.md` §9 E14–E17；已知遗留：tau state 谓词自由文本判分改造（v0.6）。  
 > 前序证据：`docs/research-notes.md` · `docs/research-notes-round2.md`  
 > v0.2→v0.3：外部设计审查修订——补 **lawkb schema**、**PTP×output_type 适用面**、**manifest 与时间切片一致性**；明确 **百分制、两位小数**；收紧 Judge 成本、排名粒度、防作弊适用面与伦理/许可边界。  
 > v0.3→v0.3.1：闭合 `output_type` 枚举（含 `composite`/`tool_call`/`exact`）；写明 Hall 题级扣分与维度折减**计算顺序**；manifest 示例 `k_pass` 对齐 §8.2；清理 HTML 实体。  
@@ -357,18 +358,23 @@ redline_multiplier ∈ {1.00, 0.75, 0.50}  # 由 Cit/Hall 严重度触发，默�
 
 | 单元 | n 要求 | 允许 |
 |---|---|---|
-| **capability × interaction**（如 G×L1、R×L2） | 各 **n ≥ 100** | **可排名**、可出 CI 对比 |
+| **capability × interaction**（如 G×L1、R×L2） | 各 **n ≥ 100** | **可排名**、可出 CI 对比（含显著性检验，§8.4） |
 | capability 单维（跨 interaction 汇总） | n ≥ 100 | 可排名 |
-| 域 × 维 × 角色等细格子 | 通常 n < 100 | **只出描述性雷达/表，禁止排名** |
+| **中间带**（50 ≤ n < 100 的聚合单元，含任务包级） | 50 ≤ n < 100 | 报 point ±95% CI，**标注 descriptive**，不排名 |
+| 域 × 维 × 角色等细格子 | n < 50 | **只出描述性雷达/表，禁止排名与显著性宣称** |
 | 对外总览指数 | 仅作导航 | **不作为「模型总分」宣贯** |
 
-更细切片用于错误分析，不用于「谁更强」叙事。
+预注册比较单元（防「看分挑口径」，改动须在发表前公示）：模型间排名主张**仅限**
+核心六包等权 grand——`cit_validity · u_element_extract · s_charge_subsume ·
+contract_risk · a_irac_reason · long_horizon_case`（合计 162 题，v0.4 起口径稳定、
+跨版本可比）；12 包 grand 与各包分数仅作描述性导航。更细切片用于错误分析，
+不用于「谁更强」叙事。
 
 ### 8.4 统计
 
-- 同题 **paired bootstrap 95% CI**（或 McNemar）；差值单位「分」。  
+- 同题 **paired bootstrap 95% CI**（或 McNemar）；差值单位「分」；实现：`cnjudbench compare --run-a <dir> --run-b <dir>`（metrics/compare.py）。  
 - 排序用未舍入分；展示 `xx.xx`。  
-- `n < 100` 只描述。
+- n 分档与 §8.3 两档制一致：`n ≥ 100` 可排名；`50 ≤ n < 100` 报 CI 标 descriptive；`n < 50` 只描述。
 
 ### 8.5 Rubric gate（百分制）
 

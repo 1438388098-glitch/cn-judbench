@@ -82,7 +82,8 @@ def test_run_all_file_judge_full_pipeline(tmp_path, monkeypatch, store):
     items_path = REPO / "data" / "public" / f"{task_id}.jsonl"
     for _ln, item in load_items_file(items_path):
         answer = FileAnswersAdapter(item.id, answers).complete("").text
-        prompt = judge_prompt(answer, rubric)
+        # v2 契约：run-all 的 apply_judge 传题面+参考答案，file: Judge 寻址须同 prompt
+        prompt = judge_prompt(answer, rubric, item_input=item.input, gold=item.gold)
         key = hashlib.sha256(prompt.encode("utf-8")).hexdigest()
         payload = json.dumps({it.id: it.hi for it in rubric.items}, ensure_ascii=False)
         (judge_dir / f"{key}.txt").write_text(payload, encoding="utf-8")

@@ -1,0 +1,14 @@
+# 依赖冻结件（FRAMEWORK §9.2 / DESIGN v0.4 §8：provisional 门禁的 deps 锁）
+# 由 .venv 执行 pip freeze --exclude-editable 生成；升级依赖后必须重新生成并提交。
+annotated-types==0.8.0
+colorama==0.4.6
+iniconfig==2.3.0
+packaging==26.3
+pluggy==1.6.0
+pydantic==2.13.5
+pydantic_core==2.46.5
+Pygments==2.21.0
+pytest==9.1.1
+PyYAML==6.0.3
+typing-inspection==0.4.4
+typing_extensions==4.16.0

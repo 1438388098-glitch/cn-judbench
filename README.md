@@ -1,6 +1,6 @@
 # CN-JudBench（法衡）
 
-中国司法多维度大模型 / 司法 Agent 评测框架（**v0.4**：Sprint A 计分架构 + 统计协议 + 隐藏单测 oracle 已落地）。
+中国司法多维度大模型 / 司法 Agent 评测框架（**v0.5**：v0.4 计分架构 + v0.5 难度重构（12 包 317 题）+ 实务题 + 双考生区分度实测；版本真源=FRAMEWORK.md 头部）。
 
 **目标**：测出模型在中国司法工作流里「哪一维能用、哪一维危险、是否稳定、代价多少」。  
 **分数**：百分制，保留两位小数（0.00–100.00）。  
@@ -8,6 +8,7 @@
 
 ## 文档
 
+| `docs/gold-adjudication-policy.md` | 金样验收与改判预注册规则（改 gold 必读） |
 | 文件 | 说明 |
 |---|---|
 | [FRAMEWORK.md](FRAMEWORK.md) | 框架设计定稿 **v0.4**（§14：v0.3.1→v0.4 差异清单） |
@@ -156,5 +157,5 @@ reports/runs/    # 每次评测的 manifest + summary + limits.md + items/*.traj
 
 ## 许可
 
-- 代码：待定（建议 MIT）。  
-- **数据 / 题面 / lawkb 文本与代码分表声明**；引用外部数据集前先核对其 LICENSE（见 FRAMEWORK §10）。
+- 代码：MIT（见 LICENSE）。  
+- 数据 / 题面 / 任务包：CC BY 4.0；lawkb 法条文本为官方作品（著作权法第五条不适用著作权保护），随附 sha256 text_hash 与来源注记（分表声明见 LICENSE 尾部）。

@@ -77,18 +77,38 @@ class Judge(Protocol):
     judge_id: str
     prompt_hash: str
 
-    def score(self, answer_text: str, rubric: Rubric, *, gold: Any = None, k_pass: int = 2) -> JudgeResult: ...
+    def score(
+        self,
+        answer_text: str,
+        rubric: Rubric,
+        *,
+        gold: Any = None,
+        k_pass: int = 2,
+        item_input: str | None = None,
+    ) -> JudgeResult: ...
 
 
 class MockJudge:
-    """确定性 Judge；CI 默认。主观 k_pass 默认 2（§8.2）。"""
+    """确定性 Judge；CI 默认。主观 k_pass 默认 2（§8.2）。
+
+    无 gold 时对非空答案给 (lo+hi)/2 中位分——这是 CI 冒烟用的确定性占位，
+    不是评分语义；真 Judge（OpenAIJudge）v2 起吃题面+参考答案。
+    """
 
     def __init__(self, judge_id: str = "mock-judge", k_pass: int = 2):
         self.judge_id = judge_id
         self.k_pass = k_pass
         self.prompt_hash = "sha256:" + hashlib.sha256(judge_id.encode()).hexdigest()[:16]
 
-    def score(self, answer_text: str, rubric: Rubric, *, gold: Any = None, k_pass: int = 2) -> JudgeResult:
+    def score(
+        self,
+        answer_text: str,
+        rubric: Rubric,
+        *,
+        gold: Any = None,
+        k_pass: int = 2,
+        item_input: str | None = None,
+    ) -> JudgeResult:
         raw: dict[str, float] = {}
         for it in rubric.items:
             if isinstance(gold, dict) and it.id in gold:

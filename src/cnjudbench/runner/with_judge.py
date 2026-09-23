@@ -8,6 +8,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+from typing import Any
 
 from ..judge import Judge, JudgeResult, Rubric, load_rubric
 from .account import Accountant
@@ -21,7 +22,14 @@ def apply_judge(
     *,
     accountant: Accountant | None = None,
     k_pass: int = 2,
+    items_by_id: dict[str, Any] | None = None,
 ) -> dict[str, dict[str, JudgeResult | None]]:
+    """Judge 后处理。
+
+    items_by_id 提供 item_id → 题对象（含 input/gold）时，Judge prompt v2 会带上
+    案情题面与参考答案（去盲判）；查不到的题回退 None（prompt 退化为 rubric+答案）。
+    """
+    lookup = items_by_id or {}
     out: dict[str, dict[str, JudgeResult | None]] = {}
     for run in runs:
         rubric = rubrics.get(run.task_id)
@@ -30,7 +38,14 @@ def apply_judge(
             if rubric is None:
                 per_item[r.item_id] = None  # 缺 rubric → n/a，禁止 0.00 充数
                 continue
-            jr = judge.score(r.answer_text, rubric, k_pass=k_pass)
+            item = lookup.get(r.item_id)
+            jr = judge.score(
+                r.answer_text,
+                rubric,
+                k_pass=k_pass,
+                gold=getattr(item, "gold", None),
+                item_input=getattr(item, "input", None),
+            )
             if accountant is not None:
                 accountant.add_judge(jr.n_calls, jr.prompt_tokens, jr.completion_tokens)
             per_item[r.item_id] = jr
