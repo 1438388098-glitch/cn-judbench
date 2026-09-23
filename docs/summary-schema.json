@@ -1,0 +1,66 @@
+{
+ "$schema": "http://json-schema.org/draft-07/schema#",
+ "title": "CN-JudBench run summary (v0.6 contract subset)",
+ "type": "object",
+ "required": [
+  "schema_version",
+  "run_id",
+  "model_id",
+  "provisional",
+  "capability",
+  "per_task",
+  "baselines",
+  "tasks",
+  "cost"
+ ],
+ "properties": {
+  "schema_version": {
+   "const": "0.6",
+   "description": "产物契约版本；第三方以此判定字段集（CHANGELOG 同步）"
+  },
+  "run_id": {
+   "type": "string"
+  },
+  "created_at": {
+   "type": "string"
+  },
+  "model_id": {
+   "type": "string"
+  },
+  "temperature": {
+   "type": "number"
+  },
+  "provisional": {
+   "type": "boolean",
+   "description": "true=实验产物，禁进对外对比表（DESIGN v0.4 §8 门禁）"
+  },
+  "safety_score": {
+   "type": "string"
+  },
+  "capability": {
+   "type": "object"
+  },
+  "per_task": {
+   "type": "object",
+   "description": "task_id -> {mean, scored_rate, ...}；判分与 n/a 口径三件套"
+  },
+  "baselines": {
+   "type": "object",
+   "description": "random/rules 基线分布（泄题前兆监控，见 scripts/baseline_report.py）"
+  },
+  "tasks": {
+   "type": "object",
+   "description": "task_id -> {items:[{id,role,score,judge,taxonomy,error,predicates}], mean, n}"
+  },
+  "cost": {
+   "type": "object",
+   "description": "cost_ledger 导出；无价目时 est_cost_usd=null（禁编造）"
+  },
+  "diagnostics": {
+   "type": "object"
+  },
+  "abst": {
+   "type": "object"
+  }
+ }
+}

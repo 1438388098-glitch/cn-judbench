@@ -1,0 +1,55 @@
+{
+ "as_of": "2020-09-01",
+ "canary": "CNJB-CANARY-draft-ah203",
+ "capability": "A",
+ "contamination_risk": "low",
+ "difficulty": 4,
+ "domain": "civil_commercial",
+ "draft": true,
+ "draft_notes": "时间效力轴 READY 规格 at-203（ah-104 同族加深：受理日在新规后、合同订立在新规前的错位）；预期错误=按24%旧上限全额支持。",
+ "draft_status": "awaiting_examinee",
+ "gold": {
+  "acceptable_articles": [
+   {
+    "law": "最高人民法院关于审理民间借贷案件适用法律若干问题的规定",
+    "article": "26"
+   }
+  ],
+  "application": "2020年8月20日之后受理的一审案件依修正后的借贷规定，利率保护上限为合同成立时一年期LPR的四倍（约15.4%）。约定年利率24%超出上限，超出部分不受保护；按24%全额支持的请求不能成立。",
+  "citations": [
+   {
+    "law": "最高人民法院关于审理民间借贷案件适用法律若干问题的规定",
+    "article": "25"
+   }
+  ],
+  "conclusion": "按24%全额支付的请求不能成立，仅在上限内受保护。",
+  "issue": "受理日跨越民间借贷利率新规施行日后的利率保护上限选择",
+  "rule_article": "25",
+  "rule_law": "最高人民法院关于审理民间借贷案件适用法律若干问题的规定"
+ },
+ "hcut": [
+  "Hall",
+  "Cit"
+ ],
+ "id": "ah-203",
+ "input": "争点：2019年5月订立的民间借贷合同约定年利率24%，出借人已足额放款。该纠纷于2020年9月1日由法院受理，出借人请求按约定年利率24%全额支付借期内利息。该请求能否全额支持？请按 IRAC 回答并给出规范依据。",
+ "instruction": "就借款利息保护上限输出 IRAC。",
+ "interaction": "L1",
+ "law_anchors": [
+  {
+   "law": "最高人民法院关于审理民间借贷案件适用法律若干问题的规定",
+   "article": "25",
+   "effective_on": "2021-01-01"
+  }
+ ],
+ "output_type": "structured",
+ "predicates_ref": "tasks/a_irac_reason/predicates.yaml",
+ "roles": [
+  "counsel"
+ ],
+ "rubric_id": null,
+ "source": "synthetic",
+ "split": "draft",
+ "state_goal": null,
+ "task_id": "a_irac_reason"
+}

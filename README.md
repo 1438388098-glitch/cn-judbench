@@ -39,6 +39,10 @@ scoring shortcuts. Code is MIT-licensed; the public split is CC BY 4.0
 | tool_fault_recovery | 16 | O | recovery×final |
 | long_horizon_case | 15 | U | score–time 多日 |
 
+## 新增题目流程（draft → public）
+
+草稿写入 `data/drafts/`（`draft: true` 硬标记，不进 MANIFEST）→ 两名隔离真考生作答（预期错误模式须实证触发，E17 教训）→ gold 五条件裁定（docs/gold-adjudication-policy.md §2）→ 官方锚文本逐字比对 + text_hash → 正式入库并 MANIFEST 对账。
+
 > 命令跨平台：Windows 用 `.venv/Scripts/python`，Linux/macOS 等价 `.venv/bin/python`（或激活 venv 后直接 `python`）。
 
 ## 文档

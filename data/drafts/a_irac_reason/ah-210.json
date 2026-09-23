@@ -1,0 +1,49 @@
+{
+ "as_of": "2021-06-01",
+ "canary": "CNJB-CANARY-draft-ah210",
+ "capability": "A",
+ "contamination_risk": "low",
+ "difficulty": 4,
+ "domain": "civil_commercial",
+ "draft": true,
+ "draft_notes": "时间效力轴 READY 规格 at-210；预期错误=新法一律优先适用。",
+ "draft_status": "awaiting_examinee",
+ "gold": {
+  "application": "依时间效力规定1条，民法典施行前的法律事实引起的民事纠纷，适用当时的法律、司法解释，除非法律、司法解释另有规定。本案合同订立与履行均发生在民法典施行前，原则上适用当时的合同法规定，乙主张一律适用民法典没有依据。",
+  "citations": [
+   {
+    "law": "最高人民法院关于适用《中华人民共和国民法典》时间效力的若干规定",
+    "article": "1"
+   }
+  ],
+  "conclusion": "乙的主张不能成立；本案原则上适用合同订立与履行时的法律规定。",
+  "issue": "民法典施行前法律事实引起的纠纷应适用何时的法律",
+  "rule_article": "1",
+  "rule_law": "最高人民法院关于适用《中华人民共和国民法典》时间效力的若干规定"
+ },
+ "hcut": [
+  "Hall",
+  "Cit"
+ ],
+ "id": "ah-210",
+ "input": "争点：甲乙于2019年3月订立买卖合同并履行完毕，2021年3月因履行争议诉至法院。乙主张本案应一律适用2021年1月1日施行的民法典关于合同履行的新规定。乙的主张有无法律依据？请按 IRAC 回答并给出规范依据。",
+ "instruction": "就新旧法适用输出 IRAC。",
+ "interaction": "L1",
+ "law_anchors": [
+  {
+   "law": "最高人民法院关于适用《中华人民共和国民法典》时间效力的若干规定",
+   "article": "1",
+   "effective_on": "2021-01-01"
+  }
+ ],
+ "output_type": "structured",
+ "predicates_ref": "tasks/a_irac_reason/predicates.yaml",
+ "roles": [
+  "counsel"
+ ],
+ "rubric_id": null,
+ "source": "synthetic",
+ "split": "draft",
+ "state_goal": null,
+ "task_id": "a_irac_reason"
+}

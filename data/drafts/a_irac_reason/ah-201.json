@@ -1,0 +1,49 @@
+{
+ "as_of": "2019-11-30",
+ "canary": "CNJB-CANARY-draft-ah201",
+ "capability": "A",
+ "contamination_risk": "low",
+ "difficulty": 4,
+ "domain": "civil_commercial",
+ "draft": true,
+ "draft_notes": "时间效力轴 READY 规格 at-201；预期错误模式=仍按二年旧规则判届满（stale_statute）；真考生轮须验证两考生独立答出三年。",
+ "draft_status": "awaiting_examinee",
+ "gold": {
+  "application": "民法总则188条将普通诉讼时效延长为三年。时间效力上，诉讼时效在民法总则施行（2017-10-01）前起算、届满前未届满的，依有利溯及精神适用三年时效；本案时效自2017年6月2日还款期届满次日起算，至2019年11月30日起诉未满三年，甲的请求权未过诉讼时效。",
+  "citations": [
+   {
+    "law": "中华人民共和国民法总则",
+    "article": "188"
+   }
+  ],
+  "conclusion": "甲的请求权未过诉讼时效，乙的二年的时效抗辩不能成立。",
+  "issue": "普通诉讼时效期间适用二年还是三年（民法总则施行后的时间效力）",
+  "rule_article": "188",
+  "rule_law": "中华人民共和国民法总则"
+ },
+ "hcut": [
+  "Hall",
+  "Cit"
+ ],
+ "id": "ah-201",
+ "input": "争点：乙于2016年12月1日向甲借款并出具借条，约定2017年6月1日归还。乙到期未还，甲一直未主张权利。甲于2019年11月30日向法院起诉请求归还借款。乙抗辩称起诉已超过二年诉讼时效。甲的请求权是否已过诉讼时效？请按 IRAC 回答并给出规范依据。",
+ "instruction": "就诉讼时效是否届满输出 IRAC。",
+ "interaction": "L1",
+ "law_anchors": [
+  {
+   "law": "中华人民共和国民法总则",
+   "article": "188",
+   "effective_on": "2017-10-01"
+  }
+ ],
+ "output_type": "structured",
+ "predicates_ref": "tasks/a_irac_reason/predicates.yaml",
+ "roles": [
+  "counsel"
+ ],
+ "rubric_id": null,
+ "source": "synthetic",
+ "split": "draft",
+ "state_goal": null,
+ "task_id": "a_irac_reason"
+}

@@ -1,0 +1,49 @@
+{
+ "as_of": "2020-08-01",
+ "canary": "CNJB-CANARY-draft-ah202",
+ "capability": "A",
+ "contamination_risk": "low",
+ "difficulty": 4,
+ "domain": "civil_commercial",
+ "draft": true,
+ "draft_notes": "时间效力轴 READY 规格 at-202；预期错误模式=引用未生效的民法典1127条（stale_statute 反向：用新法判旧事实）。",
+ "draft_status": "awaiting_examinee",
+ "gold": {
+  "application": "继承开始于2020年8月1日，民法典（2021-01-01施行）尚未生效，依继承法10条，第一顺序为配偶、子女、父母；姐姐属第二顺序。存在第一顺序继承人时，第二顺序继承人不继承。",
+  "citations": [
+   {
+    "law": "中华人民共和国继承法",
+    "article": "10"
+   }
+  ],
+  "conclusion": "王某的姐姐无第一顺序继承权，遗产由配偶与两名子女按第一顺序继承。",
+  "issue": "被继承人死亡于民法典施行前，法定继承顺位适用继承法还是民法典",
+  "rule_article": "10",
+  "rule_law": "中华人民共和国继承法"
+ },
+ "hcut": [
+  "Hall",
+  "Cit"
+ ],
+ "id": "ah-202",
+ "input": "争点：被继承人王某于2020年8月1日去世，生前未立遗嘱。第一顺序继承人有配偶与两名子女，此外王某的姐姐主张继承。王某的姐姐有无第一顺序继承权？遗产应按何顺位分配？请按 IRAC 回答并给出规范依据。",
+ "instruction": "就法定继承顺位输出 IRAC。",
+ "interaction": "L1",
+ "law_anchors": [
+  {
+   "law": "中华人民共和国继承法",
+   "article": "10",
+   "effective_on": "1985-10-01"
+  }
+ ],
+ "output_type": "structured",
+ "predicates_ref": "tasks/a_irac_reason/predicates.yaml",
+ "roles": [
+  "counsel"
+ ],
+ "rubric_id": null,
+ "source": "synthetic",
+ "split": "draft",
+ "state_goal": null,
+ "task_id": "a_irac_reason"
+}

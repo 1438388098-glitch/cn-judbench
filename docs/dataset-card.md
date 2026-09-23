@@ -92,3 +92,5 @@ oracle 硬度阶梯（隐藏单测 > 状态 diff > exact > 受约束 F1 > Judge�
   url    = {https://github.com/TODO-assign-repo}
 }
 ```
+
+> GitHub 引用入口：仓库根 `CITATION.cff`（cff 1.2.0，与上表同源，版本一致性有机检）。
