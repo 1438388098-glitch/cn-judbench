@@ -219,6 +219,9 @@ E17 暴露的 harness 局限在 v0.6 修复后，用**同一份真考生答案**
    McNemar 精确检验。同一批题 S1 vs S2：grand diff=4.08 [−2.80, 10.26]，
    McNemar p=0.34（不显著）——为「区分度」结论提供假设检验表述范式，
    排名主张从此必须带 CI 与 p 值（§3.4 两档制的配套工具）。
+   复现命令（c145 溯源落档）：`cnjudbench compare --run-a
+   reports/runs/v05new-s1m-score --run-b reports/runs/v05new-s2m-score`
+   （n_aligned=62；S1/S2 即 §9 E17 的双考生机检分目录）。
 3. **scored_rate 三件套**：n/a 静默退出均值会让「跑完 60% 且其余对 90%」
    反超「答对 60%」，误导 $/solve 选型——summary 同报 scored_rate、
    n/a 计 0 保守均值与低 scored 率告警（<90% 触发）。

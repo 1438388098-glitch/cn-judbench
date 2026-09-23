@@ -29,7 +29,7 @@ def test_row_from_summary_gates_safety_and_provisional(tmp_path):
                                   {"role": "capability", "score": "n/a"}]}},
     }
     row = _row_from_summary(summary)
-    assert row["solve%"] == "50.00"          # 2/2 计分能力题过线；safety 与 n/a 不进分母
+    assert row["solve%"] == "33.33"          # c148 保守口径：1/3（n/a 计未解决，safety 不进分母）
     assert row["hard±CI"] == "85.00 [80.00,90.00]"
     assert row["$/solve"] == "n/a"           # 无价目禁编造
     assert row["provisional"] == "True"

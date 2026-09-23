@@ -56,3 +56,18 @@ def test_dataset_card_numbers_match_data():
     m = re.search(r"^(\d+) 题带 `saturation_flag: true`", card, re.M)
     assert m, "dataset-card §1.1 饱和题披露行缺失"
     assert int(m.group(1)) == n_sat, f"dataset-card 披露 {m.group(1)} 题饱和，实测 {n_sat}"
+
+
+def test_release_manifest_saturation_flags():
+    """c150：发布 MANIFEST 逐题 saturation_flag 与数据行一致（默认 False 不缺字段）。"""
+    import json
+
+    manifest = json.loads((REPO / "data" / "public" / "MANIFEST.json").read_text(encoding="utf-8"))
+    from cnjudbench.sample import load_all_items
+
+    truth = {it.id: bool(getattr(it, "saturation_flag", False)) for it in load_all_items()}
+    in_manifest = {iid: it["saturation_flag"]
+                   for p in manifest["packages"].values()
+                   for iid, it in p["items"].items()}
+    assert in_manifest == truth
+    assert sum(in_manifest.values()) == 68

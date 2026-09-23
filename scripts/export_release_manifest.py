@@ -44,6 +44,7 @@ def main() -> int:
                 "item_line_hash": h,
                 "canary": row.get("canary"),
                 "difficulty": row.get("difficulty"),
+                "saturation_flag": bool(row.get("saturation_flag", False)),  # c150
                 "bytes": len(line.strip().encode("utf-8")),
             }
             all_hashes.append(h)

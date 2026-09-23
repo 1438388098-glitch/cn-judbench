@@ -81,6 +81,22 @@ def main() -> int:
                  "- 复核人 B：____________ 日期：________",
                  "- 执行人（--apply 后回填 commit/manifest）：____________", ""]
     out_json = REPO / "reports" / "holdout-prospective.json"
+    # c153 可追溯：锁生成时的 harness 版本与 dataset 口径，复核可验证一致性
+    import subprocess
+
+    try:
+        harness_sha = subprocess.run(
+            ["git", "rev-parse", "--short", "HEAD"], capture_output=True, check=True,
+            cwd=REPO).stdout.decode().strip()
+    except Exception:  # noqa: BLE001 —— 非 git 环境仍可生成，字段置 unknown
+        harness_sha = "unknown"
+    pack["harness_sha"] = harness_sha
+    pack["dataset"] = {
+        "items_root": "data/public",
+        "public_items_total": sum(
+            1 for f in (REPO / "data" / "public").glob("*.jsonl")
+            for l in f.read_text(encoding="utf-8-sig").splitlines() if l.strip()),
+    }
     out_json.write_text(json.dumps(pack, ensure_ascii=False, indent=1), encoding="utf-8")
     (REPO / "docs" / "holdout-dual-review-pack.md").write_text("\n".join(lines_md), encoding="utf-8")
     print(f"written: {out_json}")

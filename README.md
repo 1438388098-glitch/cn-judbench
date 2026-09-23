@@ -1,6 +1,6 @@
 # CN-JudBench（法衡）
 
-中国司法多维度大模型 / 司法 Agent 评测框架（**v0.5**：v0.4 计分架构 + v0.5 难度重构（12 包 317 题）+ 实务题 + 双考生区分度实测；版本真源=FRAMEWORK.md 头部）。
+中国司法多维度大模型 / 司法 Agent 评测框架（**v0.6**：v0.5 基础上补判分效度与反刷分——tau 部分得分、set_f1 1-1 反倾倒、any-of 双口径、scored% n/a 口径、`cnjudbench compare`（bootstrap CI + McNemar + 预注册六包 macro/micro）、gold 改判预注册政策与台账、锚审计入 CI、MIT/CC BY 4.0 分表许可；版本真源=FRAMEWORK.md 头部）。
 
 **目标**：测出模型在中国司法工作流里「哪一维能用、哪一维危险、是否稳定、代价多少」。  
 **分数**：百分制，保留两位小数（0.00–100.00）。  

@@ -27,13 +27,17 @@ def _row_from_summary(summary: dict) -> dict:
     b = summary.get("baselines") or {}
     b_str = ("random=" + str((b.get("random") or {}).get("grand_eq", "n/a"))
              + " / rules=" + str((b.get("rules") or {}).get("grand_eq", "n/a")))
+    # v0.6 c148 保守口径：分母 = 全部 capability 题（n/a 计未解决）。
+    # 旧口径剔除 n/a 会让「跑完 60% 且其余全对」solve 反超「答对 60%」，
+    # 与 scored% 揭幕的 n/a 陷阱自相矛盾。
     solve = solved = 0
     for task in (summary.get("tasks") or {}).values():
         for it in task.get("items", []):
-            if it.get("role") == "safety" or it.get("score") in (None, "n/a"):
+            if it.get("role") == "safety":
                 continue
             solve += 1
-            solved += 1 if float(it["score"]) >= 60.0 else 0
+            sc = it.get("score")
+            solved += 1 if sc not in (None, "n/a") and float(sc) >= 60.0 else 0
     return {
         "模型": summary.get("model_id", "n/a"),
         "rev": str(summary.get("run_id", "n/a")),

@@ -62,3 +62,51 @@ def test_items_export_and_diff_values(tmp_path):
         w.writerows(rep["items"])
     rows = list(csv.DictReader(out_csv.open(encoding="utf-8-sig")))
     assert len(rows) == 2 and rows[0]["task"] == "s_charge_subsume"
+
+
+def test_preregistered_macro_equal_task_weight(tmp_path):
+    """c144：六包等权 macro——包 n 不均时 macro ≠ micro。"""
+    a, b = tmp_path / "a", tmp_path / "b"
+    _write_run(a, {
+        "s_charge_subsume": [("s-1", 100.0), ("s-2", 100.0), ("s-3", 100.0)],
+        "cit_validity": [("c-1", 0.0)],
+    })
+    _write_run(b, {
+        "s_charge_subsume": [("s-1", 0.0), ("s-2", 0.0), ("s-3", 0.0)],
+        "cit_validity": [("c-1", 0.0)],
+    })
+    rep = compare_runs(a, b, preregistered=True, n_boot=200)
+    mc = rep["macro_ci"]
+    assert mc["n_tasks"] == 2
+    assert abs(mc["point"] - 50.0) < 1e-9   # macro: (100 + 0)/2
+    assert abs(rep["mean_a"] - 75.0) < 1e-9  # micro: 300/4
+    # CI 端点来自 bootstrap，point 与 micro 必然不同 → 口径分列成立
+    assert "macro_ci" not in compare_runs(a, b, preregistered=False)
+
+
+def test_compare_cli_end_to_end(tmp_path, capsys):
+    """c147：CLI 参数接线（--items-out/--preregistered/--out）走 main() 全链路。"""
+    import io
+    from pathlib import Path
+    from contextlib import redirect_stdout
+
+    from cnjudbench.cli import main
+
+    a, b = tmp_path / "ra", tmp_path / "rb"
+    _write_run(a, {"s_charge_subsume": [("s-001", 80.0), ("s-002", 40.0)],
+                   "gaia_fee_deadline": [("g-01", 90.0)]})
+    _write_run(b, {"s_charge_subsume": [("s-001", 50.0), ("s-002", 40.0)],
+                   "gaia_fee_deadline": [("g-01", 90.0)]})
+    out_json = tmp_path / "cmp.json"
+    out_csv = tmp_path / "cmp.csv"
+    buf = io.StringIO()
+    with redirect_stdout(buf):
+        rc = main(["compare", "--run-a", str(a), "--run-b", str(b),
+                   "--preregistered", "--out", str(out_json),
+                   "--items-out", str(out_csv)])
+    assert rc == 0
+    text = buf.getvalue()
+    assert "n_aligned=2" in text and "macro(六包等权)" in text
+    assert out_json.is_file() and out_csv.is_file()
+    rows = list(csv.DictReader(out_csv.open(encoding="utf-8-sig")))
+    assert len(rows) == 2 and all(r["task"] == "s_charge_subsume" for r in rows)

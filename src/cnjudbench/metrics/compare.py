@@ -12,6 +12,8 @@ from __future__ import annotations
 
 import json
 import math
+import random
+from collections import defaultdict
 from pathlib import Path
 
 from .bootstrap import paired_bootstrap_ci
@@ -59,6 +61,37 @@ def _item_scores(summary_path: Path) -> tuple[dict[str, float], dict[str, str], 
             roles[it["id"]] = it.get("role", "capability")
             tasks[it["id"]] = task_id
     return scores, roles, tasks
+
+
+def _macro_paired_bootstrap(
+    task_of: list[str], a: list[float], b: list[float], *, n_boot: int, seed: int
+) -> dict:
+    """包等权 macro 分差的配对 bootstrap（c144，FRAMEWORK §8.3 预注册口径）。
+
+    层内重采样题目 → 各包均值 → 六包等权平均；分位数取法与
+    bootstrap.paired_bootstrap_ci 一致（int(0.025*(n_boot-1))）。
+    """
+    by_task: dict[str, list[int]] = defaultdict(list)
+    for idx, tid in enumerate(task_of):
+        by_task[tid].append(idx)
+    n_tasks = len(by_task)
+    rng = random.Random(seed)
+    deltas: list[float] = []
+    for _ in range(n_boot):
+        ma = mb = 0.0
+        for idxs in by_task.values():
+            take = [idxs[rng.randrange(len(idxs))] for _ in idxs]
+            ma += sum(a[i] for i in take) / len(take)
+            mb += sum(b[i] for i in take) / len(take)
+        deltas.append((ma - mb) / n_tasks)
+    deltas.sort()
+    point = (sum(a) - sum(b)) / len(a) if n_tasks == 0 else (
+        sum(sum(a[i] for i in idxs) / len(idxs) for idxs in by_task.values())
+        - sum(sum(b[i] for i in idxs) / len(idxs) for idxs in by_task.values())
+    ) / n_tasks
+    return {"point": point, "ci95_low": deltas[int(0.025 * (n_boot - 1))],
+            "ci95_high": deltas[int(0.975 * (n_boot - 1))],
+            "n_tasks": n_tasks, "seed": seed, "n_boot": n_boot}
 
 
 def compare_runs(
@@ -111,4 +144,8 @@ def compare_runs(
     out["paired_ci"] = paired_bootstrap_ci(a, b, n_boot=n_boot, seed=seed)
     out["mcnemar"] = mcnemar_exact([x >= threshold for x in a],
                                    [x >= threshold for x in b])
+    if preregistered:
+        # c144：六包等权 macro（FRAMEWORK §8.3「核心六包等权 grand」的题级实现）
+        task_of = [tasks_a[i] for i in common]
+        out["macro_ci"] = _macro_paired_bootstrap(task_of, a, b, n_boot=n_boot, seed=seed)
     return out

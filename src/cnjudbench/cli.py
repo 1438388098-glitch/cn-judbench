@@ -279,6 +279,8 @@ def _build_summary(
         judged = [jr.mapped for jr in judge_scores.get(run.task_id, {}).values() if jr is not None]
         ts = TaskScores(task_id=run.task_id, machine=machine, judge=judged)
         row = summarize([ts])["tasks"][0]
+        _stats_pre = scored_rate_stats(run.results)
+        n_cap_total = _stats_pre["n_capability"]
         entry = {
             "machine_mean": row["machine_mean"],
             "machine_mean_str": row["machine_mean_str"],
@@ -286,9 +288,9 @@ def _build_summary(
             "n_machine": row["n_machine"],
             "n_judge": row["n_judge"],
             "solve_rate_str": (
-                fmt2(100.0 * sum(1 for s in machine if s >= 60.0) / len(machine))
-                if machine else "n/a"
-            ),
+                fmt2(100.0 * sum(1 for s in machine if s >= 60.0) / n_cap_total)
+                if n_cap_total else "n/a"
+            ),  # c148 保守口径：分母含 n/a（n_cap_total），n/a 计未解决
         }
         if machine:
             ci = bootstrap_ci_mean(machine)
@@ -300,10 +302,9 @@ def _build_summary(
         entry["safety_mean_str"] = fmt2(_mean([r.score for r in safety])) if safety else "n/a"
         entry["n_safety"] = len(safety)
         # v0.6 n/a 口径：scored_rate / n-a计0保守均值 / 低scored率告警
-        _stats = scored_rate_stats(run.results)
-        entry.update(_stats)
-        _cap_scored_total += _stats["n_scored"]
-        _cap_total += _stats["n_capability"]
+        entry.update(_stats_pre)
+        _cap_scored_total += _stats_pre["n_scored"]
+        _cap_total += _stats_pre["n_capability"]
         if args.blend == "weighted":
             combined = combine(ts.mean_machine(), ts.mean_judge(), mode="weighted")
             entry["combined_str"] = fmt2(combined) if combined is not None else "n/a"
@@ -598,13 +599,15 @@ def _write_report_csv(out_dir: Path, summary: dict, manifest: dict) -> None:
 
     ci = manifest.get("stats", {}).get("ci95") or {}
     cap = summary.get("capability", {})
+    # v0.6 c148 保守口径（与 make_paper_tables 同源）：n/a 计入分母不计 solved
     solve = solved = 0
     for task in summary.get("tasks", {}).values():
         for it in task.get("items", []):
-            if it.get("role") == "safety" or it.get("score") in (None, "n/a"):
+            if it.get("role") == "safety":
                 continue
             solve += 1
-            solved += 1 if float(it["score"]) >= 60.0 else 0
+            sc = it.get("score")
+            solved += 1 if sc not in (None, "n/a") and float(sc) >= 60.0 else 0
     cap_str = cap.get("grand_eq", "n/a")
     if ci.get("ci95_low") is not None:
         cap_str = f"{ci['point']:.2f} [{ci['ci95_low']:.2f},{ci['ci95_high']:.2f}]"
@@ -915,6 +918,10 @@ def _cmd_compare(args: argparse.Namespace) -> int:
           f"(n_boot={ci['n_boot']}, seed={ci['seed']})")
     print(f"mcnemar: 01(a错b对)={m['n_01']} 10(a对b错)={m['n_10']} "
           f"p_exact={m['p_exact']:.4f}")
+    if "macro_ci" in rep:
+        mc = rep["macro_ci"]
+        print(f"macro(六包等权): diff={mc['point']:.2f} "
+              f"[{mc['ci95_low']:.2f}, {mc['ci95_high']:.2f}] (n_tasks={mc['n_tasks']})")
     if args.out:
         args.out.write_text(json.dumps(rep, ensure_ascii=False, indent=1), encoding="utf-8")
         print(f"written: {args.out}")

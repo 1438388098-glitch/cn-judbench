@@ -46,6 +46,14 @@ def load_runs(runs: list[Path]) -> tuple[list[str], list[dict[str, float]]]:
     return ids, per_run
 
 
+def drop_saturated(ids: list[str]) -> list[str]:
+    """c152：剔除 saturation_flag=true 的题 id（以 data/public 现行标注为准）。"""
+    from cnjudbench.sample import load_all_items
+
+    sat = {it.id for it in load_all_items() if getattr(it, "saturation_flag", False)}
+    return [i for i in ids if i not in sat]
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--runs", nargs="+", required=True, type=Path,
@@ -54,10 +62,22 @@ def main() -> int:
                     help="通过阈值（缺省 100=满分通过）")
     ap.add_argument("--k", type=int, default=None, help="pass^k 的 k（缺省 = run 数）")
     ap.add_argument("--out", type=Path, default=None, help="markdown 输出路径")
+    ap.add_argument("--exclude-saturation", action="store_true",
+                    help="剔除 saturation_flag=true 题后重算（c152 区分度敏感性分析；"
+                         "对照报告 = 同命令不加开关）")
     args = ap.parse_args()
 
     k = args.k or len(args.runs)
     ids, per_run = load_runs(args.runs)
+    if args.exclude_saturation:
+        before = len(ids)
+        ids = drop_saturated(ids)
+        if len(ids) != before:
+            print(f"[exclude-saturation] {before - len(ids)}/{before} 题为饱和标注，已剔除")
+        else:
+            print("[exclude-saturation] 0 题命中饱和标注")
+        if not ids:
+            raise SystemExit("剔除饱和题后无剩余题目")
     flags = [[s.get(i, float("nan")) >= args.threshold for i in ids] for s in per_run]
     # 题目须在全部 run 中有分；缺失算未通过（保守）
     per_item_flags = [[f[j] for f in flags] for j in range(len(ids))]

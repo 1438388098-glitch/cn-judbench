@@ -50,3 +50,13 @@ def test_pick_ids_sensitive_to_id_set_change():
     assert base != changed
     # 同一 id 集合：重算必须完全一致（确定性）
     assert base == pick_ids("s_charge_subsume", items)
+
+
+def test_passk_drop_saturated(tmp_path, monkeypatch):
+    """c152：drop_saturated 剔除饱和标注 id，保留其余。"""
+    sys.path.insert(0, str(REPO / "scripts"))
+    import aggregate_passk
+
+    ids = ["cp-002", "cp-003", "s-001"]  # cp-002/cp-003 在 data/public 标注饱和
+    out = aggregate_passk.drop_saturated(ids)
+    assert "cp-002" not in out and "cp-003" not in out and "s-001" in out
