@@ -179,9 +179,6 @@ def test_c221_passk_exclusion_markdown_line(tmp_path):
     if not (run_a / "summary.json").is_file():
         pytest.skip("audit-calc1 run 目录缺失")
     out = tmp_path / "passk.md"
-    buf = io.StringIO()
-    with redirect_stdout(buf):
-        rc = agg.main.__wrapped__ if hasattr(agg.main, "__wrapped__") else None
     # 直接走 main()：argv 注入
     argv = ["aggregate_passk.py", "--runs", str(run_a), str(run_a),
             "--exclude-saturation", "--out", str(out)]
