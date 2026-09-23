@@ -58,6 +58,7 @@ bootstrap CI（1000 次）、flip 门禁（机检>5% 不进榜）、组合 pass^
 3. **金样消融**：同份考生答案在 gold 修正前后重判——分差即「金样错误污染量」（R16：a_irac 31.58→86.84）。改判合法性的预注册规则见 `docs/gold-adjudication-policy.md`（v1.0，2026-09-23 起 gold 改动须过 §2 五条件）。
 配套：answer_enums 公平性契约（validate 强制）、over_promise 否定/疑问语境豁免、金样法学逐题复核记录（scripts/fix_*_r1*.py 注释即审计底稿）。
 配套工具与台账：判分反刷分与统计口径的处置记录见 `docs/research-notes-round3.md`（三路审计 45 条）；法条库逐字校对入队清单见 `docs/lawkb-ingest-queue.md`（16 键，官方文本 + text_hash 事后可核）。
+实证素材（R8 生成）：作者难度×实证通过率交叉表（对角一致 33.9%，作者 d4 的 45 题中 24 题考生全对——作者标注偏难，见 `reports/difficulty-emp-crosstab.md`）；能力维覆盖矩阵 12 包×8+1 维（8+1 维全非零，见 `reports/capability-matrix.md`）。E18 compare 数字已锁活体金样测试（test_e18_repro_golden_v06），数字漂移须先过消融留痕。
 
 ## 4. 实验章骨架（待补数字的槽位标 ⬜）
 

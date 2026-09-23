@@ -43,6 +43,17 @@ def _role_by_id() -> dict[str, str]:
     return roles
 
 
+def _author_difficulty_by_id() -> dict[str, int]:
+    out: dict[str, int] = {}
+    for f in (REPO / "data" / "public").glob("*.jsonl"):
+        for ln in f.read_text(encoding="utf-8-sig").splitlines():
+            if ln.strip():
+                d = json.loads(ln)
+                if d.get("difficulty") is not None:
+                    out[d["id"]] = int(d["difficulty"])
+    return out
+
+
 def main(argv: list[str]) -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--runs", nargs="+", required=True, help="≥2 个 run 目录（summary.json）")
@@ -76,7 +87,10 @@ def main(argv: list[str]) -> int:
 
     out = Path(args.out)
     out.write_text(json.dumps(
-        {"models": model_names, "rule": "p>=0.85:1; >=0.6:2; >=0.3:3; else 4", "items": result},
+        {"models": model_names, "rule": "p>=0.85:1; >=0.6:2; >=0.3:3; else 4",
+         "models_note": "v05new-s1m/s2m 为同底座模型的两名隔离考生实例（E17），"
+                        "p 是考生通过率而非跨模型通过率",
+         "items": result},
         ensure_ascii=False, indent=1), encoding="utf-8")
 
     from collections import Counter
@@ -86,6 +100,36 @@ def main(argv: list[str]) -> int:
     for iid, v in result.items():
         if v["difficulty_emp"] >= 3:
             print(f"  hard {iid}: p={v['p']:.2f} → d{v['difficulty_emp']}")
+
+    # c171：作者难度 × 实证难度交叉表（C4 写作直接引用；4=最难）
+    author = _author_difficulty_by_id()
+    cross: dict[int, Counter] = {}
+    for iid, v in result.items():
+        if iid in author:
+            cross.setdefault(author[iid], Counter())[v["difficulty_emp"]] += 1
+    agree = sum(cnt[d] for d, cnt in cross.items())  # 对角线：作者档=实证档
+    n_both = sum(sum(cnt.values()) for cnt in cross.values())
+    md = [REPO / "reports" / "difficulty-emp-crosstab.md"]
+    lines = [
+        "# 作者难度 × 实证难度交叉表（c171 首跑）",
+        "",
+        f"- 标定源：{', '.join(model_names)}（同底座两隔离考生，E17；p 为考生通过率）",
+        f"- 规则：{_band.__doc__ or 'p>=0.85→1; >=0.6→2; >=0.3→3; else→4'}（score≥60 计通过）",
+        f"- 交叉 {n_both} 题（作者标注与实证标定双全者）；对角一致 {agree} 题"
+        f"（{100 * agree / n_both if n_both else 0:.1f}%）",
+        "",
+        "| 作者难度 \\ 实证 | " + " | ".join(f"d{d}" for d in (1, 2, 3, 4)) + " |",
+        "|---|" + "---|" * 4,
+    ]
+    for d in (1, 2, 3, 4):
+        cnt = cross.get(d, Counter())
+        lines.append(f"| d{d}（{sum(cnt.values())} 题） | "
+                     + " | ".join(str(cnt.get(e, 0)) for e in (1, 2, 3, 4)) + " |")
+    lines += ["",
+              "注：difficulty_emp 回写 jsonl 延后至 Sprint B 数据冻结（避免中途漂移 hash）；"
+              "本表仅作论文「作者标注 vs 实证通过率」一致性分析素材。"]
+    md[0].write_text("\n".join(lines) + "\n", encoding="utf-8")
+    print(f"written: {md[0]}")
     print(f"written: {out}")
     return 0
 
