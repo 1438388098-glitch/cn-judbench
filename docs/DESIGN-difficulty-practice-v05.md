@@ -29,13 +29,18 @@
 
 产出：`docs/difficulty-audit-v05.md` 全题四级清单 + 各包 T4 数量表。砍哪些由这张表定，不拍脑袋。
 
-## 2. Phase 1：减（1 轮）
+## 2. Phase 1：减（1 轮）✅ 已执行（2026-09-23，见 commit「v0.5 Phase 1」与 docs/difficulty-audit-v05.md 附录）
 
 - T4 池中：L1 基础层削减约 40-50 题（目标：简单题占比 ~45% → ~25%），
   移入 `data/archive/`（保留可追溯，不物理删除；validate 不扫 archive）。
 - 每包保底 4-6 题 T1；s_charge safety 7 题、全部负例夹具、dms state0 结构题不砍。
 - 同步：README/index/paper-outline 题数、cnjudbench.sample 分层、测试断言的 n_items。
 - 验收：validate 0 错 + pytest 绿 + GATE 七步绿 + 每包剩余题的层级分布表。
+- **执行口径**：Phase 1 实际只动 a_irac_reason（全库唯一 T4a 集中的 L1 包），
+  32→12（保 hard a-003/a-008/a-019/ah-005 + 应拒 a-020/021/022 + 地板 a-009/a-015
+  + 科目网格保底 a-014/a-016/a-017，砍 20 入 archive）；其余包的 T4b 候选按
+  §3/§4 的「增」路线处置而非直砍，总量 271→251。层级分布验收表见
+  docs/difficulty-audit-v05.md 附录。
 
 ## 3. Phase 2：增难题（按实证有效的三根轴，2-3 轮）
 

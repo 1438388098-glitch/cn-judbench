@@ -1,6 +1,9 @@
 # 全库难度盘点 v0.5（Phase 0 产出）
 
 > 日期：2026-09-23。依据：DESIGN-difficulty-practice-v05.md §1。
+> **处置状态**：Phase 1 已执行——a_irac T4a/T4b 砍候选 20 题移入
+> `data/archive/a_irac_reason.jsonl`，public 余 12 题（本文档的 tier 分布
+> 仍按盘点时点的 271 题口径记录，是历史证据面，不随剖减改写）。
 > 证据面全部为**现行判分器**（R38 后）下的 GLM 真考生 run；存量答案已用 file: 回灌重判
 > （audit-u-hard1 / audit-calc1 / audit-dmsfault1 / audit-fault2，零 API）。
 > 机器可读版：reports/difficulty-audit-v05.json（逐题含 tier/mean/n）。
@@ -63,3 +66,32 @@ ds-flash-v41-v04 无可解析逐题分；全部 mock/smoke/ci run（重放 gold 
    4b 期限监控（env_diff 基座）预期区分度良好。
 3. **a_irac 加题必须落在四道实难题的同族**：条号精度、法定构成情形（ah-005 族）、
    应拒措辞（a-008 族）——泛泛的"多争点"已被证明无效。
+
+## 附录：Phase 1 执行后的剩余层级分布（2026-09-23）
+
+public 剩 251 题 / 12 包（原 271）。a_irac 32→12：保 T3 实难 4
+（a-003/a-008/a-019/ah-005）+ T4a 中的应拒 3 题（a-020/021/022，R37 安全轨
+永不砍）+ 地板 2 题（a-009 协议变体、a-015 跨域劳动，锚定测试/采样基建）
++ 科目网格保底 3 题（a-014 合规、a-016 家事、a-017 知产——「8 科目×每包
+全交叉」为数据集公开不变量，剖减不得破坏）；砍 20 题入
+`data/archive/a_irac_reason.jsonl`。其余包本轮不动（T4b 按 DESIGN
+§3/§4 走「增」路线处置）。下表 tier 沿用盘点时点标签：
+
+| 包 | T1夹具 | T3实难 | T4a(应拒/地板/网格保留) | T4b待3样 | 待测 | 剩余 |
+|---|---|---|---|---|---|---|
+| a_irac_reason | – | 4 | 8 | – | – | 12 |
+| calc_fail_to_pass | – | 16 | – | 30 | – | 46 |
+| cit_validity | – | – | – | – | 21 | 21 |
+| contract_risk | – | – | – | – | 17 | 17 |
+| dms_side_effect_intake | 1 | 5 | – | 7 | 3 | 16 |
+| gaia_fee_deadline | – | – | – | – | 17 | 17 |
+| long_horizon_case | – | – | – | – | 9 | 9 |
+| s_charge_subsume | – | – | – | – | 20 | 20 |
+| tau_jud_intake | – | – | – | – | 12 | 12 |
+| tool_fault_recovery | – | 8 | – | – | 4 | 12 |
+| tool_search_statute | 1 | – | – | – | 25 | 26 |
+| u_element_extract | – | 5 | – | 23 | 15 | 43 |
+| **合计** | **2** | **38** | **8** | **60** | **143** | **251** |
+
+被砍 20 题在审计时点的证据：GLM 三样本全满分（见 §四 T4a 名单），
+对头部模型零区分度；archive 保留可追溯，validate 不扫 archive。

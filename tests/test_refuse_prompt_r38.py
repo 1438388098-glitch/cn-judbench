@@ -28,5 +28,5 @@ def test_refuse_items_render_refuse_protocol():
 
 def test_regular_items_keep_task_template():
     task, _ = load_task_package(REPO / "tasks" / "a_irac_reason")
-    p = _build_prompt(task, _item("a-001", "data/public/a_irac_reason.jsonl"))
+    p = _build_prompt(task, _item("a-015", "data/public/a_irac_reason.jsonl"))
     assert '"issue"' in p and "IRAC" in p
