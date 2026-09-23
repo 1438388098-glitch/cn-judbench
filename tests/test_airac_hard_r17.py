@@ -63,9 +63,10 @@ def test_hard_anchors_in_lawkb():
 
 
 def test_temporal_family_shape():
-    """at- 家族：18 题、锚规范全部现行有效（as_of ≥ 生效日）、难度 4、canary 唯一。"""
+    """at- 家族：22 题（18 时间效力轴 + 4 文书改编）、锚规范全部现行有效
+    （as_of ≥ 生效日）、难度 4、canary 唯一。"""
     items = _items(("at-",))
-    assert len(items) == 18
+    assert len(items) == 22
     canaries = [it["canary"] for it in items]
     assert len(set(canaries)) == len(canaries)
     assert {it["difficulty"] for it in items} == {4}
@@ -77,10 +78,11 @@ def test_temporal_family_shape():
 
 
 def test_run_all_airac_mock_gold_end_to_end(tmp_path, monkeypatch):
-    """mock:gold → 30 题（12 存量 + 18 时间效力轴 at-）全对，证明金样自洽。
+    """mock:gold → 34 题（12 存量 + 18 时间效力轴 + 4 文书改编）全对，证明金样自洽。
 
     12 存量 = 4 hard + 3 应拒（R37）+ 5 地板/网格保底；18 新增 =
-    新旧法衔接 8 + 程序时效交叉 5 + 民间借贷版本 5（v0.5 Phase 3a）。
+    新旧法衔接 8 + 程序时效交叉 5 + 民间借贷版本 5（v0.5 Phase 3a）；
+    4 文书改编 = at-019..022（v0.5 Phase 4d，source=real_amended）。
     """
     monkeypatch.chdir(REPO)
     out = tmp_path / "run"
@@ -91,7 +93,7 @@ def test_run_all_airac_mock_gold_end_to_end(tmp_path, monkeypatch):
     pt = s["per_task"]["a_irac_reason"]
     assert pt["machine_mean_str"] == "100.00"
     n_items = len(s["tasks"]["a_irac_reason"]["items"])
-    assert n_items == 30
+    assert n_items == 34
     for it in s["tasks"]["a_irac_reason"]["items"]:
         assert float(it["score"]) == 100.0, it["id"]
 

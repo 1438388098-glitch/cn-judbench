@@ -84,7 +84,7 @@ nth=3 retry_same、f-106 search_statute nth=3 vary、f-107 必需数据源故障
 （已完成）——f-107/108 成对考「有替代=已完成，无替代=诚实降级」。
 u-048 劳动域、u-049 刑事附带民事域补足单法官域 hard 覆盖。
 
-## 4. Phase 3：实务题（+30 题，3-4 轮）
+## 4. Phase 3：实务题（+30 题，3-4 轮）✅ 已执行（2026-09-23，scripts/add_practice_v05.py，4a-4d 共 30 题；4e Judge 写作轨按本节风险条款 defer——rubric 质量未实测前不硬上）
 
 ### 4a. 案件时间线综合（+12 题，进 gaia_fee_deadline / long_horizon_case）
 一段 300-500 字脱敏案情（多份合同+付款记录+催告+起诉），一次考：

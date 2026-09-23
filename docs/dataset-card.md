@@ -1,6 +1,6 @@
 # CN-JudBench 数据集卡片（Dataset Card, v0.5 · Phase 1）
 
-- 快照：2026-09-23 · public split 共 **287 题**（v0.5：Phase 1 剖减 a_irac 全分饱和题 20 题入 data/archive，Phase 3a/3b/3c 新增难题 18+8+10=36 题；原 271；holdout/live 冻结见 docs/holdout-live-protocol.md，本卡不含）
+- 快照：2026-09-23 · public split 共 **317 题**（v0.5：Phase 1 剖减 a_irac 全分饱和题 20 题入 data/archive，Phase 3a/3b/3c 新增难题 18+8+10=36 题，Phase 4 新增实务题 30 题；原 271；holdout/live 冻结见 docs/holdout-live-protocol.md，本卡不含）
 - 口径：题面 schema/适用面校验 `python -m cnjudbench validate` 全过（12 任务包）；
   金样自检基线 random 9.03 / rules 29.25 / mock:gold 8 包全 100（reports/runs/baseline-v041）
 
@@ -10,7 +10,7 @@
 oracle 硬度阶梯（隐藏单测 > 状态 diff > exact > 受约束 F1 > Judge）支持论文级
 可复现对比。**不得用于司法裁判、合规放行或当事人决策。**
 
-## 2. 任务包构成（12 包 / 287 题）
+## 2. 任务包构成（12 包 / 317 题）
 
 | 任务包 | L 层 | oracle | 题数 | 主要能力维 |
 |---|---|---|---|---|
@@ -19,13 +19,13 @@ oracle 硬度阶梯（隐藏单测 > 状态 diff > exact > 受约束 F1 > Judge�
 | calc_fail_to_pass | L1 | **隐藏单测**（tests/calc/*.py，54 题；v0.5 Phase 3b 增 cx 硬变体 8 题：期间顺延/时效中断/封顶冲抵/复利竞合） | 54 | U |
 | s_charge_subsume | L1 | 罪名归并 exact | 20 | S |
 | tool_search_statute | L2 | tool_sequence/ast + exact | 26 | R |
-| gaia_fee_deadline | L3a | 金额阶梯 + progress | 17 | U/O |
-| dms_side_effect_intake | L3a | **env_diff 终态 diff**（state0 预置 4 题 + 半角镜像 3 题） | 16 | O |
-| tool_fault_recovery | L2 | **fault_recovery**（recovery×final；含 nth=2 进阶 4 题 + v0.5 nth=3 故障链/部分成功状态判断 4 题） | 16 | O |
-| contract_risk | L1 | must_not/风险披露 | 17 | C |
-| a_irac_reason | L1 | 结构化 IRAC（v0.5 重构后 30 题：Phase 1 留存 12 + Phase 3a 时间效力轴 at- 18 题——新旧法衔接 8/程序时效交叉 5/民间借贷版本 5；原 32 题中 20 题对头部模型全分饱和，移入 data/archive） | 30 | A |
-| tau_jud_intake | L3b | 终态 F1 + Proto（多轮） | 12 | C |
-| long_horizon_case | L4 | score–time 多日流程 | 9 | O |
+| gaia_fee_deadline | L3a | 金额阶梯 + progress（v0.5 Phase 4a 增时间线综合 6 题） | 23 | U/O |
+| dms_side_effect_intake | L3a | **env_diff 终态 diff**（state0 预置 4 题 + 半角镜像 3 题 + v0.5 期限监控 4 题） | 20 | O |
+| tool_fault_recovery | L2 | **fault_recovery**（recovery×final；nth=2 进阶 4 + v0.5 nth=3 故障链/部分成功状态判断 4 题） | 16 | O |
+| contract_risk | L1 | must_not/风险披露（v0.5 Phase 4c 增风险告知 6 题） | 23 | C |
+| a_irac_reason | L1 | 结构化 IRAC（v0.5 重构后 34 题：Phase 1 留存 12 + 时间效力轴 18 + 文书改编 4；原 32 题中 20 题对头部模型全分饱和，移入 data/archive） | 34 | A |
+| tau_jud_intake | L3b | 终态 F1 + Proto（多轮；v0.5 Phase 4b 增临期接待 4 题） | 16 | C |
+| long_horizon_case | L4 | score–time 多日流程（v0.5 Phase 4a 增六域整案 6 题） | 15 | O |
 | （另：dms/fault 冒烟与负例夹具见 reference.md） | | | | |
 
 ## 3. 科目与难度分布
@@ -33,7 +33,7 @@ oracle 硬度阶梯（隐藏单测 > 状态 diff > exact > 受约束 F1 > Judge�
 - **8 科目全覆盖**：每任务包在 民商事/刑事/合同合规/劳动/家事/知产/行政/执行
   至少各 1 题（validate 网格强制）；民商事为天然大头（诉讼费/利息/期间类计算
   题集中在民商事）。
-- **难度**：1–4 级作者标注（1 基础 6 题 / 2 基础-中 81 / 3 中 96 / 4 难 104）；
+- **难度**：1–4 级作者标注（1 基础 6 题 / 2 基础-中 81 / 3 中 113 / 4 难 117）；
   实证重标（difficulty_emp，按通过率分带）工具已备（scripts/calibrate_difficulty.py），
   待真实模型数据冻结后回写。
 - **来源**：synthetic（结构化生成，参数化题目+程序化金样）为主；
