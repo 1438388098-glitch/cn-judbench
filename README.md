@@ -95,7 +95,7 @@ scoring shortcuts. Code is MIT-licensed; the public split is CC BY 4.0
 # Windows:  py -3.13 -m venv .venv
 # Linux/macOS:  python3 -m venv .venv
 
-.venv/Scripts/python -m pytest -q                 # 531 项测试全绿
+.venv/Scripts/python -m pytest -q                 # 550+ 项测试全绿（精确计数见 CI，勿在 README 硬编码）
 .venv/Scripts/python -m cnjudbench run-all   --tasks cit_validity,dms_side_effect_intake,tool_fault_recovery   --model mock:gold --out reports/runs/demo
 cat reports/runs/demo/report.csv                  # §6.1 论文表直贴列（solve% 为保守口径：n/a 计未解决）
 ```

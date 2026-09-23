@@ -1,6 +1,6 @@
 # CN-JudBench（法衡）：中国司法多维度大模型评测框架
 
-> **v0.6** · 判分效度与反刷分（2026-09-23）：tau state 谓词部分得分化（E17 遗留闭合，真考生 0.00→13.09/5.56）、set_f1 改 1-1 贪心（反整段倾倒，真数据消融 −2.48 分，E19）、any-of 双口径精确率、中文数字×单位归一、scored_rate 三件套（n/a 口径）、截断 taxonomy、能力维字典 + validate 强制、gold 改判政策（预注册 v1.0）与逐题复核台账、锚×as_of 审计入 CI（第 8 步）、`cnjudbench compare`（bootstrap CI + McNemar + 预注册六包口径）、holdout 冻结协议与双审材料包、发布 MANIFEST、MIT/CC BY 4.0 分表许可。  
+> **v0.6** · 判分效度与反刷分（2026-09-23）：tau state 谓词部分得分化（E17 遗留闭合，真考生 0.00→13.09/5.56）、set_f1 改 1-1 贪心（反整段倾倒，真数据消融 −2.48 分，E19）、any-of 双口径精确率、中文数字×单位归一、scored_rate 三件套（n/a 口径）、截断 taxonomy、能力维字典 + validate 强制、gold 改判政策（预注册 v1.0）与逐题复核台账、锚×as_of 审计入 CI（第 8 步）、`cnjudbench compare`（bootstrap CI + McNemar + 预注册六包口径）、holdout 冻结协议与双审材料包、发布 MANIFEST、MIT/CC BY 4.0 分表许可；判分效度三修复（c322 as_of 强制题面反自证 / c323 极性对冲 / c324 拒绝否定豁免）与判分改动→基线重导纪律（修复后 baseline-v06b 零漂移验证）。  
 > v0.5→v0.6 变更细节：`docs/paper-outline.md` §9 E18–E19、`docs/gold-adjudication-policy.md`、`docs/gold-item-review-log.md`。  
 > **v0.5** · 难度重构与实务扩展落地（依据 `docs/DESIGN-difficulty-practice-v05.md`）：12 任务包 317 题（剖减饱和题入 archive、新增时间效力轴/计算硬变体/抽取进阶/实务 30 题）、lawkb 12 法 61 版本、双考生 pass^k 区分度实测（E17）；v0.4 计分架构（Sprint A）沿用。  
 > v0.4→v0.5 变更细节：`docs/difficulty-audit-v05.md`、`docs/paper-outline.md` §9 E14–E17。  
