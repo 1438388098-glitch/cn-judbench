@@ -113,19 +113,49 @@ def _core(s: str) -> str:
     return "".join(ch for ch in s if ch not in _STOP)
 
 
+_NEG_HEADS = ("不", "未", "无", "非", "没", "别", "勿", "无法", "难以", "不能")
+
+
+def polarity_opposed(got: Any, want: Any) -> bool:
+    """极性对冲检测（c323）：一侧带否定头、另一侧不带，且剥头后核心相等
+    （支持/不支持、构成侵权/不构成侵权）→ 语义反转，不得按包含或 bigram
+    覆盖给分——v0.6 partial 化后 text_coverage 曾使「不支持 vs 支持」=1.0。
+
+    「裁定不予受理 vs 不予受理」（剥头后核心不等）与双方均带/均不带头的
+    同义改写（不能保证/无法保证）不误伤。"""
+    g, w = normalize_label(got), normalize_label(want)
+    if not g or not w or g == w:
+        return False
+
+    def _strip(s: str) -> tuple[str, str | None]:
+        for h in _NEG_HEADS:
+            if s.startswith(h):
+                return s[len(h):], h
+        return s, None
+
+    gc, gh = _strip(g)
+    wc, wh = _strip(w)
+    if gh is None and wh is None:
+        return False
+    if gh is not None and wh is not None:
+        return False
+    return gc == wc and min(len(g), len(w)) <= 12
+
+
 def labels_match(got: Any, want: Any) -> bool:
     g, w = normalize_label(got), normalize_label(want)
     if not g or not w:
         return False
     if g == w:
         return True
-    if len(w) >= 2 and w in g:
+    if len(w) >= 2 and w in g and not polarity_opposed(g, w):
         return True
-    if len(g) >= 2 and g in w:
+    if len(g) >= 2 and g in w and not polarity_opposed(g, w):
         return True
     gc, wc = _core(g), _core(w)
     if gc and wc and (gc == wc or (len(wc) >= 2 and wc in gc) or (len(gc) >= 2 and gc in wc)):
-        return True
+        if not (polarity_opposed(g, w) or polarity_opposed(gc, wc)):
+            return True
     return text_coverage(got, want) >= 0.55
 
 
@@ -134,6 +164,8 @@ def text_coverage(got: Any, want: Any) -> float:
     w = _core(normalize_label(want))
     g = _core(normalize_label(got))
     if not w or not g:
+        return 0.0
+    if polarity_opposed(got, want):
         return 0.0
     if w in g or g in w:
         return 1.0

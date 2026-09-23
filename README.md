@@ -47,9 +47,9 @@ scoring shortcuts. Code is MIT-licensed; the public split is CC BY 4.0
 
 ## 文档
 
-| `docs/gold-adjudication-policy.md` | 金样验收与改判预注册规则（改 gold 必读） |
 | 文件 | 说明 |
 |---|---|
+| [docs/gold-adjudication-policy.md](docs/gold-adjudication-policy.md) | 金样验收与改判预注册规则（改 gold 必读） |
 | [FRAMEWORK.md](FRAMEWORK.md) | 框架设计定稿 **v0.4**（§14：v0.3.1→v0.4 差异清单） |
 | [docs/DESIGN-benchmark-optimization-v0.4.md](docs/DESIGN-benchmark-optimization-v0.4.md) | 优化设计（对标映射 + Sprint A/B/C） |
 | [docs/paper-outline.md](docs/paper-outline.md) | 论文骨架与差距清单 |
@@ -92,8 +92,10 @@ scoring shortcuts. Code is MIT-licensed; the public split is CC BY 4.0
 ## 快速开始（5 分钟）
 
 ```bash
-py -3.13 -m venv .venv && .venv/Scripts/python -m pip install -e ".[dev]"
-.venv/Scripts/python -m pytest -q                 # 384 项测试全绿
+# Windows:  py -3.13 -m venv .venv
+# Linux/macOS:  python3 -m venv .venv
+
+.venv/Scripts/python -m pytest -q                 # 531 项测试全绿
 .venv/Scripts/python -m cnjudbench run-all   --tasks cit_validity,dms_side_effect_intake,tool_fault_recovery   --model mock:gold --out reports/runs/demo
 cat reports/runs/demo/report.csv                  # §6.1 论文表直贴列（solve% 为保守口径：n/a 计未解决）
 ```
@@ -113,7 +115,9 @@ cat reports/runs/demo/report.csv                  # §6.1 论文表直贴列（s
 
 ```bash
 # 环境：Python 3.11+，装依赖与包
-py -3.13 -m venv .venv && .venv/Scripts/python -m pip install -e ".[dev]"
+# Windows:  py -3.13 -m venv .venv
+# Linux/macOS:  python3 -m venv .venv
+
 
 # 校验任务包与题面（schema + §4.2.1 适用面矩阵 + lawkb 完整性）
 python -m cnjudbench validate --items data/public --tasks tasks
@@ -158,7 +162,10 @@ python scripts/flip_rate_check.py --tasks cit_validity --model mock:gold   # API
 
 Mock（`mock:gold`）零网络、确定性，CI 只跑 Mock；真 API 冒烟为可选步骤。
 
-# v0.4：答案回灌与统计协议
+## 答案回灌与统计协议（v0.4）
+
+```bash
+# 1) 回灌判分（不调 API）：导出题面 → 外部生成 answers/<item_id>.txt → file: 模型官方判分
 # 1) 回灌判分（不调 API）：导出题面 → 外部生成 answers/<item_id>.txt → file: 模型官方判分
 python scripts/export_prompts.py --tasks u_element_extract --run-dir runs/u1
 #   （答案放 runs/u1/answers/ 后）
@@ -185,6 +192,7 @@ python scripts/kappa.py --ratings ratings.csv --machine machine.csv
 # 7) 成对比较（bootstrap CI + McNemar；--preregistered 只比核心六包，macro 六包等权）
 python -m cnjudbench compare --run-a reports/runs/m1 --run-b reports/runs/m2 --preregistered
 #   summary.report 的 solve% 为保守口径（n/a 计未解决），与 scored%（n/a 剔除）并列读
+```
 
 ## 测试
 

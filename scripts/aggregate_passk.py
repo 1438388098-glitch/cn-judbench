@@ -84,7 +84,13 @@ def main() -> int:
                          "对照报告 = 同命令不加开关）")
     args = ap.parse_args()
 
-    k = args.k or len(args.runs)
+    n_runs = len(args.runs)
+    # c325：k 越界直接报错——静默退化为 0.00 曾产出形似合法的全错主表数字
+    if args.k is not None and args.k <= 0:
+        ap.error(f"--k 必须 ≥1（收到 {args.k}）")
+    if args.k is not None and args.k > n_runs:
+        ap.error(f"--k={args.k} 大于 run 数 {n_runs}——pass^{args.k} 无定义")
+    k = args.k or n_runs
     ids, per_run = load_runs(args.runs)
     baseline_grand = None  # c158：剔除前的对照 grand（同表输出）
     if args.exclude_saturation:

@@ -69,7 +69,6 @@ def flip_rate(dir_a: Path, dir_b: Path) -> tuple[float, int, list[str]]:
     rate = (len(flips) / compared) if compared else 0.0
     return rate, compared, flips
 
-
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description="复跑谓词翻转率检查（Mock 期望 0）")
     ap.add_argument("--tasks", default=DEFAULT_TASKS, help="逗号分隔 task_id")
@@ -92,6 +91,10 @@ def main(argv: list[str] | None = None) -> int:
         print(f"  FLIP: {f}")
     if args.keep:
         print(f"产物保留于 {tmp}")
+    # c327：无可比题 ≠ 通过——n=0 曾被无证据绿灯放行（vacuous pass）
+    if not compared:
+        print("FLIP CHECK: FAIL（无可比题——复跑全部 n/a，门禁拒绝无证据放行）")
+        return 1
     ok = rate <= args.max_flip
     print("FLIP CHECK: " + ("OK" if ok else "FAIL"))
     return 0 if ok else 1

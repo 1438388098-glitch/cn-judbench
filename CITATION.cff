@@ -1,6 +1,8 @@
 cff-version: 1.2.0
-title: "CN-JudBench: A Multi-dimensional Benchmark for Evaluating Chinese Legal AI"
+title: "CN-JudBench: A Multi-dimensional Benchmark for Large Language Models in Chinese Judicial Workflows"
 message: "若在论文中引用本基准，请使用本文件元数据；BibTeX 版本见 docs/dataset-card.md §7。"
+authors:
+  - name: "CN-JudBench (法衡) Authors"
 type: dataset
 version: "0.6.0"
 date-released: "2026-09-24"

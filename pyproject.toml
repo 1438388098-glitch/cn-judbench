@@ -5,13 +5,25 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "cnjudbench"
 version = "0.6.0"
-description = "CN-JudBench（法衡）：中国司法多维度大模型评测框架 — P0a 地基"
+description = "CN-JudBench (法衡): 中国司法多维度大模型评测框架 v0.6 — 323 题 12 包，机检谓词判分 + 预注册统计协议"
+license = { text = "MIT (code) / CC BY 4.0 (data)" }
+authors = [{ name = "CN-JudBench (法衡) Authors" }]
+keywords = ["legal reasoning", "benchmark", "llm", "evaluation", "chinese-law"]
+classifiers = [
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.13",
+  "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
     "pydantic>=2.5",
     "PyYAML>=6.0",
 ]
+
+[project.urls]
+Homepage = "https://github.com/TODO-assign-repo"
+Repository = "https://github.com/TODO-assign-repo"
 
 [project.optional-dependencies]
 dev = ["pytest>=8"]

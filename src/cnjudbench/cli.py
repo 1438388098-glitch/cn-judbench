@@ -941,7 +941,19 @@ def _cmd_compare(args: argparse.Namespace) -> int:
             w.writerows(rep["items"])
         print(f"written: {args.items_out} ({len(rep['items'])} 行)")
     sig = "显著（CI 不含 0）" if (ci["ci95_low"] > 0 or ci["ci95_high"] < 0) else "不显著（CI 含 0）"
-    print(f"结论：A-B 分差 {sig}")
+    # c326：排名资格两档制（FRAMEWORK §8.3）——小样本抑制显著性结论措辞
+    tier = rep.get("eligibility", {}).get("tier")
+    if tier == "rankable":
+        print(f"结论：A-B 分差 {sig}")
+    elif tier == "ci_descriptive":
+        print(f"结论：n={rep['n_aligned']}∈[50,100)——CI 仅作描述性报告，"
+              f"不作排名依据（{sig}）")
+    else:
+        print(f"结论：n={rep['n_aligned']}<50——仅描述性呈现，禁止进排名/显著性表述")
+    if "macro_ci" in rep:
+        warn = rep["macro_ci"].get("warning")
+        if warn:
+            print(f"WARN: {warn}")
     return 0
 
 

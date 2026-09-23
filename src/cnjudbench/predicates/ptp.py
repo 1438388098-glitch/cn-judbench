@@ -67,7 +67,7 @@ def state(ctx: EvalContext, p, index: int) -> PredicateResult:
     - 列表键：set_f1 元素级得分。
     ok 语义不变（全部键 ≥0.999）；ratio 供 on_fail=partial 比例计分。
     """
-    from ..score.norm import find_key, labels_match, set_f1, text_coverage
+    from ..score.norm import find_key, labels_match, polarity_opposed, set_f1, text_coverage
 
     extra = p.model_extra or {}
     expect: dict = extra.get("expect") or {}
@@ -94,8 +94,10 @@ def state(ctx: EvalContext, p, index: int) -> PredicateResult:
               and normalize_severity(v) in ("high", "medium", "low")):
             per_key[k] = 1.0
         else:
-            # 未达二元命中阈值：按 bigram 覆盖率给连续部分分（同义改写不再归零）
-            per_key[k] = min(1.0, text_coverage(got, v))
+            # 未达二元命中阈值：极性反转计 0（不支持≠支持，c323）；
+            # 同义改写按 bigram 覆盖率给连续部分分（不再归零）
+            per_key[k] = (0.0 if polarity_opposed(got, v)
+                          else min(1.0, text_coverage(got, v)))
     ratio = sum(per_key.values()) / len(per_key) if per_key else 1.0
     ok = all(s >= 0.999 for s in per_key.values()) if per_key else True
     missed = {k: round(s, 2) for k, s in per_key.items() if s < 0.999}

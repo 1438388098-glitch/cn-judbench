@@ -65,16 +65,23 @@ def test_scores_always_two_decimals_in_range():
 
 
 def test_dod3_wrong_vintage_sample_zero_with_taxonomy():
-    """DoD 3a：条号引对但 as_of 早于施行（wrong_vintage 型）→ 0.00 + stale_statute。"""
+    """DoD 3a：条号引对但题面基准日早于施行（wrong_vintage 型）→ 0.00 + stale_statute。
+
+    c322 语义更新：时效判定强制题面 as_of（考生 citation 自报 as_of 曾可
+    自证考题时间轴——引用废止法条+伪日期洗掉 stale 零分触发）；wrong_vintage
+    现以题面基准日构造，考生侧 as_of 不再参与 resolve。"""
+    from datetime import date
+
     store = LawkbStore.load(REPO / "lawkb")
     task, preds = _pkg("s_charge_subsume")
     items = {Item.model_validate_json(l).id: Item.model_validate_json(l)
              for l in _items("s_charge_subsume")}
-    item = items["s-006"]  # 291之二（2021-03-01 施行），as_of 2021-09-01
+    item = items["s-006"]  # 291之二（2021-03-01 施行）
+    item = item.model_copy(update={"as_of": date(2021, 1, 1)})  # 题面基准日=施行前
     gold = json.loads(next(l for l in _items("s_charge_subsume") if '"s-006"' in l))["gold"]
     stale = dict(gold,
                  citations=[{"law": "中华人民共和国刑法", "article": "291之二",
-                             "as_of": "2020-06-01"}],
+                             "as_of": "2021-01-01"}],
                  defendant_name="孙某")
     r = evaluate_item(task, preds, item,
                       MockAdapter(lambda _p: json.dumps(stale, ensure_ascii=False)), store)

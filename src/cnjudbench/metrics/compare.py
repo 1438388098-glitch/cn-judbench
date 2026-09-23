@@ -94,6 +94,18 @@ def _macro_paired_bootstrap(
             "n_tasks": n_tasks, "seed": seed, "n_boot": n_boot}
 
 
+def _eligibility(n_aligned: int, protocol: str = "FRAMEWORK §8.3") -> dict:
+    """排名资格两档制（c326，FRAMEWORK §8.3）：n≥100 rankable；50≤n<100
+    CI 仅 descriptive；n<50 descriptive_only——CLI 据此抑制显著性结论措辞。"""
+    if n_aligned >= 100:
+        tier = "rankable"
+    elif n_aligned >= 50:
+        tier = "ci_descriptive"
+    else:
+        tier = "descriptive_only"
+    return {"tier": tier, "n_threshold": 100, "protocol": protocol}
+
+
 def compare_runs(
     run_a: Path,
     run_b: Path,
@@ -144,8 +156,19 @@ def compare_runs(
     out["paired_ci"] = paired_bootstrap_ci(a, b, n_boot=n_boot, seed=seed)
     out["mcnemar"] = mcnemar_exact([x >= threshold for x in a],
                                    [x >= threshold for x in b])
+    # c326：排名资格两档制（FRAMEWORK §8.3）——小样本不再与 n≥100 同措辞
+    out["eligibility"] = _eligibility(len(common))
     if preregistered:
         # c144：六包等权 macro（FRAMEWORK §8.3「核心六包等权 grand」的题级实现）
         task_of = [tasks_a[i] for i in common]
-        out["macro_ci"] = _macro_paired_bootstrap(task_of, a, b, n_boot=n_boot, seed=seed)
+        macro = _macro_paired_bootstrap(task_of, a, b, n_boot=n_boot, seed=seed)
+        # c328：核心六包缺包 = 预注册单元被无声替换，必须显式告警
+        missing = sorted(CORE_SIX_TASKS - set(task_of))
+        macro["missing_tasks"] = missing
+        if missing:
+            macro["warning"] = (
+                f"核心六包缺 {len(missing)} 包（{', '.join(missing)}），"
+                "macro 实为"
+                f"{len(set(task_of))} 包等权——不可与完整六包口径比较")
+        out["macro_ci"] = macro
     return out

@@ -247,28 +247,33 @@ def evaluate_item(
     else:
         trajectory = None
 
-    # 2) claim 抽取 + CiteGuard 三检（claim.as_of 仅在可解析为 ISO 时优先，否则用题面）
+    # 2) claim 抽取 + CiteGuard 三检
     extraction = extract_claims(answer, task.output_type, completion.text)
 
-    def _as_of_for(claim_as_of: str | None) -> str:
-        if claim_as_of:
-            try:
-                from datetime import date as _date
-                _date.fromisoformat(str(claim_as_of).strip())
-                return str(claim_as_of).strip()
-            except ValueError:
-                pass  # 「2014年案发时…」等叙述 → 落回题面 as_of
-        return item.as_of.isoformat()
+    # v0.6 判分效度修复（c322）：时效判定**强制题面 as_of**。考生 citation
+    # 自带可解析 as_of 会改写考题时间轴（自证考题条件——引用废止法条并附伪
+    # 日期即可洗掉 stale_statute 零分触发）；叙述值仅进 as_of_used 诊断列。
+    item_as_of = item.as_of.isoformat()
+
+    def _claim_as_of_note(claim_as_of: str | None) -> str | None:
+        if not claim_as_of:
+            return None
+        try:
+            from datetime import date as _date
+            _date.fromisoformat(str(claim_as_of).strip())
+            return str(claim_as_of).strip()
+        except ValueError:
+            return None  # 「2014年案发时…」等叙述 → 仅丢弃，不落时间轴
 
     checks: list[CiteCheck] = [
-        check_claim(c, store, as_of=_as_of_for(c.as_of)) for c in extraction.claims
+        check_claim(c, store, as_of=item_as_of) for c in extraction.claims
     ]
     # as_of_used 记实际生效日（ISO），避免叙述性 claim.as_of 污染 manifest（P2-8）
-    as_of_used = [item.as_of.isoformat()] + sorted(
+    as_of_used = [item_as_of] + sorted(
         {
-            _as_of_for(c.as_of)
-            for c in extraction.claims
-            if c.as_of and _as_of_for(c.as_of) != item.as_of.isoformat()
+            note
+            for note in (_claim_as_of_note(c.as_of) for c in extraction.claims)
+            if note and note != item_as_of
         }
     )
     text_hashes = [chk.text_hash for chk in checks if chk.ok and chk.text_hash]

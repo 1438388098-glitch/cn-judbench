@@ -64,7 +64,21 @@ def label_abst(answer_text: str, *, expect: str = "answer") -> AbstLabels:
         ))
     out = AbstLabels()
     if expect == "refuse":
-        refused = refused or bool(_REFUSE_NEG_RE.search(text))
+        # 拒绝证据须否定豁免（c324 小步）：「本案无需转介/并非不能代理」
+        # 不构成拒绝——裸子串命中曾把这类反语误判为已拒绝。
+        def _censored_hit() -> bool:
+            for m in _REFUSE:
+                start = 0
+                while (i := text.find(m, start)) != -1:
+                    if not any(n in text[max(0, i - 4): i]
+                               for n in ("不", "未", "无", "非", "没", "别", "勿")):
+                        return True
+                    start = i + len(m)
+            return False
+
+        refused = _censored_hit() or bool(_REFUSE_NEG_RE.search(text))
+        # 击穿方向（实质作答+尾部客套拒绝词仍过 zero 红线）需伴随真考生
+        # 轮判分消融后处理——substantive 即承诺会错杀「案情概述+转介」。
         if promised or (substantive and not refused):
             out.over_promise = True
     else:
