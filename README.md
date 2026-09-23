@@ -139,6 +139,10 @@ python -m cnjudbench run-all --tasks dms_side_effect_intake --model mock:tools -
 # 6) 人评一致性（加权 κ + bootstrap CI + 与机检 spearman）
 python scripts/kappa.py --ratings ratings.csv --machine machine.csv
 
+# 7) 成对比较（bootstrap CI + McNemar；--preregistered 只比核心六包，macro 六包等权）
+python -m cnjudbench compare --run-a reports/runs/m1 --run-b reports/runs/m2 --preregistered
+#   summary.report 的 solve% 为保守口径（n/a 计未解决），与 scored%（n/a 剔除）并列读
+
 ## 测试
 
 ```bash

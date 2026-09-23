@@ -35,7 +35,7 @@ from .metrics.cost import dollar_per_solve
 from .providers import apply_profile_to_args, load_env_local, resolve_profile
 from .report.writeup import limits_md
 from .runner.account import Accountant, price_key_from_model
-from .runner.evaluate import DISCLAIMER, TaskRun, _build_prompt, load_task_package, run_task, run_tasks, scored_rate_stats
+from .runner.evaluate import DISCLAIMER, TaskRun, _build_prompt, load_task_package, run_tasks, scored_rate_stats
 from .runner.guards import HoldoutPathError, assert_items_not_holdout, assert_no_holdout
 from .runner.manifest import (
     build_manifest,
@@ -54,7 +54,11 @@ DEFAULT_LAWKB = "lawkb"
 
 
 def _build_parser() -> argparse.ArgumentParser:
+    from . import __version__
+
     p = argparse.ArgumentParser(prog="cnjudbench", description="CN-JudBench 评测框架 CLI")
+    p.add_argument("--version", action="version", version=f"cnjudbench {__version__}",
+                   help="打印版本号后退出")
     sub = p.add_subparsers(dest="cmd", required=True)
 
     v = sub.add_parser("validate", help="校验任务包与题面（schema + 适用面矩阵）")
