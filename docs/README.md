@@ -33,6 +33,7 @@ CN-JudBench 全部文档的分组导航（c276）。新增 `docs/*.md` 时必须
 | [gold-adjudication-policy.md](gold-adjudication-policy.md) | gold 改动五条件裁定政策 |
 | [holdout-live-protocol.md](holdout-live-protocol.md) | holdout/live 冻结与解冻协议（双审签字） |
 | [holdout-dual-review-pack.md](holdout-dual-review-pack.md) | holdout 双审材料包 |
+| [examinee-round-pack.md](examinee-round-pack.md) | 草稿真考生轮执行包（漂洗导出→双考生→裁定→入库） |
 | [human-eval-protocol.md](human-eval-protocol.md) | 人评 κ 招募与执行协议 |
 | [gold-item-review-log.md](gold-item-review-log.md) | gold 逐题评审日志 |
 
