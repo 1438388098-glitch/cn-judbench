@@ -49,25 +49,30 @@ def test_c225_file_cache_multithreaded(tmp_path):
     assert len(list(tmp_path.glob("*.json"))) == 20  # 无写坏/丢文件
 
 
-def test_c226_holdout_pack_idempotent():
+def test_c226_holdout_pack_idempotent(tmp_path):
     script = REPO / "scripts" / "holdout_review_pack.py"
     out1 = REPO / "reports" / "holdout-prospective.json"
     assert out1.is_file() and script.is_file()
-    before = out1.read_text(encoding="utf-8")
-    r = subprocess.run([str(REPO / ".venv" / "Scripts" / "python.exe"),
-                        str(script)], cwd=REPO, capture_output=True, text=True,
-                       timeout=300)
-    if r.returncode != 0:
-        # 生成器可能要求显式参数——跳过而非误报
-        assert "required" in r.stderr, r.stderr[-300:]
-        return
-    after = out1.read_text(encoding="utf-8")
-    a, b = json.loads(before), json.loads(after)
-    # generated（时间戳）与 harness_sha（生成时提交，重生成合法刷新到 HEAD，
-    # 见 test_c173）均允许漂移；抽样结构/比例/数据集口径必须逐字相同
-    for k in ("generated", "harness_sha"):
-        a.pop(k, None), b.pop(k, None)
-    assert a == b
+    original = out1.read_bytes()  # 快照恢复：测试不得把仓库文件跑脏
+    try:
+        r = subprocess.run([str(REPO / ".venv" / "Scripts" / "python.exe"),
+                            str(script)], cwd=REPO, capture_output=True, text=True,
+                           timeout=300)
+        if r.returncode != 0:
+            # 生成器可能要求显式参数——跳过而非误报
+            assert "required" in r.stderr, r.stderr[-300:]
+            return
+        first = out1.read_bytes()
+        r2 = subprocess.run([str(REPO / ".venv" / "Scripts" / "python.exe"),
+                             str(script)], cwd=REPO, capture_output=True, text=True,
+                            timeout=300)
+        assert r2.returncode == 0
+        second = out1.read_bytes()
+        a, b = json.loads(first), json.loads(second)
+        a.pop("generated", None), b.pop("generated", None)  # 时间戳允许漂移
+        assert a == b  # 双连跑（同一 HEAD）结构逐字相同
+    finally:
+        out1.write_bytes(original)
 
 
 def test_c228_framework_dims_match_canonical():
@@ -94,15 +99,20 @@ def test_c229_ci_workflow_declares_floor_python():
 
 def test_c230_ingest_queue_generator_idempotent(tmp_path):
     script = REPO / "scripts" / "gen_lawkb_ingest_queue.py"
-    r1 = subprocess.run([str(REPO / ".venv" / "Scripts" / "python.exe"), str(script)],
-                        cwd=REPO, capture_output=True, text=True, timeout=300)
-    assert r1.returncode == 0, r1.stderr[-300:]
-    before = (REPO / "docs" / "lawkb-ingest-queue.md").read_text(encoding="utf-8")
-    r2 = subprocess.run([str(REPO / ".venv" / "Scripts" / "python.exe"), str(script)],
-                        cwd=REPO, capture_output=True, text=True, timeout=300)
-    assert r2.returncode == 0
-    after = (REPO / "docs" / "lawkb-ingest-queue.md").read_text(encoding="utf-8")
-    # 生成头含日期与 harness 行允许漂移；表体必须稳定
-    body_before = "\n".join(before.splitlines()[6:])
-    body_after = "\n".join(after.splitlines()[6:])
-    assert body_before == body_after
+    queue = REPO / "docs" / "lawkb-ingest-queue.md"
+    original = queue.read_bytes()  # 快照恢复，防测试跑脏仓库文件
+    try:
+        r1 = subprocess.run([str(REPO / ".venv" / "Scripts" / "python.exe"), str(script)],
+                            cwd=REPO, capture_output=True, text=True, timeout=300)
+        assert r1.returncode == 0, r1.stderr[-300:]
+        before = queue.read_text(encoding="utf-8")
+        r2 = subprocess.run([str(REPO / ".venv" / "Scripts" / "python.exe"), str(script)],
+                            cwd=REPO, capture_output=True, text=True, timeout=300)
+        assert r2.returncode == 0
+        after = queue.read_text(encoding="utf-8")
+        # 生成头含日期与 harness 行允许漂移；表体必须稳定
+        body_before = "\n".join(before.splitlines()[6:])
+        body_after = "\n".join(after.splitlines()[6:])
+        assert body_before == body_after
+    finally:
+        queue.write_bytes(original)

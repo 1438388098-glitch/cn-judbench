@@ -43,6 +43,44 @@ def _role_by_id() -> dict[str, str]:
     return roles
 
 
+def _capability_by_id() -> dict[str, str]:
+    import sys
+    sys.path.insert(0, str(REPO / "src"))
+    from cnjudbench.capabilities import parse_capability
+    out: dict[str, str] = {}
+    for f in (REPO / "data" / "public").glob("*.jsonl"):
+        for ln in f.read_text(encoding="utf-8-sig").splitlines():
+            if ln.strip():
+                d = json.loads(ln)
+                if d.get("capability"):
+                    out[d["id"]] = parse_capability(d["capability"])[0]
+    return out
+
+
+def _spearman(xs: list[float], ys: list[float]) -> float:
+    """秩相关（平均秩处理并列，无 scipy 依赖）。"""
+    def _ranks(vs):
+        order = sorted(range(len(vs)), key=lambda i: vs[i])
+        ranks = [0.0] * len(vs)
+        i = 0
+        while i < len(order):
+            j = i
+            while j + 1 < len(order) and vs[order[j + 1]] == vs[order[i]]:
+                j += 1
+            avg = (i + j) / 2 + 1
+            for k in range(i, j + 1):
+                ranks[order[k]] = avg
+            i = j + 1
+        return ranks
+    rx, ry = _ranks(xs), _ranks(ys)
+    n = len(xs)
+    mx, my = sum(rx) / n, sum(ry) / n
+    cov = sum((a - mx) * (b - my) for a, b in zip(rx, ry))
+    vx = sum((a - mx) ** 2 for a in rx) ** 0.5
+    vy = sum((b - my) ** 2 for b in ry) ** 0.5
+    return cov / (vx * vy) if vx and vy else 0.0
+
+
 def _author_difficulty_by_id() -> dict[str, int]:
     out: dict[str, int] = {}
     for f in (REPO / "data" / "public").glob("*.jsonl"):
@@ -109,6 +147,16 @@ def main(argv: list[str]) -> int:
             cross.setdefault(author[iid], Counter())[v["difficulty_emp"]] += 1
     agree = sum(cnt[d] for d, cnt in cross.items())  # 对角线：作者档=实证档
     n_both = sum(sum(cnt.values()) for cnt in cross.values())
+    # c233：作者难度 vs 实证通过率的 Spearman 秩相关（预期为负：越标难 p 越低）
+    rho = _spearman([float(author[i]) for i in result if i in author],
+                    [result[i]["p"] for i in result if i in author])
+    # c234：能力维（主维）× 平均通过率——「哪一维最难」论文素材
+    caps = _capability_by_id()
+    by_cap: dict[str, list[float]] = {}
+    for iid, v in result.items():
+        if iid in caps:
+            by_cap.setdefault(caps[iid], []).append(v["p"])
+    cap_stat = {c: (len(ps), sum(ps) / len(ps)) for c, ps in sorted(by_cap.items())}
     md = [REPO / "reports" / "difficulty-emp-crosstab.md"]
     lines = [
         "# 作者难度 × 实证难度交叉表（c171 首跑）",
@@ -125,6 +173,21 @@ def main(argv: list[str]) -> int:
         cnt = cross.get(d, Counter())
         lines.append(f"| d{d}（{sum(cnt.values())} 题） | "
                      + " | ".join(str(cnt.get(e, 0)) for e in (1, 2, 3, 4)) + " |")
+    import sys
+    sys.path.insert(0, str(REPO / "src"))
+    from cnjudbench.capabilities import CANONICAL_DIMS, CROSSCUTTING
+    _labels = {**CANONICAL_DIMS, **CROSSCUTTING}
+    lines += ["",
+              f"- **Spearman（作者难度, 实证通过率）ρ = {rho:.3f}**（n={n_both}）——"
+              "解读注意：ρ 接近 0 或为正即作者难度对实证难度几乎无预测力"
+              "（与交叉表「作者 d4 的考生全对题」互证）；显著负值才是标注有效。",
+              "",
+              "## 能力维 × 实证通过率（c234，主维计数）",
+              "",
+              "| 维 | n | 平均通过率 |",
+              "|---|---|---|"]
+    for c, (n_c, mean_p) in cap_stat.items():
+        lines.append(f"| {c}（{_labels.get(c, c)}） | {n_c} | {100 * mean_p:.2f}% |")
     lines += ["",
               "注：difficulty_emp 回写 jsonl 延后至 Sprint B 数据冻结（避免中途漂移 hash）；"
               "本表仅作论文「作者标注 vs 实证通过率」一致性分析素材。"]
