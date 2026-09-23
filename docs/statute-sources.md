@@ -141,3 +141,12 @@
 2. flk 条文正文在 OSS（内网 `flkoss.obs-bj2-internal`），公网不可下；`content` 字段仅为目录树。
 3. gov.cn / npc.gov.cn 多条历史链接 404；Bing/DDG 在本环境结果不可用。
 4. 刑事诉讼法 2018 的 flk 详情、目录、正文均未取到；民诉三款正文未做字节级核对。
+
+
+## 存档文件登记（c311：docs/sources/ 与本登记册交叉机检）
+
+| 文件 | 内容 | 对应锚 |
+|---|---|---|
+| sources/spc_civil_temporal_2020_gongbao.html | 最高人民法院关于适用《民法典》时间效力的若干规定（公报 HTML 原文存档） | spc_civtemp_1_2020 等版本（text_hash 见 lawkb/laws/*.yaml） |
+
+> 新增 `docs/sources/*` 存档时必须在此登记（tests/test_pipeline_v06.py 交叉机检）。

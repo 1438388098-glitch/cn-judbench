@@ -21,6 +21,24 @@ blocked by one-to-one set matching, and per-package baselines guard against
 scoring shortcuts. Code is MIT-licensed; the public split is CC BY 4.0
 (see CITATION.cff).
 
+
+## 任务包速览（12 包 / 323 题，机检对账 MANIFEST）
+
+| 任务包 | 题数 | 主能力维 | oracle |
+|---|---|---|---|
+| calc_fail_to_pass | 54 | U | 隐藏单测 |
+| u_element_extract | 49 | U | element 抽取 |
+| a_irac_reason | 34 | A | 结构化 IRAC |
+| cit_validity | 27 | Cit | 引用效力 status_ladder |
+| tool_search_statute | 26 | G/R/U | tool_sequence/ast |
+| contract_risk | 23 | C | must_not/风险披露 |
+| gaia_fee_deadline | 23 | K/U | 金额阶梯+progress |
+| dms_side_effect_intake | 20 | O | env_diff 终态 |
+| s_charge_subsume | 20 | S | 罪名归并 exact |
+| tau_jud_intake | 16 | C | 终态 F1+Proto |
+| tool_fault_recovery | 16 | O | recovery×final |
+| long_horizon_case | 15 | U | score–time 多日 |
+
 > 命令跨平台：Windows 用 `.venv/Scripts/python`，Linux/macOS 等价 `.venv/bin/python`（或激活 venv 后直接 `python`）。
 
 ## 文档

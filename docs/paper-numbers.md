@@ -21,6 +21,7 @@
 | macro 14.67 [8.41, 21.05]、n=40、剔 22 | E18 预注册口径（六包等权） | 同上 + `n_dropped_by_filter` | c282 |
 | pass^2 = 46.77 [33.87, 59.68] | E17 双考生组合通过率 | 金样 `tests/test_passk_golden_v06.py` | ✓ |
 | 剔除饱和 30 题 / 余 46 | pass^k 剔饱和口径 | `reports/passk-repro.md`（`scripts/aggregate_passk.py --exclude-saturation`） | c301 |
+| set_f1 消融 −2.48 分 | 1-1 贪心配对 vs 旧非独占规则（反整段倾倒的代价/收益） | FRAMEWORK 头部 v0.6 摘要（E19 真数据消融）、`tests/test_setf1_onetoone_v06.py` | 历史运行记录 |
 
 ## 判分效度审计（历史运行记录，报告留档）
 

@@ -188,6 +188,20 @@ def main(argv: list[str]) -> int:
               "|---|---|---|"]
     for c, (n_c, mean_p) in cap_stat.items():
         lines.append(f"| {c}（{_labels.get(c, c)}） | {n_c} | {100 * mean_p:.2f}% |")
+    # c306：退场候选（expansion-plan §4：作者标难 d≥3 而实证 p≥0.80 → 饱和嫌疑）
+    exits = sorted(
+        ((iid, v) for iid, v in result.items()
+         if author.get(iid, 0) >= 3 and v["p"] >= 0.80),
+        key=lambda x: x[0])
+    lines += ["",
+              f"## 退场候选（c306：作者 d≥3 且实证 p≥80%；共 {len(exits)} 题）",
+              "",
+              "> 处置按 docs/expansion-plan.md §4：改造加 hard 变体或移入 archive，",
+              "> 不改 item_id、不重排行号；本清单仅基于本地考生 run（p 为考生通过率）。"]
+    if exits:
+        lines += [f"- {iid}（作者 d{author[iid]}，p={v['p']:.2f}）" for iid, v in exits]
+    else:
+        lines.append("- 无")
     lines += ["",
               "注：difficulty_emp 回写 jsonl 延后至 Sprint B 数据冻结（避免中途漂移 hash）；"
               "本表仅作论文「作者标注 vs 实证通过率」一致性分析素材。"]

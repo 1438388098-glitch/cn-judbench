@@ -39,3 +39,4 @@ runs/
 # ZCode 宿主忽略文件与抓取草稿目录（永不提交内容）
 .zcodeignore
 .tmp_fetch/
+.tmp_demo/
