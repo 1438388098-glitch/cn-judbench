@@ -415,6 +415,12 @@ def _build_summary(
         "abst": {
             "over_refuse_rate": fmt2(100.0 * n_refuse / n_all) if n_all else "n/a",
             "over_promise_rate": fmt2(100.0 * n_promise / n_all) if n_all else "n/a",
+            # c380：触发题单列——词表 fast-path 误罚须可人工复核（evaluate 处
+            # 「边界样本交 Judge 复核」承诺的闭环：此处给出可复核的题级清单）
+            "over_refuse_items": [
+                {"task_id": r.task_id, "item_id": x.item_id}
+                for r in runs for x in r.results if x.abst_over_refuse
+            ],
         },
         "cost": {
             # 单次 run 无同题复跑，pass^k 不诚实计算 → 留空；复跑稳定性走 flip/成本脚本

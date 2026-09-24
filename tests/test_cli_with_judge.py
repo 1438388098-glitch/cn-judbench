@@ -131,3 +131,25 @@ def test_judge_column_excludes_safety_fixtures(tmp_path, monkeypatch):
     assert pt["n_machine"] == 13
     assert pt["n_judge"] == 13
     assert pt["judge_mean_str"] == "50.00"
+
+
+def test_over_refuse_items_listed_in_summary(tmp_path, monkeypatch):
+    """c380：over_refuse 触发题在 summary.abst.over_refuse_items 题级单列，
+    供人工复核词表 fast-path 误罚（evaluate 处「交 Judge 复核」承诺的闭环）。"""
+    from cnjudbench.runner.account import Accountant
+    from cnjudbench.runner.evaluate import ItemResult, TaskRun
+
+    monkeypatch.chdir(REPO)
+    out = tmp_path / "run"
+    assert cli.main(["run-all", "--tasks", "u_element_extract", "--model", "mock:gold",
+                     "--out", str(out)]) == 0
+    manifest = _load(out, "manifest.json")
+    args = cli._build_parser().parse_args([
+        "run-all", "--tasks", "u_element_extract", "--model", "mock:gold", "--out", str(out)])
+    runs = [TaskRun(task_id="u_element_extract", results=[
+        ItemResult(item_id="u-001", score=50.0, display="50.00", abst_over_refuse=True),
+        ItemResult(item_id="u-002", score=100.0, display="100.00"),
+    ])]
+    s = cli._build_summary(args, runs, manifest, Accountant(), {}, baseline_runs=None)
+    assert s["abst"]["over_refuse_items"] == [
+        {"task_id": "u_element_extract", "item_id": "u-001"}]
