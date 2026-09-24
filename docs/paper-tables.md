@@ -1,8 +1,10 @@
 # 论文主表（生成自 runs，正式对比表只收 provisional=false）
 
-> 数据截至：2026-09-23（v0.4.1 期 run）；v0.6 现行基线为 random 7.96 /
+> 数据截至：2026-09-24；v0.6 现行基线为 random 7.96 /
 > rules 27.03 / mock:gold 100×8 包（reports/runs/baseline-v06；判分效度修复后
-> 重导验证零漂移见 baseline-v06b），真实模型 v0.6 全量复跑因密钥/余额阻塞未做。
+> 重导验证零漂移见 baseline-v06b）。**DS-flash v0.6 全 12 包已跑**
+> （grand 68.72/hard 76.31/flip 0%/$0.56，ds-flash-v06-full+tools，见
+> run-params-ds-flash-v06.md）；GLM v0.6 同口径重跑待做。
 > 引用本表数字前先核对 `生成自 runs` 的时效。
 
 ## T-main（正式对比表）

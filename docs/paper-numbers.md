@@ -34,6 +34,7 @@
 | 6/62（缺陷率 9.7%） | fresh 题真考生轮抓出金样/题面缺陷 | `docs/paper-outline.md` §E17、`docs/self-review-new-items-*.md` |
 | random 7.96 / rules 27.03 | v0.6 判分收紧后基线（baseline-v06） | `reports/runs/baseline-v06`、dataset-card 口径行 | ✓ |
 | 判分修复后基线零漂移 | R24 c322-c324 修复重导 baseline-v06b：245 题逐题分与三基线汇总与修复前完全一致 | `reports/runs/baseline-v06b`、`tests/test_baseline_zero_drift_v06.py`、calc-real-model-report §C5 | ✓ |
+| DS-flash v0.6 全 12 包 grand 68.72（hard 76.31，flip 0%，$0.56） | T1 首个非 GLM 真考生 v0.6 全量行；工具轨分化首证（dms 96.23 vs GLM 64.36、fault 37.50 vs GLM 58.33，GLM 为 v0.4 口径） | `reports/runs/ds-flash-v06-full` + `-tools`、`docs/run-params-ds-flash-v06.md` | 历史运行记录 |
 | c322-c324 修复组 | as_of 强制题面 / 极性对冲 / 拒绝否定豁免（判分效度 v0.6 收尾） | `tests/test_validity_fixes_v06.py`（8 测试，s-006 伪 as_of 反自证样例） | ✓ |
 | eligibility 两档制 100/50 | 排名资格阈值（n≥100 rankable；n≥50 CI 仅 descriptive） | `src/cnjudbench/metrics/compare.py` `RANKABLE_MIN_N`/`CI_DESCRIPTIVE_MIN_N` + FRAMEWORK §8.3 | c342 |
 

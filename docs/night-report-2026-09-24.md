@@ -1,7 +1,7 @@
 # 夜报 · 2026-09-23 深夜 → 09-24 晨（R24-R30 autopilot 收官轮）
 
 > 接续上一夜（docs/night-report-2026-09-23.md，v0.6 收官时 531 绿）。
-> 本夜十轮提交（R24-R33），测试 531 → **580 绿**，每轮 ci_gate ALL
+> 本夜至晨十一轮提交（R24-R34 + DS 全量跑），测试 531 → **580 绿**，每轮 ci_gate ALL
 > GREEN；HEAD=59a2aa0。
 
 ## 一、主线：判分器对抗性审计闭环（R24 → R26 → R27）
@@ -64,6 +64,17 @@ flk 源可达后补库（夜里不可达）。
 - **R33（本提交）**：`scripts/export_draft_prompts.py` 漂洗导出工具 +
   `docs/examinee-round-pack.md` 考生轮执行包——发起人按 5 步即可把
   9 题草稿推进 examinee_round，无需再准备材料。
+
+## 三c、DeepSeek 密钥恢复——T1 主表首个跨模型行（用户晨间供键）
+
+新密钥到位后 100 并发直跑（用户授权）：**DS-flash v0.6 全 12 包 323 题，
+零拒判**。capability grand **68.72** / hard 76.31；tau 51.17 / tool_search
+56.41 / fault 37.50 / dms 96.23；flip 0/81=0% 过门禁；实价 $0.56。
+**工具轨分化首证**：dms 96.23 vs GLM 64.36、fault 37.50 vs GLM 58.33
+（GLM 为 v0.4 口径）——两个模型在工具轨互有胜负，「工具轨分化」有了
+第二模型数据。排查花絮：宿主进程残留旧键（尾 aafe92）遮蔽 .env.local
+新键（进程环境优先是设计行为），命令行前缀显式覆盖解决；configs 取键
+顺序已把 DEEPSEEK_API_KEY 置首位防再犯。详见 run-params-ds-flash-v06.md。
 
 ## 四、阻塞项（需用户，同前夜 + 新增）
 

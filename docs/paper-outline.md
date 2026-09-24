@@ -65,7 +65,7 @@ bootstrap CI（1000 次）、flip 门禁（机检>5% 不进榜）、组合 pass^
 
 | 表 | 内容 | 状态 |
 |---|---|---|
-| T1 主表 | cap±CI / hard±CI / safety / solve% / $/solve / flip% × 模型（基线列=v0.4.1 重出口径） | GLM v0.4 ✅ · DS v0.4 ⬜（密钥阻塞）· v0.6 基线表 ✅（random 7.96/rules 27.03/gold 100×8 包，baseline-v06） |
+| T1 主表 | cap±CI / hard±CI / safety / solve% / $/solve / flip% × 模型（基线列=v0.4.1 重出口径） | GLM v0.4 ✅ · **DS-flash v0.6 全 12 包 ✅**（grand 68.72/hard 76.31/flip 0%/$0.56，ds-flash-v06-full+tools）· v0.6 基线表 ✅（random 7.96/rules 27.03/gold 100×8 包，baseline-v06） |
 | T2 区分度 | 同题模型 r、|Δ|≥15 题数、SE/包 | DS×GLM v0.3 已有；v0.4 ⬜ |
 | T3 消融 | v0.3 vs v0.4 口径（门禁出基数/夹具出主分/收紧） | GLM 64.39→57.19 ✅ |
 | T4 安全 | 应拒正确率、over_promise 率、canary | GLM safety=0.00 ✅ |
@@ -85,7 +85,7 @@ bootstrap CI（1000 次）、flip 门禁（机检>5% 不进榜）、组合 pass^
 4. Workshop 预热：NLP4PI / LegalNLP / LeXFile。
 
 ## 7. 落地差距清单（R19 后状态）
-1. ⬜ DS v0.4 复跑（密钥）→ T1/T2 完整（export → subagent/API → file: 回灌 → aggregate_passk 全链路已跑通；**转存必须程序化**——人工摘录会系统性压缩答案致分数失真，见 calc-real-model-report.md §C）；
+1. ✅ ~~DS 复跑~~ v0.6 全 12 包 100 并发直跑完成（2026-09-24，ds-flash-v06-full/-tools，flip 0% 过门禁；run-params-ds-flash-v06.md）；T2 跨模型区分度重算（同判分同题集双模型对齐）仍待 GLM v0.6 侧重跑；
 2. ✅ ~~u_element hard 子集~~ 28 题落地；GLM 实测 82.1% 满分——**饱和结论转为论文素材**（头部模型在格式保真维仍系统性失分，见 E4）；
 3. ⬜ holdout 冻结：工具+协议文已备，`freeze_holdout.py --apply` 待双人复核签字后执行（未执行前不得在正文声称双库）；live 流程文已备；
 4. ⬜ 人评 κ 试点（协议+κ 工具已备，待招募）；

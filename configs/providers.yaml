@@ -5,7 +5,8 @@
 deepseek:
   label: DeepSeek
   base_url: https://api.deepseek.com/v1
-  api_key_env: [CNJUD_API_KEY, OPENAI_API_KEY, DEEPSEEK_API_KEY]
+  # DEEPSEEK_API_KEY 放首位：CNJUD_API_KEY/OPENAI_API_KEY 在 .env.local 挂的是智谱键（同名跨商冲突曾致 401）
+  api_key_env: [DEEPSEEK_API_KEY, CNJUD_API_KEY, OPENAI_API_KEY]
   defaults:
     timeout: 60
     temperature: 0.0
