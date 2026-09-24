@@ -2,8 +2,9 @@
 
 {
   "run_id": "mimo-sub-iso-20260924",
-  "model": "general subagent (isolated, Read/Write only)",
-  "revision": "inherit default model",
+  "model": "general subagent (isolated, Read/Write only) → MiMo-V2.6-Flash",
+  "revision": "inherit default model (think-default-inherited)",
+  "model_note": "用户确认该批为 MiMo-V2.6-Flash（非 V2.6 Pro）。轨迹库无 subagent modelID 钉死记录；显示名按记分册 §0。",
   "isolation": "100% isolated via 10 parallel general subagents + 2 redo subagents; 245/245 answers by subagent Read/Write only",
   "tasks": [
     "cit_validity",
