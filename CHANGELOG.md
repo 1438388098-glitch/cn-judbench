@@ -38,6 +38,21 @@
 - 解析失败语义收紧：解析失败 = 0 分（format_fail，考生责任）；
   `finish_reason=length` 才记 n/a（截断非考生能力）。
 - 密钥取用顺序：进程环境变量优先于 `.env.local`（防旧键遮蔽会话新键）。
+- 判分效度扩展修复（c373-c388，2026-09-25 夜）：a-008 引语豁免四类假阴性
+  （成对引号区间/转述引导词/紧邻后置否定，反豁免守卫防伪引语开口）；
+  远距否定免责声明 20 字框架豁免（c383）；否定豁免同步 answer 分支并收紧为
+  紧邻 2 字（c384/c385，「帮不了你，建议咨询律师」不再误罚空拒）；judge 列
+  与 machine 列同口径剔除 safety 夹具与机检 n/a（c373/c387）；over_refuse
+  实词表补行政·知产 9 词（c376）；truncated 题带 abst 双标签（c375）；
+  pass^k「有题但全部试次不足 k」返回 None 禁 0.00 充数（c388）；
+  `summary.abst.over_refuse_items` 触发题单列闭环复核承诺（c380）。
+- 卫生与机检（c372/c377-c382/c389-c393）：add_items_batch2/3 补 main guard +
+  涉 data/public 顶层写盘 guard 机检（R19 教训门禁化）；竹马候选池质量扫描
+  （真池只读字节级断言）；污染 run 目录 CONTAMINATED.md 自证标注机检；
+  死链检查扩展到 FRAMEWORK/dataset-card/research-notes-round3；引语豁免
+  reward_hacking 暴露面审计工具；公开面板无 JS 降级（html.js 门控 + noscript）；
+  ledger↔面板主记分板逐行对账机检（c391）；删除 14 个零引用一次性生成器
+  （c390）；providers 配置层五函数裸单测（c393）。
 
 ### 变更
 - 发布一致性机检（c336-c346）：版本四源一致（pyproject/CITATION/__init__/

@@ -50,7 +50,7 @@ scoring shortcuts. Code is MIT-licensed; the public split is CC BY 4.0
 | 文件 | 说明 |
 |---|---|
 | [docs/gold-adjudication-policy.md](docs/gold-adjudication-policy.md) | 金样验收与改判预注册规则（改 gold 必读） |
-| [FRAMEWORK.md](FRAMEWORK.md) | 框架设计定稿 **v0.4**（§14：v0.3.1→v0.4 差异清单） |
+| [FRAMEWORK.md](FRAMEWORK.md) | 框架设计总纲（版本真源，头部现为 **v0.6**） |
 | [docs/DESIGN-benchmark-optimization-v0.4.md](docs/DESIGN-benchmark-optimization-v0.4.md) | 优化设计（对标映射 + Sprint A/B/C） |
 | [docs/paper-outline.md](docs/paper-outline.md) | 论文骨架与差距清单 |
 | [index.html](index.html) | 设计文档可读版（浏览器预览） |
@@ -102,12 +102,13 @@ cat reports/runs/demo/report.csv                  # §6.1 论文表直贴列（s
 
 换真实模型：`--model openai:<model> --base-url …`（密钥仅经环境变量）；已有答案文件用
 `--model file:<answers 目录>` 回灌（全管线同 API 跑法，见 docs/paper-outline.md §7）。
-  回灌前必跑换答对齐 guard：`python scripts/check_answer_alignment.py`（bigram Dice + 反向最佳确认，已两次抓到 subagent 答案错位事故）。
+  回灌前必跑换答对齐 guard：`python scripts/check_answer_alignment.py --run-dir <run 目录>`（bigram Dice + 反向最佳确认；SUSPECT 清单人工复核，已两次抓到 subagent 答案错位事故）。
 
 两 run 配对比较（排名主张必带 CI 与 p 值；排名用 `--preregistered` 六包等权口径）：
 
 ```bash
-.venv/Scripts/python -m cnjudbench compare --run-a reports/runs/A --run-b reports/runs/B     --preregistered --items-out reports/compare/items.csv
+# A/B 换成两个真实 run 目录（如 reports/runs/ds-flash-v06-full）；reports/runs/ 不入库
+.venv/Scripts/python -m cnjudbench compare --run-a <run-A> --run-b <run-B>     --preregistered --items-out reports/compare/items.csv
 # 输出：micro diff±CI + McNemar p；preregistered 时另报 macro(六包等权) diff±CI
 ```
 

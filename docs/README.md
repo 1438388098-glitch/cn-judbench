@@ -1,7 +1,7 @@
 # docs 索引
 
 CN-JudBench 全部文档的分组导航（c276）。新增 `docs/*.md` 时必须在本页登记
-（`tests/test_calibration_release_v06.py` 机检全收录）。
+（`tests/test_release_docs_v06.py` 机检全收录）。
 
 ## 框架与设计
 
@@ -25,6 +25,7 @@ CN-JudBench 全部文档的分组导航（c276）。新增 `docs/*.md` 时必须
 | [statute-sources.md](statute-sources.md) | 法条来源登记（官方数据库/最高法官网） |
 | sources/ | 官方来源存档（HTML 原文） |
 | corpus.txt | 参考语料（lawkb 文本聚合，README 示例引用） |
+| [summary-schema.json](summary-schema.json) | run 产物 summary schema（第三方校验字段集） |
 
 ## 协议与政策（对外评审必读）
 
