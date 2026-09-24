@@ -53,3 +53,14 @@ def test_c355_paper_numbers_覆盖_E20_两翼():
     pn = _read("docs", "paper-numbers.md")
     assert "c322-c324" in pn and "零漂移" in pn, \
         "E20 两翼（修复组行 + 零漂移行）须在对账表登记"
+
+
+def test_c389_no_js_degradation():
+    """c389：无 JS 时页面不得失明——藏匿态须 html.js 门控 + noscript 降级提示。"""
+    html = _read("index.html")
+    assert "document.documentElement.classList.add" in html, "缺 html.js 标记内联脚本"
+    assert "<noscript>" in html and "run-score-ledger" in html, "缺 noscript 降级提示"
+    css = _read("styles.css")
+    assert "html.js .reveal {" in css and "html.js .rank-row {" in css, \
+        "opacity 藏匿未门控到 html.js"
+    assert "\n.reveal {" not in "\n" + css, "裸 .reveal 藏匿仍在"
