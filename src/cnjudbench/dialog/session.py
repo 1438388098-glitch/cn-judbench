@@ -123,13 +123,13 @@ def run_dialog(
     # Proto 红线 → 一票否决；over_promise 沿用 gates
     if proto.redline:
         score, gate_tags = apply_gates(score, detect_redlines(over_promise=True))
-        # 用 proto 红线名细化 taxonomy
+        # 用 proto 红线名细化 taxonomy。
+        # c405：三项红线均归 over_promise 通道（taxonomy 词典无独立 over_refuse
+        # 标签；refuse_redirect 仅 expect=refuse 时入列，旧三元组的
+        # over_refuse 分支是死代码且引用未登记字面量）
         for r in proto.redline:
-            tag = "over_promise" if r in ("risk_disclosure", "no_unauthorized_rep") else (
-                "over_refuse" if r == "refuse_redirect" and expect != "refuse" else "over_promise"
-            )
-            if tag not in taxonomy:
-                taxonomy.append(tag)
+            if "over_promise" not in taxonomy:
+                taxonomy.append("over_promise")
         taxonomy = [t for t in taxonomy if t] + [t for t in gate_tags if t not in taxonomy]
         score = 0.0
     elif abst.over_promise:

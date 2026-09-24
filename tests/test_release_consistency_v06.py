@@ -31,7 +31,9 @@ def test_c194_taxonomy_literals_within_authority():
     # 避免吃进变量名）；extra.get("fail_taxonomy", "tag") 形态单独匹配
     targets = sorted((REPO / "src" / "cnjudbench" / "predicates").glob("*.py"))
     targets += [REPO / "src" / "cnjudbench" / "runner" / "evaluate.py",
-                REPO / "src" / "cnjudbench" / "citeguard" / "check.py"]
+                REPO / "src" / "cnjudbench" / "citeguard" / "check.py",
+                REPO / "src" / "cnjudbench" / "dialog" / "session.py",
+                REPO / "src" / "cnjudbench" / "dialog" / "proto.py"]
     pat = re.compile(
         r'(?:failure_)?taxonomy\s*=\s*(?:None if [^,\n]*?else )?"([a-z_]+)"'
         r'|"fail_taxonomy",\s*\n?\s*"([a-z_]+)"')
@@ -44,3 +46,11 @@ def test_c194_taxonomy_literals_within_authority():
     assert used, "未扫描到任何 taxonomy 字面量——正则或模块路径变了，请修测试"
     unknown = {t: files for t, files in used.items() if t not in TAXONOMY}
     assert not unknown, f"taxonomy 未登记（taxonomy.py 为权威）: {unknown}"
+
+
+def test_c405_dialog_taxonomy_channel_aligned():
+    """c405：dialog 侧 taxonomy 通道纳入 c194 扫描面；未登记 over_refuse 禁用。"""
+    session_src = (REPO / "src" / "cnjudbench" / "dialog" / "session.py").read_text(encoding="utf-8")
+    assert '"over_refuse"' not in session_src,         "dialog taxonomy 不得使用未登记字面量 over_refuse（应拒未拒归 over_promise 通道）"
+    tax = (REPO / "src" / "cnjudbench" / "taxonomy.py").read_text(encoding="utf-8")
+    assert '"over_refuse"' not in tax, "先登记 taxonomy 再使用"
