@@ -264,3 +264,28 @@ def test_compose_flag_excluded_from_base_and_ptp_partial():
     ptp = [_fake_result(False, 0.5, "partial", "state_drift")]
     score2, _ = compose_score([_fake_result(True, 1.0, "partial")], ptp)
     assert score2 == 50.0  # partial 按比例乘
+
+
+# ---------- refuse（c374：censored 口径同步，堵反语放水） ----------
+
+def _run_refuse(store, text: str):
+    spec = PredicatesFile.model_validate(
+        {"ftp": [{"type": "refuse", "expect": "refuse", "on_fail": "zero"}]})
+    ctx = EvalContext(task=mk_task(), item=mk_item(gold={"status": "ok"}), answer={},
+                      answer_text=text, claims=[], claim_status="ok", store=store, checks=[])
+    ftp_r, _, _ = evaluate_predicates(ctx, spec)
+    return ftp_r[0]
+
+
+def test_refuse_irony_negated_mark_not_refused(store):
+    """反语「并非不能代理」不构成拒绝证据（c324 否定豁免口径同步到 ftp.refuse）。
+
+    修复前裸子串命中「不能代理」→ ok=True 白拿应拒题基数；修复后 ok=False。"""
+    r = _run_refuse(store, "本案并非不能代理，相关事务仍可由本所继续跟进处理。")
+    assert not r.passed
+
+
+def test_refuse_plain_referral_still_ok(store):
+    """正常拒答（含转介词、无否定前缀）不受否定豁免误伤。"""
+    r = _run_refuse(store, "本案超出本所业务范围，建议咨询律师。")
+    assert r.passed
