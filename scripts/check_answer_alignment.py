@@ -13,7 +13,11 @@ flip 统计，且人工抽查难以发现。
     python scripts/check_answer_alignment.py --run-dir runs/airac-k3-run3
     python scripts/check_answer_alignment.py --run-dir runs/x --margin 0.5 --json out.json
 
-退出码：0 = 无嫌疑；1 = 存在换答嫌疑（CI 中应阻断回灌）。
+退出码：0 = 无需阻断；1 = 存在需阻断项（答案缺失，或双向确认的换答）。
+c394：单向嫌疑（best_other 更高但反向确认不成立）默认**报告不阻断**——实测
+短答案扣模板后特异 bigram 集极小，Dice 差分纯噪声曾致 35% 误报阻断正常回灌；
+`--strict` 恢复「任何嫌疑即阻断」的旧行为。真实换答是双向的（互为最优），
+召回不受影响（R21 金样锁定）。
 """
 
 from __future__ import annotations
@@ -41,6 +45,8 @@ def main() -> int:
     ap.add_argument("--margin", type=float, default=0.05,
                     help="best_other 超出 own 至少多少才算嫌疑（缺省 0.05，差分 Dice）")
     ap.add_argument("--json", dest="json_out", default=None, help="明细写出路径")
+    ap.add_argument("--strict", action="store_true",
+                    help="任何嫌疑（含单向）都阻断（旧行为）")
     args = ap.parse_args()
 
     run = Path(args.run_dir)
@@ -110,11 +116,22 @@ def main() -> int:
         Path(args.json_out).write_text(
             json.dumps(suspects, ensure_ascii=False, indent=2), encoding="utf-8"
         )
-    if suspects:
-        for s in suspects:
-            print(f"SUSPECT [{s['kind']}] {s['detail']}")
-        print(f"换答嫌疑 {len(suspects)} 项 -> 回灌阻断（先人工核对文件对位）")
+    # c394：阻断面收紧——missing 与双向确认（mutual）才硬阻断；单向嫌疑默认
+    # 报告供人工复核（mutual 标志此前已算出但未参与判定，是误报主因）
+    blocking = [s for s in suspects
+                if s["kind"] == "missing" or s.get("mutual") or args.strict]
+    for s in suspects:
+        print(f"SUSPECT [{s['kind']}] {s['detail']}")
+    if blocking:
+        oneway = len(suspects) - len(blocking)
+        print(f"换答阻断 {len(blocking)} 项"
+              + (f"（另 {oneway} 项单向嫌疑仅报告）" if oneway else "")
+              + "（先人工核对文件对位）")
         return 1
+    if suspects:
+        print(f"单向嫌疑 {len(suspects)} 项（mutual 不成立，多为短答案噪声）"
+              "-> 报告不阻断；--strict 可收紧，或按清单人工复核")
+        return 0
     print(f"对位检查通过：{len(index)} 份答案与题面均自洽")
     return 0
 
