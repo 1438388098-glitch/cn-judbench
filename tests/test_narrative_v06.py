@@ -71,6 +71,14 @@ def test_c389_no_js_degradation():
     assert "\n.reveal {" not in "\n" + css, "裸 .reveal 藏匿仍在"
 
 
+def test_c418_panel_baseline_card_matches_ledger_anchor():
+    """c418：面板基线卡与 ledger §1 锚点一致（现行 = baseline-v06c，2026-09-25）。"""
+    html = _read("index.html")
+    assert "27.40" in html, "面板 rules 基线卡未更新到 v06c 锚点"
+    ledger = _read("docs", "run-score-ledger.md")
+    assert "rules **27.40**" in ledger, "ledger 锚点未更新"
+
+
 def test_c391_panel_models_match_ledger_main_board():
     """c391/c416：面板数据块与总账互锁——MODELS 主记分板逐行、THINK_COMPARISONS
     与 SAFETY_CARDS 映射到对应 run 的 grand/safety。面板数据是手工内嵌、

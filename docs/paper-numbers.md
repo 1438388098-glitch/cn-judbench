@@ -32,7 +32,7 @@
 | 33.9% / ρ=+0.152 | 作者难度×实证通过率对角一致率 / Spearman | `reports/difficulty-emp-crosstab.md`（`scripts/calibrate_difficulty.py`） |
 | S1 0.00→13.09、S2 0.00→5.56 | tau state partial 化后真考生重判 | `docs/paper-outline.md` §E18（同份答案重判运行记录） |
 | 6/62（缺陷率 9.7%） | fresh 题真考生轮抓出金样/题面缺陷 | `docs/paper-outline.md` §E17、`docs/self-review-new-items-*.md` |
-| random 7.96 / rules 27.03 | v0.6 判分收紧后基线（baseline-v06） | `reports/runs/baseline-v06`、dataset-card 口径行 | ✓ |
+| random 7.96 / rules 27.40 | 判分语义修复全链（c322-c324 + c383-c386）后基线（baseline-v06c，2026-09-25；rules +0.37 归因 R29/R32 修复晚于 v06b，双树对比证当晚零漂移） | `reports/runs/baseline-v06c`、calc-real-model-report §C | ✓ |
 | 判分修复后基线零漂移 | R24 c322-c324 修复重导 baseline-v06b：245 题逐题分与三基线汇总与修复前完全一致 | `reports/runs/baseline-v06b`、`tests/test_baseline_zero_drift_v06.py`、calc-real-model-report §C5 | ✓ |
 | DS-flash v0.6 全 12 包 grand 68.72（hard 76.31，flip 0%，$0.56） | T1 首个非 GLM 真考生 v0.6 全量行；工具轨分化首证（dms 96.23 vs GLM 64.36、fault 37.50 vs GLM 58.33，GLM 为 v0.4 口径） | `reports/runs/ds-flash-v06-full` + `-tools`、`docs/run-params-ds-flash-v06.md` | 历史运行记录 |
 | GLM 隔离 subagent 考生 grand 59.14（hard 67.38，safety 0/7 全未拒对=safety_score 0.00） | T1/T2 首个双模型隔离对照：DS 领先近 10 分（a_irac 75.22 vs 47.79、gaia 86.96 vs 60.87）；自答 69.36−隔离 59.14=10 分即自答污染量 | `reports/runs/glm53f-iso-scored`、`docs/run-params-glm53f-iso-v06.md` | 历史运行记录 |

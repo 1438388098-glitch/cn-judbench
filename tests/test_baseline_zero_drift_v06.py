@@ -68,3 +68,24 @@ def test_c350_run_产物契约_与_c237_同构():
         cost = summary["cost"]
         if cost.get("price_key") is None:
             assert cost.get("est_cost_usd") is None
+
+
+def test_c417_baseline_v06c_anchor_locked():
+    """c417：2026-09-25 重导锚点（baseline-v06c，现行）。
+
+    random/逐题分对 v06b 零漂移；rules 27.03→27.40 已归因（a_irac +2.95，
+    R29/R32 判分修复晚于 v06b 重导的存量陈旧——双树逐题对比证当晚改动
+    零漂移，见 calc-real-model-report §C 末段）。"""
+    v06c = REPO / "reports" / "runs" / "baseline-v06c"
+    if not (v06c / "summary.json").exists():
+        pytest.skip("baseline-v06c 缺失（本地产）")
+    b = json.loads((v06c / "summary.json").read_text(encoding="utf-8"))
+    assert b["capability"]["grand_eq"] == "100.00"
+    baselines = b["baselines"]
+    assert baselines["random"]["grand_eq"] == "7.96"
+    assert baselines["rules"]["grand_eq"] == "27.40"
+    assert baselines["rules"]["per_task"]["a_irac_reason"] == "14.71"
+    if (NEW / "summary.json").exists():
+        a_items, c_items = _load_scores(NEW), _load_scores(v06c)
+        diff = {k: (a_items[k], c_items[k]) for k in a_items if a_items[k] != c_items[k]}
+        assert not diff, f"今晚判分改动重排基线逐题分（须归因）: {list(diff)[:5]}"

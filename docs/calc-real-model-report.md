@@ -179,6 +179,13 @@ rules 27.03 / mock:gold 100 与修复前完全一致（零漂移）**——三�
 （机检：tests/test_baseline_zero_drift_v06.py）。基线引用数字不变，以本段与
 baseline-v06b 为修复后凭证。
 
+**2026-09-25 重导与 rules 锚点更新（baseline-v06c）**：a-008 引语豁免体系
+（c383-c386）等判分改动落地后按纪律重导：245 题逐题分、random 7.96、
+mock:gold 100 对 v06b **零漂移**（双树逐题对比：当晚改动前后代码各算一遍
+0 差异）；rules 27.03 → **27.40**（+0.37，全部来自 a_irac 11.76 → 14.71）
+归因为 R29 引用括注假阴性修复 / R32 risk_disclosure 补句式——两批修复
+晚于 v06b 重导时点，属存量陈旧而非当晚改动。现行锚点以 v06c 为准。
+
 ## C6. a_irac k=3 稳定性实测（R20）
 
 GLM 考生 3 个独立 run（runs/airac-k3-run{1,2,3}，25 题，EXAMINEE.md 落盘
