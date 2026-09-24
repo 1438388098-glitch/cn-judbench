@@ -116,7 +116,7 @@ def test_c391_panel_models_match_ledger_main_board():
         expected = float(panel[run])
         assert expected in think_by_label.get(label, []), \
             f"思考对照 {label} 缺 {run} 的 {expected}（对照点与账不符）"
-    assert 65.67 in think_by_label.get("思考低", []), "豆包 Lite 思考低 flip 定分 65.67 应在对照"
+    assert 66.04 in think_by_label.get("思考低", []), "豆包 Lite 思考低 flip 定分 66.04 应在对照"
 
     # c416：安全卡 score == 对应 run 的 safety_score
     safety_cards = re.findall(r'name: "([^"]+)",\s*\n\s*score: (\d+\.?\d*)', js)

@@ -58,6 +58,23 @@
   bootstrap 收敛到 metrics（c415）；lawkb 别名剥尾中间态（c401）与
   连字符条号 253-1 映射（c402）；providers 五函数裸单测（c393）。
 
+## 五、存量 run 重评（c419）：引语豁免修复的外科手术级验证
+
+判分语义已变，按 E15「重评同 run」先例对 12 个有答案目录的 scored run 全量
+重评（file: 回灌，DS API 行无答案目录保留原分并注记）：
+
+- **共 7 个变化题，全部为 a_irac 应拒族 0.00→100.00**（a-008×5 run、
+  a-020×1、a-021×1）——正是 a-008 类假阴性的修复目标，无任何附带位移；
+- 6 行总分上修：MiMo-V2.6-Pro 70.89→71.62、GLM 思考高 69.22→69.59、
+  豆包 Lite 思考高 69.07→69.44、MiMo-b 65.75→66.11、豆包 Lite 思考低
+  65.67→66.04、MiniMax-M3 62.81→63.18（反超 Space Bunny，§1 #10/#11 换位）；
+  排名梯队结构不变；5 个 run 零变化；
+- 账面全链更新：ledger §1 六行/§2 矩阵 a_irac 列/§4.4/可引用结论、
+  app.js MODELS（c398 再生）+ THINK 对照、index.html KPI/注记、
+  paper-outline/paper-tables 三档口径；c391/c398/c416 互锁全绿；
+- 原 summary 以 summary.pre-c419.json 留档于各 scored 目录，重评分目录
+  *-rescore-c419 并行保留。
+
 ## 五、基线零漂移验证与 rules 锚点更新（c417/c418）
 
 按 FRAMEWORK §8.4「判分语义改动→基线重导」纪律，今晚 c383-c386 引语豁免
