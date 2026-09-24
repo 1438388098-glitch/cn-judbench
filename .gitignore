@@ -40,3 +40,8 @@ runs/
 .zcodeignore
 .tmp_fetch/
 .tmp_demo/
+.tmp_*.png
+
+# 本地工具产物（面板截图 / 宿主记忆）
+output/
+.workbuddy/
