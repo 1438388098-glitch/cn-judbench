@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import random
+import zlib
 
 from ..schemas.item import Item
 from ..schemas.user_script import Persona, UserScript, assert_no_gold_leak
@@ -61,7 +62,8 @@ class UserSim:
         self.item = item
         self.user_seed = user_seed
         self.persona = pick_persona(script, user_seed)
-        self.rng = random.Random(user_seed * 131 + hash(item.id) % 10007)
+        # c400：hash() 进程盐化导致同 seed 跨进程话轮漂移——换稳定 crc32
+        self.rng = random.Random(user_seed * 131 + zlib.crc32(item.id.encode("utf-8")) % 10007)
         leaks = assert_no_gold_leak(script, gold_literals(item))
         if leaks:
             raise ValueError("; ".join(leaks))
