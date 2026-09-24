@@ -58,6 +58,7 @@ CN-JudBench 全部文档的分组导航（c276）。新增 `docs/*.md` 时必须
 | [night-report-2026-09-24.md](night-report-2026-09-24.md) | 夜间迭代报告 |
 | run-params-ds-flash-v06.md | DS-flash v0.6 参数与结果（R24-R30：判效反自证/零漂移/E20/时间效力草稿） |
 | run-params-glm53f-iso-v06.md | GLM-5.3-Flash 隔离 subagent 考生跑参数与结果（8 包 245 题） |
+| run-params-glm53f-hi-iso-0924.md | GLM-5.3-Flash（思考高）隔离 subagent 考生跑参数与结果（8 包 245 题，grand_eq 69.22，safety 71.43，provisional） |
 | run-params-glm53f-self-v06.md | GLM-5.3-Flash 会话内自答参考跑参数与结果（file: 回灌，污染警告，禁止进正式表） |
 | run-params-space-bunny-free-sub-iso-20260924.md | Space Bunny Free 隔离 subagent 考生跑参数与结果（8 包 245 题，provisional） |
 | run-params-mimo-sub-iso-20260924.md | MiMo-V2.6-Flash 隔离考生跑参数与结果（8 包 245 题，grand_eq 62.80，provisional） |

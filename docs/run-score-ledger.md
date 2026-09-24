@@ -48,6 +48,7 @@
 | `ds-flash*` / `deepseek-flash` | **DeepSeek-V4.1-Flash（思考默认）** | `configs/providers.yaml` note；官方价目名；API 默认思考，未显式开/关 |
 | `glm53f*` + revision `think-max`（airac / c5 等） | **GLM-5.3-Flash（思考max）** | `subagent:glm-5.3-flash:think-max`；智谱推荐 `reasoning_effort=max` |
 | `glm53f-iso` / `glm53f-self` / `glm-53-flash-c*` | **GLM-5.3-Flash（思考默认继承）** | 智谱 `glm-5.3-flash`；未显式钉死 think 档 |
+| `glm53f-hi-iso*`（revision `think-high`） | **GLM-5.3-Flash（思考高）** | `subagent:glm-5.3-flash:think-high`；subagent 继承会话默认思考档（reasoning=high） |
 | `mimo-v25f*` | **MiMo-V2.5-Flash（思考默认继承）** | 目录语义 v2.5-Flash；subagent 继承会话默认思考 |
 | `mimo-sub-iso`（grand_eq **70.89**） | **MiMo-V2.6-Pro（思考默认继承）** | 用户确认：该批为 MiMo V2.6 Pro |
 | `mimo-sub-iso-20260924` / `general subagent` | **MiMo-V2.6-Flash（思考默认继承）** | 用户确认：非 V2.6 Pro，为 MiMo-V2.6-Flash。轨迹库无该批 subagent `modelID`；桌面 TEXT 目录 `mimo-v2.6-flash` = MiMo V2.6 Flash |
@@ -75,13 +76,14 @@
 | # | run 目录 | 模型（官方名（思考强度）） | 成色 | 总分（包等权） | 加权总分 | 难题分 | 难题分区间 | 应拒安全分 | 判分覆盖率 | 暂定 | 备注 |
 |---|---|---|---|---:|---:|---:|---|---:|---:|---|---|
 | 1 | `mimo-sub-iso-scored` | MiMo-V2.6-Pro（思考默认继承） | 洁净隔离 | 70.89 | 78.01 | 76.76 | [71.91, 81.62] | 71.43 | 100% | true | 37 题污染子集已隔离重答后回灌 |
-| 2 | `ds-flash-v06-full` | DeepSeek-V4.1-Flash（思考默认） | API 隔离 | **68.72** | 77.96 | 76.31 | — | 0.00 | 100% | true | **官方 API 基线行**；flip 0/81=0%；$0.56 |
-| 3 | `mimo-v25f-iso-0924-scored` | MiMo-V2.5-Flash（思考默认继承） | 洁净隔离 | 64.90 | 72.85 | 70.52 | [64.48, 75.89] | 0.00 | 100% | true | 09-24 隔离考生；缺 run-params |
-| 4 | `space-bunny-free-sub-iso-20260924-scored` | Space Bunny Free（思考默认继承） | 洁净隔离 | 62.99 | 72.22 | 71.56 | [66.52, 76.82] | 0.00 | 100% | true | |
-| 5 | `mimo-sub-iso-20260924-scored` | MiMo-V2.6-Flash（思考默认继承） | 洁净隔离 | 62.80 | 71.26 | 68.74 | [62.76, 74.32] | 0.00 | 100% | true | 与 #1 不是同一批答案；非 V2.6 Pro |
-| 6 | `glm53f-iso-scored` | GLM-5.3-Flash（思考默认继承） | 洁净隔离 | 59.14 | 70.29 | 67.38 | — | 0.00 | 100% | true | |
-| 7 | `mimo-sub-iso-20260924b-scored` | MiMo（思考默认继承） | 洁净隔离 | 65.75 | 73.44 | 72.33 | [67.29, 77.38] | 100.00 | 100% | true | 隔离 subagent 考生;safety 7/7 全拒对;无 flip→provisional |
-| 8 | `minimax-m3-iso-20260924-scored` | MiniMax-M3（思考默认继承） | 洁净隔离 | **62.81** | 72.70 | 71.29 | [65.80, 76.77] | 71.43 | 100% | true | 09-24 隔离考生;10 片×≤25 题;safety 5/7 拒对与 MiMo-V2.6-Pro 并列最高;无 flip→provisional |
+| 2 | `glm53f-hi-iso-0924-scored` | GLM-5.3-Flash（思考高） | 洁净隔离 | **69.22** | 76.99 | 76.15 | [71.19, 80.66] | 71.43 | 100% | true | 09-24 隔离考生·思考高；对齐 guard 拦出 24 题真换答已由新隔离考生重考；safety 5/7；无 flip→provisional |
+| 3 | `ds-flash-v06-full` | DeepSeek-V4.1-Flash（思考默认） | API 隔离 | **68.72** | 77.96 | 76.31 | — | 0.00 | 100% | true | **官方 API 基线行**；flip 0/81=0%；$0.56 |
+| 4 | `mimo-sub-iso-20260924b-scored` | MiMo（思考默认继承） | 洁净隔离 | 65.75 | 73.44 | 72.33 | [67.29, 77.38] | 100.00 | 100% | true | 隔离 subagent 考生;safety 7/7 全拒对;无 flip→provisional |
+| 5 | `mimo-v25f-iso-0924-scored` | MiMo-V2.5-Flash（思考默认继承） | 洁净隔离 | 64.90 | 72.85 | 70.52 | [64.48, 75.89] | 0.00 | 100% | true | 09-24 隔离考生；缺 run-params |
+| 6 | `space-bunny-free-sub-iso-20260924-scored` | Space Bunny Free（思考默认继承） | 洁净隔离 | 62.99 | 72.22 | 71.56 | [66.52, 76.82] | 0.00 | 100% | true | |
+| 7 | `minimax-m3-iso-20260924-scored` | MiniMax-M3（思考默认继承） | 洁净隔离 | **62.81** | 72.70 | 71.29 | [65.80, 76.77] | 71.43 | 100% | true | 09-24 隔离考生;10 片×≤25 题;safety 5/7 拒对与 MiMo-V2.6-Pro 并列最高;无 flip→provisional |
+| 8 | `mimo-sub-iso-20260924-scored` | MiMo-V2.6-Flash（思考默认继承） | 洁净隔离 | 62.80 | 71.26 | 68.74 | [62.76, 74.32] | 0.00 | 100% | true | 与 #1 不是同一批答案；非 V2.6 Pro |
+| 9 | `glm53f-iso-scored` | GLM-5.3-Flash（思考默认继承） | 洁净隔离 | 59.14 | 70.29 | 67.38 | — | 0.00 | 100% | true | |
 
 > **污染 run 不入本账**：主会话看过 gold 后代笔/补写的分数（含 mimo-sub-full、glm53f-self 及其分包切片）一律删除，不作对照、不进论文表。磁盘上的 run 目录仍保留作管线调试，但不得引用其分数。
 
@@ -90,7 +92,8 @@
 **可引用结论（描述性，非正式排名）**
 
 - 洁净行总分区间约 **59–71**；唯一带翻转率的 API 行是 DeepSeek-V4.1-Flash（思考默认）68.72。
-- 共同弱项：合同风险词表、法条时效边界、应拒安全（6 行里 5 行应拒安全分=0，仅 MiMo-V2.6-Pro（思考默认继承）71.43）。
+- 同模型思考档对照（GLM-5.3-Flash）：思考高 69.22 vs 思考默认继承 59.14（+10.08），涨幅主要在费用期限（60.87→86.96）与说理写作（47.79→73.53）。
+- 共同弱项：合同风险词表、法条时效边界、应拒安全（9 行里 5 行应拒安全分=0；非零为 MiMo（思考默认继承，20260924b）100.00、MiMo-V2.6-Pro（思考默认继承）71.43、MiniMax-M3（思考默认继承）71.43、GLM-5.3-Flash（思考高）71.43）。
 
 ---
 
@@ -101,6 +104,7 @@
 | 模型（官方名（思考强度）） | 成色 | 法条时效 | 定罪要素 | 合同风险 | 长案分析 | 说理写作 | 要素抽取 | 费用期限 | 计算 |
 |---|---|---:|---:|---:|---:|---:|---:|---:|---:|
 | MiMo-V2.6-Pro（思考默认继承）·`mimo-sub-iso` | 洁净隔离 | 74.07 | 67.27 | 36.86 | 48.70 | 60.66 | 96.94 | 82.61 | 100.00 |
+| GLM-5.3-Flash（思考高）·`glm53f-hi-iso-0924` | 洁净隔离 | 70.00 | 57.93 | 27.73 | 46.12 | 73.53 | 97.96 | 86.96 | 93.52 |
 | DeepSeek-V4.1-Flash（思考默认） | API 隔离 | 71.85 | 44.74 | 31.04 | 44.05 | 75.22 | 95.92 | 86.96 | 100.00 |
 | MiMo-V2.5-Flash（思考默认继承） | 洁净隔离 | 74.07 | 59.65 | 16.23 | 39.31 | 64.71 | 98.98 | 78.26 | 87.96 |
 | Space Bunny Free（思考默认继承） | 洁净隔离 | 60.00 | 45.22 | 36.69 | 34.17 | 65.44 | 95.92 | 73.91 | 92.59 |
@@ -160,6 +164,7 @@
 | 目录 | grand_eq | n | 成色 | 备注 |
 |---|---:|---:|---|---|
 | `glm53f-iso-scored` | **59.14** | 238 | 洁净隔离 | GLM-5.3-Flash（思考默认继承）· 8 包全量 |
+| `glm53f-hi-iso-0924-scored` | **69.22** | 238 | 洁净隔离 | GLM-5.3-Flash（思考高）· 8 包全量；24 题真换答重考后回灌 |
 | `glm53f-iso-5p-scored` | 61.75 | 137 | 洁净隔离 | 5 包子集，勿与全量比 |
 | `glm53flash-subagent-c5` | — | 切片 | 洁净隔离 | GLM-5.3-Flash（思考max）· 非公开集 |
 | `glm-53-flash-c10` / `-c50` | — / — | 切片 | API 隔离 | GLM-5.3-Flash（思考max）· 早期 |
@@ -197,6 +202,7 @@
 |---|---|
 | ds-flash-v06-full / tools | [run-params-ds-flash-v06.md](run-params-ds-flash-v06.md) |
 | glm53f-iso-scored | [run-params-glm53f-iso-v06.md](run-params-glm53f-iso-v06.md) |
+| glm53f-hi-iso-0924 | [run-params-glm53f-hi-iso-0924.md](run-params-glm53f-hi-iso-0924.md) |
 | mimo-sub-iso-20260924 | [run-params-mimo-sub-iso-20260924.md](run-params-mimo-sub-iso-20260924.md) |
 | space-bunny-free-sub-iso-20260924 | [run-params-space-bunny-free-sub-iso-20260924.md](run-params-space-bunny-free-sub-iso-20260924.md) |
 | mimo-sub-iso-20260924b | [run-params-mimo-sub-iso-20260924b.md](run-params-mimo-sub-iso-20260924b.md) |
