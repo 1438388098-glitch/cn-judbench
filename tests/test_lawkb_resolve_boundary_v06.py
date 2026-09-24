@@ -52,3 +52,56 @@ def test_c222_not_yet_effective_before_first_version(store):
 ])
 def test_c223_normalize_article_no_variants(raw, expect):
     assert normalize_article_no(raw) == expect, raw
+
+
+def _synth_store(versions):
+    """c403 合成库：手工构造缝隙/双因场景（真实库无缝隙）。"""
+    import hashlib
+
+    from cnjudbench.lawkb.schema import ArticleVersion, LawMeta
+    from cnjudbench.lawkb.store import LawkbStore
+
+    law = LawMeta(law_id="synth_law", names=["合成法"], level="law",
+                  promulgated_on=date(2000, 1, 1))
+    vs, by_key, texts = {}, {}, {}
+    for v in versions:
+        h = "sha256:" + hashlib.sha256(v["version_id"].encode()).hexdigest()
+        av = ArticleVersion(
+            law_id="synth_law", article_no=v["article_no"],
+            version_id=v["version_id"], text_hash=h,
+            effective_from=date.fromisoformat(v["from"]),
+            effective_to=date.fromisoformat(v["to"]) if v.get("to") else None,
+            text_ref="synth")
+        vs[v["version_id"]] = av
+        by_key.setdefault(("synth_law", v["article_no"]), []).append(av)
+        texts[v["version_id"]] = "text"
+    return LawkbStore(root=REPO, store_version="lawkb-2026.09.24",
+                      laws={"synth_law": law}, versions=vs, by_key=by_key,
+                      alias={"合成法": "synth_law"}, texts=texts)
+
+
+def test_c403_ladder_priority_gap_and_double_cause():
+    """c403：状态阶梯优先级金样（隐式约定显式化）。
+
+    零在窗时先查未来版本（not_yet_effective）再查已失效（wrong_vintage）；
+    check/谓词侧三档时效同映射 stale，次序无判分影响，但 cit_validity 按模型
+    自答 status 分档，故次序必须锁定。"""
+    s = _synth_store([
+        {"version_id": "sv_264_2010", "article_no": "264", "from": "2010-01-01", "to": "2012-01-01"},
+        {"version_id": "sv_264_2030", "article_no": "264", "from": "2030-01-01"},
+    ])
+    r = resolve_article("合成法", "264", date(2020, 6, 1), s)
+    assert r.status == "not_yet_effective"  # 未来版本优先（wrong_vintage 被遮蔽）
+
+    s2 = _synth_store([
+        {"version_id": "sv_264_2010", "article_no": "264", "from": "2010-01-01", "to": "2015-01-01"},
+        {"version_id": "sv_264_2021", "article_no": "264", "from": "2021-01-01"},
+    ])
+    r2 = resolve_article("合成法", "264", date(2018, 6, 1), s2)
+    assert r2.status == "not_yet_effective"  # 缝隙场景非 not_effective_on_as_of
+
+    s3 = _synth_store([
+        {"version_id": "sv_264_2010", "article_no": "264", "from": "2010-01-01", "to": "2015-01-01"},
+    ])
+    r3 = resolve_article("合成法", "264", date(2020, 6, 1), s3)
+    assert r3.status == "wrong_vintage"  # 无未来版本时才轮到已失效

@@ -38,18 +38,27 @@ def normalize_law_name(raw: str) -> str:
 _BRACKET_NOTE_RE = re.compile(r"[（(][^（）()]*[)）]\s*$")
 
 
+def _strip_states(raw: str) -> list[str]:
+    """逐段剥尾的中间态序列（含原文）：「合同法解释（二）（2009年）」→
+    [原文, 合同法解释（二）]。中间态可能是法名本体序号而非版本括注。"""
+    s = str(raw or "").strip()
+    states = [s]
+    while True:
+        s2 = _BRACKET_NOTE_RE.sub("", s).strip()
+        if s2 == s or not s2:
+            break
+        s = s2
+        states.append(s)
+    return states
+
+
 def strip_bracket_note(raw: str) -> str:
     """去法名尾部的括注（修正/施行年份、试行等），供别名鲁棒注册。
 
     考生引用常写作「…规定（2020年第二次修正）」——括注是版本说明，
     不属于法名本体；逐段剥尾，剥空则原文返回。除剥尾外不做任何模糊归并。
     """
-    s = str(raw or "").strip()
-    while True:
-        s2 = _BRACKET_NOTE_RE.sub("", s).strip()
-        if s2 == s or not s2:
-            return s
-        s = s2
+    return _strip_states(raw)[-1]
 
 
 def normalize_article_no(raw: str) -> str:
@@ -61,9 +70,14 @@ def normalize_article_no(raw: str) -> str:
     if s.endswith("条"):
         s = s[:-1]
     s = s.replace("条", "")  # 二百五十三条之一 → 二百五十三之一
-    m = re.search(r"(\d+(?:之一|之二|之三)?)", s)
+    # c402：连字符后缀「253-1/２５３－１」≡「253之一」——先前被静默折叠成 253，
+    # 与库内并存的实异条号（刑法 253 vs 253之一）混同，引用守卫假阳性放行
+    m = re.search(r"(\d+)(?:[-－–—]\s*([1-3１-３])|(之一|之二|之三))?", s)
     if m:
-        return m.group(1)
+        base, dash_num, cn = m.group(1), m.group(2), m.group(3)
+        if dash_num:
+            return base + {"1": "之一", "2": "之二", "3": "之三"}.get(dash_num, "")
+        return base + (cn or "")
     m2 = re.search(r"([零〇一二两三四五六七八九十百千万]+(?:之一|之二|之三)?)", s)
     if m2:
         return _cn_article_to_int(m2.group(1))
@@ -143,17 +157,23 @@ class ResolveResult(BaseModel):
 
 
 def alias_lookup(store: "LawkbStore", raw: str) -> str | None:
-    """引用侧法名解析：先精确归一名命中；未中再剥尾部括注重试。
+    """引用侧法名解析：先精确归一名命中；未中再逐级剥尾部括注重试。
 
     考生引用常带「（2020年第二次修正）」「(试行)」等版本括注——括注是
     版本说明而非法名本体；库内别名只登记规范名，故在查找侧剥尾重试
     （R29：ah-104 实测必引覆盖 0/1 的假阴性根因）。不做其他模糊归并。
+    c401：逐级尝试中间态——「合同法解释（二）（2009年）」的中间态
+    「合同法解释（二）」是法名本体序号，全剥终态反而丢失命中（R29 残余）。
     """
     normalized = normalize_law_name(raw)
     hit = store.alias.get(normalized)
     if hit:
         return hit
-    return store.alias.get(normalize_law_name(strip_bracket_note(raw)))
+    for state in _strip_states(raw):
+        hit = store.alias.get(normalize_law_name(state))
+        if hit:
+            return hit
+    return None
 
 
 def lookup_law(raw: str, store: "LawkbStore") -> ResolveName:
