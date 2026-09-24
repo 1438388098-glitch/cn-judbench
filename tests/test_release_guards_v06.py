@@ -43,7 +43,10 @@ def test_c174_ingest_queue_matches_whitelist_keys():
 
 
 def test_c177_doc_table_no_dead_links():
-    targets = [REPO / "README.md", REPO / "docs" / "paper-outline.md"]
+    # c381：扫描面扩展到 FRAMEWORK / dataset-card / research-notes-round3
+    targets = [REPO / "README.md", REPO / "docs" / "paper-outline.md",
+               REPO / "FRAMEWORK.md", REPO / "docs" / "dataset-card.md",
+               REPO / "docs" / "research-notes-round3.md"]
     link = re.compile(r"\(([^)#]+?\.(?:md|json|csv|html))\)")
     for t in targets:
         text = t.read_text(encoding="utf-8")
