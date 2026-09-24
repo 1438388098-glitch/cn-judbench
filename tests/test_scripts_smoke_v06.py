@@ -193,3 +193,35 @@ def test_c221_passk_exclusion_markdown_line(tmp_path):
     text = out.read_text(encoding="utf-8")
     assert "剔除饱和对照" in text and "n=46" in text  # 46 题中 30 题饱和
     assert "剔除 30 题" in text
+
+
+def test_c372_题库生成器顶层写盘必须有_main_guard():
+    """R19 教训机检：涉及 data/public 的脚本若在模块顶层（函数/类之外）写盘，
+    必须 import 无副作用——即带 ``if __name__ == "__main__"`` guard。"""
+    import ast
+
+    WRITE_ATTRS = {"write_text", "write_bytes", "open", "mkdir", "unlink", "rename"}
+    bad = []
+    for path in sorted(SCRIPTS.glob("*.py")):
+        src = path.read_text(encoding="utf-8")
+        if "__main__" in src:
+            continue
+        src_norm = src.replace('"data", "public"', "data/public").replace("'data', 'public'", "data/public")
+        if "data/public" not in src_norm and "data\\\\public" not in src:
+            continue  # 只看题库写盘面（R19 事故半径）
+        hits = False
+        stack = list(ast.parse(src).body)
+        while stack:
+            node = stack.pop()
+            if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
+                continue  # 函数体内的写盘由调用时机决定，不算顶层副作用
+            if isinstance(node, ast.Call):
+                fn = node.func
+                if (isinstance(fn, ast.Attribute) and fn.attr in WRITE_ATTRS) or \
+                        (isinstance(fn, ast.Name) and fn.id == "open"):
+                    hits = True
+                    break
+            stack.extend(ast.iter_child_nodes(node))
+        if hits:
+            bad.append(path.name)
+    assert not bad, f"涉 data/public 且顶层写盘但缺 __main__ guard 的脚本：{bad}"
