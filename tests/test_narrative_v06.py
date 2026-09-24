@@ -8,8 +8,11 @@ from __future__ import annotations
 
 import json
 import re
+import subprocess
 import sys
 from pathlib import Path
+
+import pytest
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -87,3 +90,17 @@ def test_c391_panel_models_match_ledger_main_board():
     for run, grand in ledger_rows:
         assert abs(float(panel[run]) - float(grand)) < 1e-9, \
             f"{run} 总分账实不符：ledger={grand} app.js={panel[run]}"
+
+
+def test_c398_panel_models_block_regenerable():
+    """c398：面板 MODELS 块必须等于 gen_panel_models.py 再生结果。
+
+    数字来自各 *-scored/summary.json、身份来自 ledger §1——手工改动任何一处
+    都会被 --check 打回（reports/runs 缺失的新环境自然跳过不了，这是本地机检）。"""
+    if not (ROOT / "reports" / "runs").is_dir():
+        pytest.skip("reports/runs 缺失（新 clone）")
+    r = subprocess.run(
+        [sys.executable, str(ROOT / "scripts" / "gen_panel_models.py"), "--check"],
+        cwd=ROOT, capture_output=True, text=True,
+        encoding="utf-8", errors="replace", timeout=120)
+    assert r.returncode == 0, r.stdout + r.stderr

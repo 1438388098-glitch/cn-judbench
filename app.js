@@ -11,6 +11,7 @@ const PACKAGES = [
   { key: "calc", label: "计算", short: "cf" },
 ];
 
+/* MODELS:BEGIN 由 scripts/gen_panel_models.py 生成；手改会被 c398 再生对齐机检打回 */
 const MODELS = [
   {
     run: "mimo-sub-iso-scored",
@@ -22,7 +23,7 @@ const MODELS = [
     hard: 76.76,
     hard_ci: [71.91, 81.62],
     safety: 71.43,
-    packages: [74.07, 67.27, 36.86, 48.70, 60.66, 96.94, 82.61, 100.0],
+    packages: [74.07, 67.27, 36.86, 48.70, 60.66, 96.94, 82.61, 100.00],
   },
   {
     run: "glm53f-hi-iso-0924-scored",
@@ -34,7 +35,7 @@ const MODELS = [
     hard: 76.15,
     hard_ci: [71.19, 80.66],
     safety: 71.43,
-    packages: [70.0, 57.93, 27.73, 46.12, 73.53, 97.96, 86.96, 93.52],
+    packages: [70.00, 57.93, 27.73, 46.12, 73.53, 97.96, 86.96, 93.52],
   },
   {
     run: "db21lite-iso-0924-scored",
@@ -44,8 +45,8 @@ const MODELS = [
     grand_eq: 69.07,
     grand_w: 77.55,
     hard: 76.83,
-    hard_ci: [71.5, 81.42],
-    safety: 0.0,
+    hard_ci: [71.50, 81.42],
+    safety: 0.00,
     packages: [71.85, 63.92, 22.73, 40.91, 73.53, 97.96, 82.61, 99.07],
   },
   {
@@ -58,7 +59,7 @@ const MODELS = [
     hard: 77.27,
     hard_ci: [71.67, 82.33],
     safety: 71.43,
-    packages: [71.85, 53.33, 31.58, 35.8, 73.53, 97.96, 86.96, 100.0],
+    packages: [71.85, 53.33, 31.58, 35.80, 73.53, 97.96, 86.96, 100.00],
   },
   {
     run: "ds-flash-v06-full",
@@ -68,9 +69,9 @@ const MODELS = [
     grand_eq: 68.72,
     grand_w: 77.96,
     hard: 76.31,
-    hard_ci: null,
-    safety: 0.0,
-    packages: [71.85, 44.74, 31.04, 44.05, 75.22, 95.92, 86.96, 100.0],
+    hard_ci: [71.33, 81.23],
+    safety: 0.00,
+    packages: [71.85, 44.74, 31.04, 44.05, 75.22, 95.92, 86.96, 100.00],
   },
   {
     run: "mimo-sub-iso-20260924b-scored",
@@ -81,31 +82,31 @@ const MODELS = [
     grand_w: 73.44,
     hard: 72.33,
     hard_ci: [67.29, 77.38],
-    safety: 100.0,
+    safety: 100.00,
     packages: [59.26, 62.27, 31.24, 41.65, 65.44, 88.78, 78.26, 99.07],
   },
   {
     run: "doubao21lite-flip-20260924-scored",
-    name: "豆包2.1 Lite",
+    name: "豆包 2.1 Lite",
     think: "思考低",
     purity: "洁净隔离",
     grand_eq: 65.67,
     grand_w: 75.58,
     hard: 74.22,
     hard_ci: [68.18, 79.81],
-    safety: 100.0,
-    packages: [74.07, 55.05, 7.8, 34.57, 66.91, 100.0, 86.96, 100.0],
+    safety: 100.00,
+    packages: [74.07, 55.05, 7.80, 34.57, 66.91, 100.00, 86.96, 100.00],
   },
   {
     run: "mimo-v25f-iso-0924-scored",
     name: "MiMo-V2.5-Flash",
     think: "思考默认继承",
     purity: "洁净隔离",
-    grand_eq: 64.9,
+    grand_eq: 64.90,
     grand_w: 72.85,
     hard: 70.52,
     hard_ci: [64.48, 75.89],
-    safety: 0.0,
+    safety: 0.00,
     packages: [74.07, 59.65, 16.23, 39.31, 64.71, 98.98, 78.26, 87.96],
   },
   {
@@ -114,10 +115,10 @@ const MODELS = [
     think: "思考低",
     purity: "洁净隔离",
     grand_eq: 64.18,
-    grand_w: 72.7,
+    grand_w: 72.70,
     hard: 70.04,
     hard_ci: [64.41, 75.48],
-    safety: 100.0,
+    safety: 100.00,
     packages: [72.22, 60.26, 31.08, 28.71, 56.62, 98.98, 73.91, 91.67],
   },
   {
@@ -129,8 +130,8 @@ const MODELS = [
     grand_w: 72.22,
     hard: 71.56,
     hard_ci: [66.52, 76.82],
-    safety: 0.0,
-    packages: [60.0, 45.22, 36.69, 34.17, 65.44, 95.92, 73.91, 92.59],
+    safety: 0.00,
+    packages: [60.00, 45.22, 36.69, 34.17, 65.44, 95.92, 73.91, 92.59],
   },
   {
     run: "minimax-m3-iso-20260924-scored",
@@ -138,23 +139,23 @@ const MODELS = [
     think: "思考默认继承",
     purity: "洁净隔离",
     grand_eq: 62.81,
-    grand_w: 72.7,
+    grand_w: 72.70,
     hard: 71.29,
-    hard_ci: [65.8, 76.77],
+    hard_ci: [65.80, 76.77],
     safety: 71.43,
-    packages: [69.63, 48.63, 17.75, 39.44, 54.17, 98.98, 73.91, 100.0],
+    packages: [69.63, 48.63, 17.75, 39.44, 54.17, 98.98, 73.91, 100.00],
   },
   {
     run: "mimo-sub-iso-20260924-scored",
     name: "MiMo-V2.6-Flash",
     think: "思考默认继承",
     purity: "洁净隔离",
-    grand_eq: 62.8,
+    grand_eq: 62.80,
     grand_w: 71.26,
     hard: 68.74,
     hard_ci: [62.76, 74.32],
-    safety: 0.0,
-    packages: [74.07, 52.31, 26.74, 31.02, 57.35, 82.65, 78.26, 100.0],
+    safety: 0.00,
+    packages: [74.07, 52.31, 26.74, 31.02, 57.35, 82.65, 78.26, 100.00],
   },
   {
     run: "glm53f-iso-scored",
@@ -164,11 +165,12 @@ const MODELS = [
     grand_eq: 59.14,
     grand_w: 70.29,
     hard: 67.38,
-    hard_ci: null,
-    safety: 0.0,
+    hard_ci: [61.49, 72.82],
+    safety: 0.00,
     packages: [68.15, 18.41, 37.29, 44.48, 47.79, 97.96, 60.87, 98.15],
   },
 ];
+/* MODELS:END */
 
 const THINK_COMPARISONS = [
   {
