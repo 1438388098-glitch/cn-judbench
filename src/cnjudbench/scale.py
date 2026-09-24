@@ -7,7 +7,7 @@
 
 from __future__ import annotations
 
-from decimal import ROUND_HALF_EVEN, Decimal
+from decimal import ROUND_HALF_EVEN, Decimal, localcontext
 
 # over_refuse（应答而空拒）的能力分惩罚系数（DESIGN v0.4 §4.1 ②）。
 # 集中定义：消融/敏感性分析改这里，调用点不许各写一个字面量。
@@ -41,8 +41,17 @@ def cap_at(score: float, cap: float = 50.0) -> float:
 
 
 def fmt2(x: float) -> str:
-    """固定两位小数字符串（ROUND_HALF_EVEN），报表唯一出口。非有限值拒绝。"""
+    """固定两位小数字符串（ROUND_HALF_EVEN），报表唯一出口。非有限值拒绝。
+
+    c411：quantize 在默认 prec=28 下对超大有限值（1e26+）抛未声明的
+    InvalidOperation——按量级放宽上下文精度；负零规范化为 0.00（负差分
+    是 diag_diff_raw 的设计内输入，不得把「-0.00」写进报表）。"""
     d = Decimal(str(x))
     if not d.is_finite():
         raise ValueError(f"fmt2 仅接受有限数值：{x}")
-    return str(d.quantize(Decimal("0.01"), rounding=ROUND_HALF_EVEN))
+    with localcontext() as ctx:
+        ctx.prec = max(ctx.prec, len(d.as_tuple().digits) + 6)
+        out = d.quantize(Decimal("0.01"), rounding=ROUND_HALF_EVEN)
+    if out == 0:
+        out = abs(out)
+    return str(out)

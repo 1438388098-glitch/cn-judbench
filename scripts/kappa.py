@@ -90,6 +90,8 @@ def main() -> int:
     ap.add_argument("--out", default=None, help="结果 JSON 输出路径")
     args = ap.parse_args()
 
+    if not Path(args.ratings).is_file():
+        raise SystemExit(f"输入不存在: {args.ratings}")
     rows = list(csv.DictReader(Path(args.ratings).read_text(encoding="utf-8-sig").splitlines()))
     cats = [float(c) for c in args.cats.split(",")]
     pairs = [(float(r["rater1"]), float(r["rater2"])) for r in rows

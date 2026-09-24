@@ -64,6 +64,18 @@ def main() -> int:
                 "prompt_chars": len(prompt),
             })
 
+    # c412：重导出清场——已不在本次 index 中的题面/答案文件删除残留，
+    # 防止 EXAMINEE 按目录分配时作答已废弃题面
+    expected = {("prompts", e["prompt_file"]) for e in index} | {
+        ("answers", e["answer_file"]) for e in index}
+    for sub in ("prompts", "answers"):
+        d = run_dir / sub
+        keep = {Path(rel).name for s_, rel in expected if s_ == sub}
+        for f in d.iterdir():
+            if f.is_file() and f.name not in keep:
+                f.unlink()
+                print(f"removed stale: {f}")
+
     (run_dir / "index.json").write_text(
         json.dumps(index, ensure_ascii=False, indent=2), encoding="utf-8"
     )

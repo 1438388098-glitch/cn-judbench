@@ -30,7 +30,10 @@ def load_runs(runs: list[Path]) -> tuple[list[str], list[dict[str, float]]]:
     ids: list[str] = []
     per_run: list[dict[str, float]] = []
     for run in runs:
-        summary = json.loads((run / "summary.json").read_text(encoding="utf-8"))
+        sp = run / "summary.json"
+        if not sp.is_file():
+            raise SystemExit(f"输入不存在: {sp}（--runs 需为含 summary.json 的 run 目录）")
+        summary = json.loads(sp.read_text(encoding="utf-8"))
         scores: dict[str, float] = {}
         for task in summary.get("tasks", {}).values():
             for it in task.get("items", []):

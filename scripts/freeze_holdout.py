@@ -41,6 +41,8 @@ def pick_ids(task_id: str, items: list[dict]) -> list[str]:
 
 def freeze_task(task_id: str, apply: bool) -> tuple[str, int]:
     src = PUBLIC / f"{task_id}.jsonl"
+    if not src.is_file():
+        raise SystemExit(f"输入不存在: {src}")
     rows = [json.loads(l) for l in src.read_text(encoding="utf-8-sig").splitlines() if l.strip()]
     chosen = set(pick_ids(task_id, rows))
     if not apply:

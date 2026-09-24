@@ -46,8 +46,12 @@ def run_smoke(items_path: Path, store: LawkbStore) -> SmokeReport:
     report = SmokeReport()
     resolved_hashes: list[str] = []
 
+    # c410：目录模式只消费 cit_validity 题（smoke 是 cit 专属契约），混合题库
+    # 不再误报「gold 必须为非空数组」
     for path in [items_path] if items_path.is_file() else sorted(items_path.rglob("*.jsonl")):
         for _lineno, item in load_items_file(path):
+            if items_path.is_dir() and item.task_id != "cit_validity":
+                continue
             _run_item(item, store, report, resolved_hashes)
 
     if resolved_hashes:

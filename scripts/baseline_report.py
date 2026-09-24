@@ -26,8 +26,10 @@ def main() -> int:
                     help="rules/random 任一包分值≥该阈值即列警告（缺省 90）")
     args = ap.parse_args()
 
-    summary = json.loads((Path(args.run) / "summary.json")
-                         .read_text(encoding="utf-8"))
+    run_summary = Path(args.run) / "summary.json"
+    if not run_summary.is_file():
+        raise SystemExit(f"输入不存在: {run_summary}（--run 需为含 summary.json 的 run 目录）")
+    summary = json.loads(run_summary.read_text(encoding="utf-8"))
     baselines = summary.get("baselines") or {}
     if not baselines:
         print(f"{args.run}: summary 无 baselines 块（mock run 无基线）")

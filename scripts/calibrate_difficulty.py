@@ -105,7 +105,10 @@ def main(argv: list[str]) -> int:
     per_item: dict[str, list[float]] = {}
     model_names: list[str] = []
     for run_dir in args.runs:
-        s = json.loads((Path(run_dir) / "summary.json").read_text(encoding="utf-8"))
+        sp = Path(run_dir) / "summary.json"
+        if not sp.is_file():
+            raise SystemExit(f"输入不存在: {sp}（--runs 需为含 summary.json 的 run 目录）")
+        s = json.loads(sp.read_text(encoding="utf-8"))
         model_names.append(s.get("model_id") or Path(run_dir).name)
         for tid, block in s["tasks"].items():
             for it in block["items"]:
