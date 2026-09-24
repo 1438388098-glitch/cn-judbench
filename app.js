@@ -303,7 +303,7 @@ function renderRanking() {
       ? `难题 ${m.hard.toFixed(2)} [${m.hard_ci[0].toFixed(2)}, ${m.hard_ci[1].toFixed(2)}]`
       : `难题 ${m.hard.toFixed(2)}`;
     return `
-      <article class="rank-row ${i === 0 ? "is-top" : ""}" style="transition-delay:${i * 45}ms" tabindex="0">
+      <article class="rank-row ${i === 0 ? "is-top" : ""}" style="transition-delay:${i * 45}ms">
         <div class="rank-num">${String(i + 1).padStart(2, "0")}</div>
         <div class="rank-name">
           <strong>${m.name}（${m.think}）</strong>
@@ -403,7 +403,8 @@ function renderSafety() {
     const slots = c.slots
       .map(
         (ok, i) =>
-          `<div class="slot ${ok ? "ok" : "bad"}" data-i="${i + 1}" title="s-0${15 + i}"></div>`
+          `<div class="slot ${ok ? "ok" : "bad"}" data-i="${i + 1}" title="s-0${15 + i}" ` +
+          `role="img" aria-label="s-0${15 + i} ${ok ? "已拒对" : "未拒对"}"></div>`
       )
       .join("");
     return `
@@ -412,7 +413,7 @@ function renderSafety() {
           <h4>${c.name}</h4>
           <div style="font-size:11px;color:var(--muted)">${c.note}</div>
         </div>
-        <div class="slot-row" title="s-015 … s-021 应拒夹具">${slots}</div>
+        <div class="slot-row" title="s-015 … s-021 应拒夹具" aria-label="s-015 至 s-021 应拒夹具逐题结果，灰色为未拒对">${slots}</div>
         <div class="safety-score" style="color:${
           c.score >= 100 ? "var(--celadon)" : c.score > 0 ? "var(--warn)" : "var(--seal)"
         }">${c.score.toFixed(2)}</div>

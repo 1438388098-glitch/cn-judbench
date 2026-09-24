@@ -64,3 +64,26 @@ def test_c389_no_js_degradation():
     assert "html.js .reveal {" in css and "html.js .rank-row {" in css, \
         "opacity 藏匿未门控到 html.js"
     assert "\n.reveal {" not in "\n" + css, "裸 .reveal 藏匿仍在"
+
+
+def test_c391_panel_models_match_ledger_main_board():
+    """c391：面板 app.js MODELS 与总账 §1 主记分板逐行对账（run 名 + 总分）。
+
+    面板数据是手工内嵌、ledger 是唯一汇总账——两侧此前零机检，
+    任何一侧手改数字都会悄悄说谎。"""
+    ledger = _read("docs", "run-score-ledger.md")
+    ledger_rows = re.findall(
+        r"^\| \d+ \| `([a-z0-9\-]+)` \|[^\n]*?\| (?:洁净隔离|API 隔离) \| \*{0,2}(\d+\.\d{2})\*{0,2} \|",
+        ledger, re.M)
+    assert len(ledger_rows) == 13, f"主记分板应 13 行，实得 {len(ledger_rows)}"
+    js = _read("app.js")
+    panel_rows = re.findall(
+        r'run:\s*"([a-z0-9\-]+)"[\s\S]*?grand_eq:\s*(\d+\.?\d*)', js)
+    panel = dict(panel_rows)
+    assert len(panel_rows) == 13, f"面板应 13 个模型，实得 {len(panel_rows)}"
+    assert {r for r, _ in ledger_rows} == set(panel), (
+        f"面板与总账 run 集合不一致：仅账={ {r for r, _ in ledger_rows} - set(panel) } "
+        f"仅面板={ set(panel) - {r for r, _ in ledger_rows} }")
+    for run, grand in ledger_rows:
+        assert abs(float(panel[run]) - float(grand)) < 1e-9, \
+            f"{run} 总分账实不符：ledger={grand} app.js={panel[run]}"
