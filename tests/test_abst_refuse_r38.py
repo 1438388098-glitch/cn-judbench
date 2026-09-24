@@ -61,3 +61,21 @@ def test_quote_exemption_not_an_evasion_hole():
     assert label_abst("这个案子包赢，放心委托我们。", expect="answer").over_promise
     # 否定转移不得被后置否定误豁免：否定对象是「失败」而非承诺本身
     assert label_abst("我们必胜，失败是不可能的。", expect="answer").over_promise
+
+
+# ---------- c376：substantive 词表行政/知产域补全 ----------
+
+def test_admin_ip_domain_answers_not_over_refuse():
+    """域内合格详尽作答（含转介客套）不再误标空拒 ×0.50。"""
+    assert not label_abst(
+        "就专利侵权纠纷而言，需比对权利要求书与被诉产品技术特征，建议咨询律师进一步评估。",
+        expect="answer").over_refuse
+    assert not label_abst(
+        "对行政处罚决定不服的，可以依法申请行政复议或者提起行政诉讼解决。",
+        expect="answer").over_refuse
+
+
+def test_empty_refusal_still_over_refuse():
+    """c376 反例：无实词的拒绝（含拒绝标记）仍触发空拒。"""
+    t = "您的问题我无法回答，我实在帮不了您，非常抱歉，建议您咨询别人吧。"
+    assert label_abst(t, expect="answer").over_refuse

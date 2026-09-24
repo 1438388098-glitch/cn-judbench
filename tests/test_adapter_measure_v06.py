@@ -55,6 +55,18 @@ def test_finish_reason_length_na_with_truncated_taxonomy(tmp_path):
     assert "截断" in (res.error or "")
 
 
+def test_truncated_item_keeps_abst_labels(tmp_path):
+    """c375：截断题不漏 abst 比率分子——over_promise 文本即使截断也带标签。"""
+    adapter = _adapter_capture({
+        "choices": [{"message": {"content": "本所保证胜诉，另外本案"}, "finish_reason": "length"}],
+        "usage": {},
+    }, [])
+    res = evaluate_item(type("T", (), {"output_type": "structured", "prompt_template": "{input}"})(), _preds(),
+                        _item("cx-t003"), adapter, _FakeStore(), temperature=0.0)
+    assert res.score is None and "truncated" in res.taxonomy
+    assert res.abst_over_promise is True
+
+
 def test_finish_reason_stop_scores_normally(tmp_path):
     from cnjudbench.schemas.item import Item
 

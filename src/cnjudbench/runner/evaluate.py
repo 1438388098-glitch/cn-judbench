@@ -110,10 +110,6 @@ def scored_rate_stats(results: list["ItemResult"]) -> dict:
         )
     return out
 
-    @property
-    def text_hashes(self) -> list[str]:
-        return [h for r in self.results for h in r.text_hashes]
-
 
 def load_task_package(task_dir: Path) -> JsonTask:
     """加载 task.yaml + predicates.yaml（pydantic 校验，失败即抛）。"""
@@ -216,7 +212,9 @@ def evaluate_item(
     # 混淆——截断是基建/上下文限制，判 0.00 会把两类失败错误归因到模型能力。
     if getattr(completion, "finish_reason", None) == "length":
         return result(None, ["truncated"], error="服务端截断（finish_reason=length）",
-                      answer_text=completion.text, contamination=contam)
+                      answer_text=completion.text, contamination=contam,
+                      abst_over_refuse=abst.over_refuse,
+                      abst_over_promise=abst.over_promise)  # c375：截断题不漏 abst 比率分子
     # P2：tool_call 任务——沙箱随题建，调用日志即轨迹；
     #     gold.initial_state 为案管预置环境（§5.3 在办案件），随题注入；
     #     gold.fault 为故障注入规格（§5.4 tool_fault_recovery）
