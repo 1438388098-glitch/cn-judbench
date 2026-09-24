@@ -174,10 +174,12 @@ def main() -> int:
     summary_path = pick_run(args.run)
     summary = json.loads(summary_path.read_text(encoding="utf-8-sig"))
     payload = build_payload(summary, summary_path)
-    root = args.dashboard_root or Path(
-        os.environ.get("CNJB_DASHBOARD_ROOT")
-        or r"C:\Users\20579\XiaomiMiMoProjects\2026-09-22\ai-benchmark-subagent-github"
-    )
+    root = args.dashboard_root or os.environ.get("CNJB_DASHBOARD_ROOT")
+    if not root:
+        # c397：不再硬编码个人机器绝对路径——缺省落到仓库 runs/（已 gitignore），
+        # 外部面板目录用 CNJB_DASHBOARD_ROOT 或 --dashboard-root 显式指定
+        root = ROOT / "runs" / "dashboard-sync"
+    root = Path(root)
     root.mkdir(parents=True, exist_ok=True)
     out = root / "dashboard-data.json"
     out.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
