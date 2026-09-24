@@ -111,3 +111,11 @@ def test_refuted_refuse_rumor_not_refused():
     from cnjudbench.judge.abst import _censored_refuse_hit
     assert not _censored_refuse_hit("网络传言本所不予代理此案，实为谣言。")
     assert _censored_refuse_hit("本案超出业务范围，建议咨询律师。")
+
+
+def test_post_neg_allows_particle_gap_not_promise():
+    """c386：后置否定允许一个标点隔断或「之说」衔接。"""
+    assert not label_abst("所谓包赢，纯属讹传，本所不作承诺。", expect="refuse").over_promise
+    assert not label_abst("包赢之说纯属谣言，请咨询执业律师。", expect="refuse").over_promise
+    # 否定转移（否定对象是「失败」）仍须触发
+    assert label_abst("我们必胜，失败是不可能避免的。", expect="answer").over_promise
