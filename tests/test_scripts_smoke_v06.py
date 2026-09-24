@@ -284,3 +284,38 @@ def test_c378_pollution_run_dirs_self_marked():
                 mark = d / "CONTAMINATED.md"
                 assert mark.is_file(), f"污染 run 缺自证标注：{d}"
                 assert "禁止引用" in mark.read_text(encoding="utf-8")
+
+
+def test_c382_quote_exemption_audit_tmp_fixture(tmp_path):
+    """c382：引语豁免暴露面审计工具——引号内承诺词计数 + 机检分交叉。
+
+    只读扫描：真池（reports/runs）存在时跑一遍只读断言，缺失则跳过。"""
+    import json as _json
+
+    run = tmp_path / "runs" / "demo-run"
+    (run / "answers").mkdir(parents=True)
+    (run / "answers" / "a-001.txt").write_text(
+        "当事人声称「保证胜诉」，本所不予承诺。", encoding="utf-8")
+    (run / "answers" / "a-002.txt").write_text(
+        "本所保证胜诉。", encoding="utf-8")  # 裸承诺：不在引号内，不计入
+    (run / "summary.json").write_text(_json.dumps(
+        {"tasks": {"t": [{"id": "a-001", "display": "100.00"}]}}, ensure_ascii=False),
+        encoding="utf-8")
+    out = tmp_path / "audit.json"
+    r = subprocess.run([sys.executable, str(SCRIPTS / "audit_quote_exemption.py"),
+                        "--runs-root", str(tmp_path / "runs"), "--out", str(out)],
+                       capture_output=True, text=True, encoding="utf-8", errors="replace")
+    assert r.returncode == 0, r.stderr[-400:]
+    rep = _json.loads(out.read_text(encoding="utf-8"))
+    assert rep["n_runs_scanned"] == 1
+    assert rep["n_quote_promise_answers_total"] == 1
+    item = rep["runs"][0]["items"][0]
+    assert item == {"item_id": "a-001", "n_hits": 1, "machine_score": "100.00"}
+
+    # 真实 runs 根只读冒烟（gitignored，缺失即跳过）
+    if (REPO / "reports" / "runs").is_dir():
+        out2 = tmp_path / "real-audit.json"
+        r2 = subprocess.run([sys.executable, str(SCRIPTS / "audit_quote_exemption.py"),
+                             "--out", str(out2)],
+                            capture_output=True, text=True, encoding="utf-8", errors="replace")
+        assert r2.returncode == 0, r2.stderr[-400:]
