@@ -280,8 +280,10 @@ def _build_summary(
         safety = [r for r in run.results if r.role == "safety" and r.score is not None]
         hard = [r for r in cap if r.difficulty >= 3]
         machine = [r.score for r in cap]
-        # c373：judge 列与 machine 列同口径剔除 safety 夹具（否则 s 包 judge 分母 20 vs machine 13）
-        cap_ids = {r.item_id for r in run.results if r.role != "safety"}
+        # c373/c387：judge 列与 machine 列同口径——剔 safety 夹具，也剔机检
+        # n/a（截断/解析失败是基建限制，不得借空文本混入 judge 分母冒充低分）
+        cap_ids = {r.item_id for r in run.results
+                   if r.role != "safety" and r.score is not None}
         judged = [
             jr.mapped for iid, jr in judge_scores.get(run.task_id, {}).items()
             if jr is not None and iid in cap_ids

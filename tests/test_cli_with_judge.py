@@ -153,3 +153,34 @@ def test_over_refuse_items_listed_in_summary(tmp_path, monkeypatch):
     s = cli._build_summary(args, runs, manifest, Accountant(), {}, baseline_runs=None)
     assert s["abst"]["over_refuse_items"] == [
         {"task_id": "u_element_extract", "item_id": "u-001"}]
+
+
+def test_judge_column_excludes_machine_na(tmp_path, monkeypatch):
+    """c387：机检 n/a（截断/解析失败）不进 judge 分母——与 machine 列严格同分母，
+    基建限制不得借空文本混入 judge 均值冒充模型低分。"""
+    from cnjudbench.runner.account import Accountant
+    from cnjudbench.runner.evaluate import ItemResult, TaskRun
+
+    monkeypatch.chdir(REPO)
+    out = tmp_path / "run"
+    assert cli.main(["run-all", "--tasks", "u_element_extract", "--model", "mock:gold",
+                     "--out", str(out)]) == 0
+    manifest = _load(out, "manifest.json")
+    args = cli._build_parser().parse_args([
+        "run-all", "--tasks", "u_element_extract", "--model", "mock:gold",
+        "--out", str(out), "--with-judge", "--judge", "mock"])
+    runs = [TaskRun(task_id="u_element_extract", results=[
+        ItemResult(item_id="u-001", score=100.0, display="100.00"),
+        ItemResult(item_id="u-002", score=None, display="n/a", taxonomy=["truncated"]),
+        ItemResult(item_id="u-003", score=None, display="n/a", role="safety"),
+    ])]
+
+    class JR:
+        mapped = 50.0
+        mapped_str = "50.00"
+
+    js = {"u_element_extract": {f"u-00{i}": JR() for i in (1, 2, 3)}}
+    s = cli._build_summary(args, runs, manifest, Accountant(), js, baseline_runs=None)
+    pt = s["per_task"]["u_element_extract"]
+    assert pt["n_machine"] == 1
+    assert pt["n_judge"] == 1

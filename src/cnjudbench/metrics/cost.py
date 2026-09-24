@@ -40,15 +40,18 @@ def pass_power_k_per_item(per_item_runs: list[list[bool]], k: int = 3) -> list[f
     return per_item
 
 
-def pass_power_k(per_item_runs: list[list[bool]], k: int = 3) -> float:
+def pass_power_k(per_item_runs: list[list[bool]], k: int = 3) -> float | None:
     """组合语义 pass^k（DESIGN v0.4 §6.2 正式口径，主表用）。
 
     从每题 n(≥k) 次独立试次中**无放回任取** k 次均通过的概率：
     题级贡献 = C(通过数, k) / C(n, k)，整体取题间均值。
+
+    c388：有题但全部试次不足 k = 不可测，返回 None（显示 n/a）——
+    禁止把「没测成」报成 0.00 冒充全不稳定；空输入仍返回 0.0（既有金样）。
     """
     per_item = pass_power_k_per_item(per_item_runs, k)
     if not per_item:
-        return 0.0
+        return 0.0 if not per_item_runs else None
     return sum(per_item) / len(per_item)
 
 

@@ -50,3 +50,13 @@ def test_pass_power_k_combinational_vs_sequential():
     assert pass_power_k([], k=2) == 0.0
     with pytest.raises(ValueError):
         pass_power_k([[True]], k=0)
+
+
+def test_pass_power_k_all_below_k_is_none_not_zero():
+    """c388：「有题但全部试次不足 k」= 不可测 → None（显示 n/a），禁 0.00 充数。"""
+    from cnjudbench.metrics import pass_power_k
+
+    assert pass_power_k([[True, True], [False, True]], k=3) is None
+    assert pass_power_k([[True], [True, True]], k=3) is None
+    assert pass_power_k([], k=3) == 0.0  # 空输入保持既有金样
+    assert pass_power_k([[True, True, True]], k=3) == 1.0
