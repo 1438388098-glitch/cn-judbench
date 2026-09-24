@@ -56,6 +56,7 @@ CN-JudBench 全部文档的分组导航（c276）。新增 `docs/*.md` 时必须
 | [night-report-2026-09-23.md](night-report-2026-09-23.md) | 夜间迭代报告 |
 | [night-report-2026-09-24.md](night-report-2026-09-24.md) | 夜间迭代报告 |
 | run-params-ds-flash-v06.md | DS-flash v0.6 参数与结果（R24-R30：判效反自证/零漂移/E20/时间效力草稿） |
+| run-params-glm53f-self-v06.md | GLM-5.3-Flash 会话内自答参考跑参数与结果（file: 回灌，污染警告，禁止进正式表） |
 | [sprint-a-report.md](sprint-a-report.md) | Sprint A 收官报告 |
 | [run-params-ds-flash-v41.md](run-params-ds-flash-v41.md) · [run-params-ds-flash-v41-c50.md](run-params-ds-flash-v41-c50.md) · [run-params-airac-hard2-r25.md](run-params-airac-hard2-r25.md) · [run-params-glm53flash-subagent-c5.md](run-params-glm53flash-subagent-c5.md) | 各模型/并发档运行参数记录（花费/耗时/得分） |
 | [passk-airac-r20.md](passk-airac-r20.md) | a_irac pass^k 运行报表 |
@@ -71,6 +72,7 @@ CN-JudBench 全部文档的分组导航（c276）。新增 `docs/*.md` 时必须
 | [paper-tables.md](paper-tables.md) | 论文表格模板（列 ↔ summary 字段映射） |
 | [research-notes.md](research-notes.md) · [research-notes-round2.md](research-notes-round2.md) · [research-notes-round3.md](research-notes-round3.md) | 研究笔记 |
 | prompts/ | 隔离测试 agent 提示词等论文复现材料 |
+| [prompts/examinee-subagent-guide.md](prompts/examinee-subagent-guide.md) | 考生子代理编排指南（export→切片→隔离作答→file: 判分→对照报告） |
 
 ## 实施记录（历史归档）
 
