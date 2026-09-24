@@ -96,3 +96,5 @@
 
 - `scripts/assert_run_gate.py reports/runs/minimax-m3-iso-20260924-scored`:通过
 - 对齐 guard 40 条 SUSPECT 全部完成人工关键字段复核,均为短 JSON 字符重合度误报
+
+> **2026-09-25 c419 重评注记**：本文档为原判分时点记录；判分修复（a-008 引语豁免体系）后同答案重评，现行分 62.81 → 63.18（a-008 重评 0→100）。现行锚点以 docs/run-score-ledger.md §1 为准。

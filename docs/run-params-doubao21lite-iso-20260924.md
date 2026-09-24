@@ -91,3 +91,5 @@
   --revision "subagent:doubao-2.1-lite:think-low" `
   --out reports/runs/doubao21lite-iso-20260924-scored
 ```
+
+> **2026-09-25 c419 重评注记**：本文档为原判分时点记录；判分修复（a-008 引语豁免体系）后同答案重评，现行分 65.67 → 66.04（a-008 重评 0→100）。现行锚点以 docs/run-score-ledger.md §1 为准。
