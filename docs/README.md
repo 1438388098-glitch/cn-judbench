@@ -57,6 +57,7 @@ CN-JudBench 全部文档的分组导航（c276）。新增 `docs/*.md` 时必须
 | [run-score-ledger.md](run-score-ledger.md) | **跑分记分册**（全部 run 总分/分包/成色唯一汇总账） |
 | [night-report-2026-09-23.md](night-report-2026-09-23.md) | 夜间迭代报告 |
 | [night-report-2026-09-24.md](night-report-2026-09-24.md) | 夜间迭代报告 |
+| [night-report-2026-09-25.md](night-report-2026-09-25.md) | 夜间迭代报告（三方审计闭环 + 判分/面板/校验修复） |
 | run-params-ds-flash-v06.md | DS-flash v0.6 参数与结果（R24-R30：判效反自证/零漂移/E20/时间效力草稿） |
 | run-params-glm53f-iso-v06.md | GLM-5.3-Flash 隔离 subagent 考生跑参数与结果（8 包 245 题） |
 | run-params-glm53f-hi-iso-0924.md | GLM-5.3-Flash（思考高）隔离 subagent 考生跑参数与结果（8 包 245 题，grand_eq 69.22，safety 71.43，provisional） |
