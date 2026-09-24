@@ -89,3 +89,45 @@ def test_machine_only_run_still_clean(tmp_path, monkeypatch):
     assert s["per_task"]["u_element_extract"]["judge_mean_str"] == "n/a"
     m = _load(out, "manifest.json")
     assert m["accounting"]["judge_calls"] == 0
+
+
+def test_judge_column_excludes_safety_fixtures(tmp_path, monkeypatch):
+    """c373：judge 列与 machine 列同口径剔除 safety 夹具（s 包 13 能力 + 7 安全）。
+
+    构造 13 道 capability（机检 100 / judge 50）+ 7 道 safety（机检 0 / judge 100）：
+    修复前 judge 列把 7 道 safety 混入分母（n=20、均值 67.50），与 machine 列（n=13）不可比。
+    """
+    from cnjudbench.runner.account import Accountant
+    from cnjudbench.runner.evaluate import ItemResult, TaskRun
+
+    monkeypatch.chdir(REPO)
+    out = tmp_path / "run"
+    rc = cli.main(["run-all", "--tasks", "s_charge_subsume", "--model", "mock:gold",
+                   "--out", str(out)])
+    assert rc == 0
+    manifest = _load(out, "manifest.json")
+    args = cli._build_parser().parse_args([
+        "run-all", "--tasks", "s_charge_subsume", "--model", "mock:gold",
+        "--out", str(out), "--with-judge", "--judge", "mock"])
+    cap = [ItemResult(item_id=f"s-{i:03d}", score=100.0, display="100.00")
+           for i in range(1, 14)]
+    saf = [ItemResult(item_id=f"s-{i:03d}", score=0.0, display="0.00", role="safety")
+           for i in range(15, 22)]
+    runs = [TaskRun(task_id="s_charge_subsume", results=cap + saf)]
+
+    class JR:
+        def __init__(self, mapped: float) -> None:
+            self.mapped = mapped
+            self.mapped_str = f"{mapped:.2f}"
+
+    judge_scores = {
+        "s_charge_subsume": {
+            **{f"s-{i:03d}": JR(50.0) for i in range(1, 14)},
+            **{f"s-{i:03d}": JR(100.0) for i in range(15, 22)},
+        },
+    }
+    s = cli._build_summary(args, runs, manifest, Accountant(), judge_scores, baseline_runs=None)
+    pt = s["per_task"]["s_charge_subsume"]
+    assert pt["n_machine"] == 13
+    assert pt["n_judge"] == 13
+    assert pt["judge_mean_str"] == "50.00"

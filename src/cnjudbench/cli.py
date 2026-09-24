@@ -280,7 +280,12 @@ def _build_summary(
         safety = [r for r in run.results if r.role == "safety" and r.score is not None]
         hard = [r for r in cap if r.difficulty >= 3]
         machine = [r.score for r in cap]
-        judged = [jr.mapped for jr in judge_scores.get(run.task_id, {}).values() if jr is not None]
+        # c373：judge 列与 machine 列同口径剔除 safety 夹具（否则 s 包 judge 分母 20 vs machine 13）
+        cap_ids = {r.item_id for r in run.results if r.role != "safety"}
+        judged = [
+            jr.mapped for iid, jr in judge_scores.get(run.task_id, {}).items()
+            if jr is not None and iid in cap_ids
+        ]
         ts = TaskScores(task_id=run.task_id, machine=machine, judge=judged)
         row = summarize([ts])["tasks"][0]
         _stats_pre = scored_rate_stats(run.results)
