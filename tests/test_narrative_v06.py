@@ -64,8 +64,10 @@ def test_c389_no_js_degradation():
     assert "document.documentElement.classList.add" in html, "缺 html.js 标记内联脚本"
     assert "<noscript>" in html and "run-score-ledger" in html, "缺 noscript 降级提示"
     css = _read("styles.css")
-    assert "html.js .reveal {" in css and "html.js .rank-row {" in css, \
-        "opacity 藏匿未门控到 html.js"
+    # c409：藏匿必须是 :not(.is-in) 形式——裸 html.js .rank-row（0,2,1）会反超
+    # .rank-row.is-in（0,2,0），真实浏览器榜单曾因此永久隐藏（视觉验收实测）
+    assert "html.js .reveal:not(.is-in)" in css and "html.js .rank-row:not(.is-in)" in css, \
+        "opacity 藏匿未用 html.js + :not(.is-in) 门控"
     assert "\n.reveal {" not in "\n" + css, "裸 .reveal 藏匿仍在"
 
 

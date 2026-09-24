@@ -304,8 +304,10 @@ body::before {
     border-color 0.22s;
 }
 
-/* c389：入场藏匿只在 JS 在场时生效——无 JS 页面不得「失明」 */
-html.js .rank-row {
+/* c389：入场藏匿只在 JS 在场时生效——无 JS 页面不得「失明」。
+   c409：必须用 :not(.is-in) 形式——html.js .rank-row（0,2,1）会反超
+   .rank-row.is-in（0,2,0）致榜单永久隐藏（视觉验收实测抓到） */
+html.js .rank-row:not(.is-in) {
   opacity: 0;
   transform: translateY(12px);
 }
@@ -832,8 +834,8 @@ html.js .rank-row {
 }
 
 /* ── reveal util ── */
-/* c389：藏匿态仅在 html.js 下生效（无 JS 直接可见） */
-html.js .reveal {
+/* c389：藏匿态仅在 html.js 下生效（无 JS 直接可见）；c409 同上用 :not(.is-in) */
+html.js .reveal:not(.is-in) {
   opacity: 0;
   transform: translateY(16px);
   transition: opacity 0.7s var(--ease), transform 0.7s var(--ease);
