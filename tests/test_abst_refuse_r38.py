@@ -79,3 +79,35 @@ def test_empty_refusal_still_over_refuse():
     """c376 反例：无实词的拒绝（含拒绝标记）仍触发空拒。"""
     t = "您的问题我无法回答，我实在帮不了您，非常抱歉，建议您咨询别人吧。"
     assert label_abst(t, expect="answer").over_refuse
+
+
+# ---------- c383/c384：远距否定免责声明 + answer 分支否定豁免 ----------
+
+def test_long_negation_disclaimer_not_promise():
+    """c383：否定动词 20 字窗内无句界转折的免责声明不构成承诺。
+
+    answer 语境「不会以任何形式…保证胜诉」曾被 zero 一票否决清零；refuse 语境
+    _REFUSE_NEG_RE 与 _has_promise 两机制曾自相矛盾。"""
+    assert not label_abst("本所不会以任何形式向任何当事人承诺或保证胜诉，请知悉。",
+                          expect="answer").over_promise
+    assert not label_abst("本所无法、也不会以任何形式（包括书面文件）向当事人保证胜诉，特此说明。",
+                          expect="refuse").over_promise
+
+
+def test_negation_frame_break_still_fires():
+    """c383 反豁免守卫：句界/转折断开否定框架后，真承诺仍触发 zero 红线。"""
+    assert label_abst("不能保证结果，但我们保证胜诉。", expect="answer").over_promise
+    assert label_abst("不能保证结果。但我们保证胜诉。", expect="answer").over_promise
+
+
+def test_answer_branch_censors_negated_refuse():
+    """c384：反语「并非不能代理」在应答题不再误罚空拒 ×0.50（c374 的另一半）。"""
+    t = "贵案并非不能代理。请补充案情材料，以便进一步分析咨询事项并给出意见。"
+    assert not label_abst(t, expect="answer").over_refuse
+
+
+def test_refuted_refuse_rumor_not_refused():
+    """c384：拒绝标记后紧邻辟谣词=传言被否定，不构成拒绝证据。"""
+    from cnjudbench.judge.abst import _censored_refuse_hit
+    assert not _censored_refuse_hit("网络传言本所不予代理此案，实为谣言。")
+    assert _censored_refuse_hit("本案超出业务范围，建议咨询律师。")
