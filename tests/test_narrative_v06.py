@@ -72,10 +72,9 @@ def test_c389_no_js_degradation():
 
 
 def test_c391_panel_models_match_ledger_main_board():
-    """c391：面板 app.js MODELS 与总账 §1 主记分板逐行对账（run 名 + 总分）。
-
-    面板数据是手工内嵌、ledger 是唯一汇总账——两侧此前零机检，
-    任何一侧手改数字都会悄悄说谎。"""
+    """c391/c416：面板数据块与总账互锁——MODELS 主记分板逐行、THINK_COMPARISONS
+    与 SAFETY_CARDS 映射到对应 run 的 grand/safety。面板数据是手工内嵌、
+    ledger 是唯一汇总账——任何一侧手改数字都会悄悄说谎。"""
     ledger = _read("docs", "run-score-ledger.md")
     ledger_rows = re.findall(
         r"^\| \d+ \| `([a-z0-9\-]+)` \|[^\n]*?\| (?:洁净隔离|API 隔离) \| \*{0,2}(\d+\.\d{2})\*{0,2} \|",
@@ -86,12 +85,57 @@ def test_c391_panel_models_match_ledger_main_board():
         r'run:\s*"([a-z0-9\-]+)"[\s\S]*?grand_eq:\s*(\d+\.?\d*)', js)
     panel = dict(panel_rows)
     assert len(panel_rows) == 13, f"面板应 13 个模型，实得 {len(panel_rows)}"
+    panel_safety = dict(re.findall(
+        r'run:\s*"([a-z0-9\-]+)"[\s\S]*?safety:\s*(\d+\.?\d*)', js))
+    assert len(panel_safety) == 13
     assert {r for r, _ in ledger_rows} == set(panel), (
         f"面板与总账 run 集合不一致：仅账={ {r for r, _ in ledger_rows} - set(panel) } "
         f"仅面板={ set(panel) - {r for r, _ in ledger_rows} }")
     for run, grand in ledger_rows:
         assert abs(float(panel[run]) - float(grand)) < 1e-9, \
             f"{run} 总分账实不符：ledger={grand} app.js={panel[run]}"
+
+    # c416：思考对照点值 == 对应 run 的 grand_eq（映射错/值漂移即红）
+    think = re.findall(
+        r'\{ label: "([^"]+)", value: (\d+\.?\d*) \}', js)
+    think_by_label = {}
+    for label, value in think:
+        think_by_label.setdefault(label, []).append(float(value))
+    for label, run in (("思考默认继承", "glm53f-iso-scored"),
+                       ("思考低", "glm53f-low-iso-20260924-scored"),
+                       ("思考高", "glm53f-hi-iso-0924-scored"),
+                       ("思考高", "db21lite-iso-0924-scored")):
+        expected = float(panel[run])
+        assert expected in think_by_label.get(label, []), \
+            f"思考对照 {label} 缺 {run} 的 {expected}（对照点与账不符）"
+    assert 65.67 in think_by_label.get("思考低", []), "豆包 Lite 思考低 flip 定分 65.67 应在对照"
+
+    # c416：安全卡 score == 对应 run 的 safety_score
+    safety_cards = re.findall(r'name: "([^"]+)",\s*\n\s*score: (\d+\.?\d*)', js)
+    card_to_run = {
+        "MiMo-V2.6-Pro": "mimo-sub-iso-scored",
+        "GLM-5.3-Flash（思考高）": "glm53f-hi-iso-0924-scored",
+        "豆包2.1 Pro（思考高）": "db21pro-iso-0924-scored",
+        "MiniMax-M3": "minimax-m3-iso-20260924-scored",
+        "MiMo（20260924b）": "mimo-sub-iso-20260924b-scored",
+        "GLM-5.3-Flash（思考低）": "glm53f-low-iso-20260924-scored",
+        "GLM-5.3-Flash（思考默认继承）": "glm53f-iso-scored",
+        "豆包 2.1 Lite（思考低）": "doubao21lite-flip-20260924-scored",
+    }
+    assert len(safety_cards) >= 8, f"安全卡应 ≥8 张，实得 {len(safety_cards)}"
+    for name, score in safety_cards:
+        run = card_to_run.get(name)
+        if run is None:
+            continue  # 未映射的新卡提示人工补充映射，不在机检内猜测
+        assert abs(float(score) - float(panel_safety.get(run, -1))) < 1e-9, \
+            f"安全卡 {name} 分值 {score} 与 {run} safety {panel_safety.get(run)} 不符"
+        # 拒对数与分值自洽（7 题制：71.43≈5/7、100=7/7、0=0/7）
+        slots_m = re.search(
+            re.escape(f'name: "{name}"') + r"[\s\S]*?slots: \[([0-9, ]+)\]", js)
+        if slots_m:
+            n_ok = sum(int(x) for x in slots_m.group(1).split(",") if x.strip())
+            assert abs(n_ok / 7 * 100 - float(score)) < 0.01, \
+                f"安全卡 {name} slots 拒对数 {n_ok}/7 与分值 {score} 不自洽"
 
 
 def test_c398_panel_models_block_regenerable():
