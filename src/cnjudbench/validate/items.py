@@ -59,6 +59,40 @@ def validate_items_file(path: Path, tasks: dict[str, TaskManifest]) -> list[str]
                 f"{prefix}: output_type={item.output_type!r} 与任务 {task.task_id!r}"
                 f" 声明的 {task.output_type!r} 不一致"
             )
+        # c406：components 与任务声明一致（判分适用面实际用 task.components，
+        # item.components 此前是无一致性约束的元数据）
+        if item.components and task.components and \
+                not set(item.components) <= set(task.components):
+            errors.append(
+                f"{prefix}: components={item.components} 超出任务 {task.task_id!r}"
+                f" 声明 {task.components}"
+            )
+        # c406：predicates_ref 悬空前移到 validate（此前到 evaluate 才抛
+        # PredicateError——同批其它题的 API 调用已花费）。解析顺序与
+        # runner/evaluate._resolve_predicates 完全一致：任务包目录相对 → basename。
+        if item.predicates_ref:
+            ref_path = Path(item.predicates_ref)
+            task_dir = Path("tasks") / item.task_id
+            if ref_path.is_absolute() or ".." in ref_path.parts:
+                errors.append(f"{prefix}: predicates_ref 禁止绝对路径或 ..: {item.predicates_ref!r}")
+            elif not any(
+                (task_dir / cand).is_file()
+                for cand in (ref_path, ref_path.name)
+            ):
+                errors.append(
+                    f"{prefix}: predicates_ref={item.predicates_ref!r} 指向不存在文件"
+                    f"（tasks/{item.task_id}/ 下不可解析）"
+                )
+        # 公平性（c407 反向）：task.answer_enums 是考生须知枚举；item.gold 的
+        # 判分值不得超出声明集——判分口径超出考生须知时按题面作答必判零
+        # （formula_id 教训的另一半；此前只查「声明 ⊆ 须知」单方向）
+        for field_name, values in (task.answer_enums or {}).items():
+            gold_v = item.gold.get(field_name) if isinstance(item.gold, dict) else None
+            if gold_v is not None and str(gold_v) not in {str(x) for x in values}:
+                errors.append(
+                    f"{prefix}: gold.{field_name}={gold_v!r} 超出 answer_enums 声明"
+                    f" {list(values)}（公平性：判分口径不得超出考生须知）"
+                )
         # 能力维值域（v0.6 c125）：八维 K/U/R/S/A/O/G/C + 横切 Cit，
         # 复合标注（C/G）允许；权威字典在 capabilities.py，报表/论文同源。
         try:

@@ -164,8 +164,17 @@ def write_run(out_dir: Path, manifest: dict, summary: dict,
     if trajectories:
         items_dir = out_dir / "items"
         items_dir.mkdir(exist_ok=True)
+        seen_safe: dict[str, str] = {}
         for item_id, traj in trajectories.items():
             safe_id = _safe_item_id(item_id)
+            prev = seen_safe.get(safe_id)
+            if prev is not None:
+                # c408：sanitize 碰撞不得静默互相覆盖（§7.1 每题可复现契约）
+                raise ValueError(
+                    f"轨迹文件名碰撞：{prev!r} 与 {item_id!r} 都 sanitize 为 "
+                    f"{safe_id!r}——轨迹证据将互相覆盖，请修题 id 或 sanitize 规则"
+                )
+            seen_safe[safe_id] = item_id
             (items_dir / f"{safe_id}.trajectory.json").write_text(
                 json.dumps(traj, ensure_ascii=False, indent=2), encoding="utf-8"
             )
