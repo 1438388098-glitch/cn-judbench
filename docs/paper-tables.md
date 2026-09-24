@@ -1,5 +1,6 @@
 # 论文主表（生成自 runs，正式对比表只收 provisional=false）
 
+> 全部 run 总分历史见 [run-score-ledger.md](run-score-ledger.md)（唯一汇总账）。
 > 数据截至：2026-09-24；v0.6 现行基线为 random 7.96 /
 > rules 27.03 / mock:gold 100×8 包（reports/runs/baseline-v06；判分效度修复后
 > 重导验证零漂移见 baseline-v06b）。**DS-flash v0.6 全 12 包已跑**
