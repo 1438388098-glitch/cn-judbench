@@ -24,7 +24,8 @@ def test_c173_holdout_pack_integrity():
     # 历史中真实存在的提交（防手填/悬空引用），且不得晚于当前 HEAD
     sha = pack["harness_sha"]
     r = subprocess.run(["git", "cat-file", "-e", f"{sha}^{{commit}}"],
-                       cwd=REPO, capture_output=True, text=True)
+                       cwd=REPO, capture_output=True, text=True,
+                       encoding="utf-8", errors="replace")
     assert r.returncode == 0, f"holdout 冻结包 harness_sha 非真实提交: {sha}"
 
 
@@ -69,7 +70,8 @@ def test_c178_release_manifest_and_cost_null_discipline():
 
 def test_c180_no_secret_patterns_in_tracked_files():
     files = subprocess.run(["git", "ls-files"], cwd=REPO,
-                           capture_output=True, text=True, check=True
+                           capture_output=True, text=True, check=True,
+                           encoding="utf-8", errors="replace",
                            ).stdout.splitlines()
     patterns = [
         re.compile(r"sk-[A-Za-z0-9]{16,}"),            # OpenAI/DeepSeek 风格

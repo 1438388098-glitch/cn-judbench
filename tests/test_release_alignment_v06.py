@@ -116,6 +116,7 @@ def test_c343_passk_threshold_bounds():
             [sys.executable, str(ROOT / "scripts" / "aggregate_passk.py"),
              "--runs", *demo, f"--threshold={val}"],
             capture_output=True, text=True, cwd=ROOT,
+            encoding="utf-8", errors="replace",
         )
         assert r.returncode != 0, f"--threshold {val} 应被拒绝"
 

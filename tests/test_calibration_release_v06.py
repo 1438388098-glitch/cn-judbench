@@ -138,7 +138,8 @@ def test_c269_gitignore_excludes_workspace_state():
     for rel in (".autopilot/state.json", ".autopilot/backlog.json",
                 "reports/runs/baseline-v06/summary.json"):
         r = subprocess.run(["git", "check-ignore", rel], cwd=REPO,
-                           capture_output=True, text=True)
+                           capture_output=True, text=True,
+                           encoding="utf-8", errors="replace")
         assert r.returncode == 0, f"{rel} 未被忽略"
 
 

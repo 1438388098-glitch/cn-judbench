@@ -26,7 +26,8 @@ PAT_REPORT_FILE = re.compile(r"reports/[A-Za-z0-9._\-/]+\.(?:json|csv|md)")
 
 def _tracked(path: Path) -> bool:
     r = subprocess.run(["git", "ls-files", "--error-unmatch", str(path.relative_to(REPO))],
-                       cwd=REPO, capture_output=True, text=True)
+                       cwd=REPO, capture_output=True, text=True,
+                       encoding="utf-8", errors="replace")
     return r.returncode == 0
 
 

@@ -46,7 +46,8 @@ def _make_run(tmp_path: Path, items: list[tuple[str, str]], answer_of: dict[str,
 
 def _guard(run: Path) -> subprocess.CompletedProcess:
     return subprocess.run([sys.executable, str(SCRIPT), "--run-dir", str(run)],
-                          capture_output=True, text=True)
+                          capture_output=True, text=True,
+                          encoding="utf-8", errors="replace")
 
 
 def test_guard_catches_direct_swap(tmp_path):

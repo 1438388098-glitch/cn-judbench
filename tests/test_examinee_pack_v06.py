@@ -34,7 +34,8 @@ def test_c365_漂洗导出脚本冒烟():
             [sys.executable, str(REPO / "scripts" / "export_draft_prompts.py"),
              "--drafts", "data/drafts/cit_validity,data/drafts/a_irac_reason",
              "--run-dir", td],
-            cwd=REPO, capture_output=True, text=True, timeout=180)
+            cwd=REPO, capture_output=True, text=True,
+            encoding="utf-8", errors="replace", timeout=180)
         assert r.returncode == 0, r.stderr[-500:]
         idx = json.loads((Path(td) / "index.json").read_text(encoding="utf-8"))
         assert {i["item_id"] for i in idx} == _draft_ids()

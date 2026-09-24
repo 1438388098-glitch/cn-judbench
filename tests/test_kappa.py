@@ -51,7 +51,7 @@ def test_kappa_cli_end_to_end(tmp_path):
     rc = subprocess.run(
         [sys.executable, str(REPO / "scripts" / "kappa.py"), "--ratings", str(ratings),
          "--machine", str(machine), "--out", str(out)],
-        capture_output=True, text=True)
+        capture_output=True, text=True, encoding="utf-8", errors="replace")
     assert rc.returncode == 0
     import json
 

@@ -39,7 +39,8 @@ def _run_mock_cli(tmp_path):
     r = subprocess.run(
         [PY, "-m", "cnjudbench", "run", "--task", "u_element_extract",
          "--model", "mock:gold", "--out", str(tmp_path / "run")],
-        cwd=REPO, capture_output=True, text=True, timeout=600)
+        cwd=REPO, capture_output=True, text=True,
+        encoding="utf-8", errors="replace", timeout=600)
     assert r.returncode == 0, r.stderr[-500:]
     return json.loads((tmp_path / "run" / "summary.json")
                       .read_text(encoding="utf-8"))
@@ -146,7 +147,8 @@ def test_c277_cost_ledger_pricing_source():
 
 def test_c278_reproduce_paper_script():
     r = subprocess.run(["bash", "scripts/reproduce_paper.sh"], cwd=REPO,
-                       capture_output=True, text=True, timeout=600)
+                       capture_output=True, text=True,
+                       encoding="utf-8", errors="replace", timeout=600)
     assert r.returncode == 0, r.stderr[-800:]
     assert "REPRODUCE: OK" in r.stdout
 

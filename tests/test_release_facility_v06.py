@@ -57,7 +57,7 @@ def test_c226_holdout_pack_idempotent(tmp_path):
     try:
         r = subprocess.run([str(REPO / ".venv" / "Scripts" / "python.exe"),
                             str(script)], cwd=REPO, capture_output=True, text=True,
-                           timeout=300)
+                           encoding="utf-8", errors="replace", timeout=300)
         if r.returncode != 0:
             # 生成器可能要求显式参数——跳过而非误报
             assert "required" in r.stderr, r.stderr[-300:]
@@ -65,7 +65,7 @@ def test_c226_holdout_pack_idempotent(tmp_path):
         first = out1.read_bytes()
         r2 = subprocess.run([str(REPO / ".venv" / "Scripts" / "python.exe"),
                              str(script)], cwd=REPO, capture_output=True, text=True,
-                            timeout=300)
+                            encoding="utf-8", errors="replace", timeout=300)
         assert r2.returncode == 0
         second = out1.read_bytes()
         a, b = json.loads(first), json.loads(second)
@@ -103,11 +103,13 @@ def test_c230_ingest_queue_generator_idempotent(tmp_path):
     original = queue.read_bytes()  # 快照恢复，防测试跑脏仓库文件
     try:
         r1 = subprocess.run([str(REPO / ".venv" / "Scripts" / "python.exe"), str(script)],
-                            cwd=REPO, capture_output=True, text=True, timeout=300)
+                            cwd=REPO, capture_output=True, text=True,
+                            encoding="utf-8", errors="replace", timeout=300)
         assert r1.returncode == 0, r1.stderr[-300:]
         before = queue.read_text(encoding="utf-8")
         r2 = subprocess.run([str(REPO / ".venv" / "Scripts" / "python.exe"), str(script)],
-                            cwd=REPO, capture_output=True, text=True, timeout=300)
+                            cwd=REPO, capture_output=True, text=True,
+                            encoding="utf-8", errors="replace", timeout=300)
         assert r2.returncode == 0
         after = queue.read_text(encoding="utf-8")
         # 生成头含日期与 harness 行允许漂移；表体必须稳定

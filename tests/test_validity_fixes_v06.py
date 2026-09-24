@@ -111,11 +111,11 @@ def test_c325_passk_k_bounds():
     runs = "reports/runs/v05new-s1m-score reports/runs/v05new-s2m-score"
     r1 = subprocess.run([PY, "scripts/aggregate_passk.py", "--runs"] + runs.split()
                         + ["--k", "5"], cwd=REPO, capture_output=True, text=True,
-                        timeout=300)
-    assert r1.returncode != 0 and "大于 run 数" in (r1.stderr + r1.stdout)
+                        encoding="utf-8", errors="replace", timeout=300)
+    assert r1.returncode != 0 and "大于 run 数" in ((r1.stderr or "") + (r1.stdout or ""))
     r2 = subprocess.run([PY, "scripts/aggregate_passk.py", "--runs"] + runs.split()
                         + ["--k", "0"], cwd=REPO, capture_output=True, text=True,
-                        timeout=300)
+                        encoding="utf-8", errors="replace", timeout=300)
     assert r2.returncode != 0
 
 

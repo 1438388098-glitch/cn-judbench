@@ -62,5 +62,5 @@ def test_c188_readme_mock_commands_runnable(tmp_path):
         else:
             cmd += f" --out {tmp_path / f'out{i}'}"
         r = subprocess.run(cmd, shell=True, cwd=REPO, capture_output=True, text=True,
-                           timeout=600)
+                           encoding="utf-8", errors="replace", timeout=600)
         assert r.returncode == 0, f"README 命令失败：{cmd}\n{r.stderr[-500:]}"

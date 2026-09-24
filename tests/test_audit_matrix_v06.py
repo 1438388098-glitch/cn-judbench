@@ -68,7 +68,7 @@ def test_c283_freeze_covers_pyproject_deps():
     deps += (pyproject["project"].get("optional-dependencies") or {}).get("dev", [])
 
     def norm(name):
-        return re.split(r"[\[<>=!~; ]", name.strip(), 1)[0].lower().replace("_", "-")
+        return re.split(r"[\[<>=!~; ]", name.strip(), maxsplit=1)[0].lower().replace("_", "-")
 
     freeze = set()
     for line in (REPO / "requirements-freeze.txt").read_text(encoding="utf-8").splitlines():
@@ -109,7 +109,8 @@ def _argparse_scripts():
 @pytest.mark.parametrize("script", _argparse_scripts())
 def test_c285_scripts_help_smoke(script):
     r = subprocess.run([PY, str(REPO / "scripts" / script), "--help"],
-                       cwd=REPO, capture_output=True, text=True, timeout=120)
+                       cwd=REPO, capture_output=True, text=True,
+                       encoding="utf-8", errors="replace", timeout=120)
     assert r.returncode == 0, f"{script} --help 失败：{r.stderr[-300:]}"
 
 
@@ -134,7 +135,8 @@ def test_c287_run_dialog_seed_deterministic(tmp_path):
         r = subprocess.run(
             [PY, "-m", "cnjudbench", "run-dialog", "--task", "tau_jud_intake",
              "--model", "mock:dialog", "--seed", "7", "--out", str(out)],
-            cwd=REPO, capture_output=True, text=True, timeout=600)
+            cwd=REPO, capture_output=True, text=True,
+            encoding="utf-8", errors="replace", timeout=600)
         assert r.returncode == 0, r.stderr[-400:]
         s = json.loads((out / "summary.json").read_text(encoding="utf-8"))
         outs.append([(it["id"], it["score"]) for it in s["items"]])

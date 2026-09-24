@@ -56,6 +56,7 @@ def test_flip_rate_check_smoke_mock_zero():
     rc = subprocess.run(
         [sys.executable, str(REPO / "scripts" / "flip_rate_check.py"),
          "--tasks", "u_element_extract", "--model", "mock:gold"],
-        cwd=REPO, capture_output=True, text=True, timeout=300)
+        cwd=REPO, capture_output=True, text=True,
+        encoding="utf-8", errors="replace", timeout=300)
     assert rc.returncode == 0, rc.stdout + rc.stderr
     assert "0.00" in rc.stdout or "flip" in rc.stdout.lower()

@@ -85,7 +85,8 @@ def test_c303_readme_package_table_matches_manifest():
                     reason="demo 脚本缺失")
 def test_c304_demo_pipeline_smoke():
     r = subprocess.run(["bash", "scripts/demo_pipeline.sh"], cwd=REPO,
-                       capture_output=True, text=True, timeout=600)
+                       capture_output=True, text=True,
+                       encoding="utf-8", errors="replace", timeout=600)
     assert r.returncode == 0, r.stderr[-800:]
     assert "DEMO PIPELINE: OK" in r.stdout
 

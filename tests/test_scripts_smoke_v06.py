@@ -31,7 +31,8 @@ PY = REPO / ".venv" / "Scripts" / "python.exe"
 
 def _run(cmd: list[str], **kw) -> subprocess.CompletedProcess:
     return subprocess.run([str(PY)] + cmd, cwd=REPO, capture_output=True,
-                          text=True, timeout=600, **kw)
+                          text=True, encoding="utf-8", errors="replace",
+                          timeout=600, **kw)
 
 
 def test_c212_version_three_way():

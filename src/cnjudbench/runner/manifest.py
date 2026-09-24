@@ -21,6 +21,7 @@ def harness_sha(repo_hint: Path | None = None) -> str:
         return subprocess.run(
             ["git", "rev-parse", "--short", "HEAD"],
             capture_output=True, text=True, check=True,
+            encoding="utf-8", errors="replace",
             cwd=repo_hint, timeout=10,
         ).stdout.strip() or "unknown"
     except Exception:  # noqa: BLE001 —— manifest 必填字段，失败回退

@@ -60,7 +60,8 @@ def test_c253_alias_lookup_variants():
 
 def test_c259_anchor_audit_covers_all_items():
     r = subprocess.run([PY, "scripts/audit_anchors.py"], cwd=REPO,
-                       capture_output=True, text=True, timeout=300)
+                       capture_output=True, text=True,
+                       encoding="utf-8", errors="replace", timeout=300)
     assert r.returncode == 0
     out = r.stdout
     n_items = int(out.split("audit_anchors: ")[1].split(" items")[0])

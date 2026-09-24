@@ -65,7 +65,8 @@ def test_c246_resolve_law_cli():
     r = subprocess.run(
         [str(PY), "-m", "cnjudbench", "resolve-law", "--law", "中华人民共和国刑法",
          "--article", "264", "--as-of", "2015-01-01"],
-        cwd=REPO, capture_output=True, text=True, timeout=300)
+        cwd=REPO, capture_output=True, text=True,
+        encoding="utf-8", errors="replace", timeout=300)
     assert r.returncode == 0
     doc = json.loads(r.stdout)
     assert doc["status"] == "ok" and doc["version_id"] == "cl_264_2011"
@@ -73,7 +74,8 @@ def test_c246_resolve_law_cli():
 
 def test_c247_smoke_cit_validity_cli():
     r = subprocess.run([str(PY), "-m", "cnjudbench", "smoke-cit-validity"],
-                       cwd=REPO, capture_output=True, text=True, timeout=300)
+                       cwd=REPO, capture_output=True, text=True,
+                       encoding="utf-8", errors="replace", timeout=300)
     assert r.returncode == 0 and "ALL MATCH" in r.stdout
 
 
@@ -116,7 +118,8 @@ def test_c250_run_artifacts_complete(tmp_path):
     r = subprocess.run(
         [str(PY), "-m", "cnjudbench", "run-all",
          "--tasks", "cit_validity", "--model", "mock:gold", "--out", str(tmp_path / "d")],
-        cwd=REPO, capture_output=True, text=True, timeout=600)
+        cwd=REPO, capture_output=True, text=True,
+        encoding="utf-8", errors="replace", timeout=600)
     assert r.returncode == 0
     d = tmp_path / "d"
     for name in ("manifest.json", "summary.json", "limits.md", "report.csv"):
