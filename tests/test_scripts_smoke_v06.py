@@ -225,3 +225,62 @@ def test_c372_题库生成器顶层写盘必须有_main_guard():
         if hits:
             bad.append(path.name)
     assert not bad, f"涉 data/public 且顶层写盘但缺 __main__ guard 的脚本：{bad}"
+
+
+def test_c377_zhuma_quality_scan_tmp_fixture_and_real_pool_readonly(tmp_path):
+    """竹马候选池质量扫描：tmp 金样 + 真池只读（字节级不变断言，R19 纪律）。"""
+    import hashlib
+
+    pool = tmp_path / "pool"
+    pool.mkdir()
+    q_dup = {"id": 2, "question": "甲乙纠纷，下列说法正确的是？", "type": "单选题",
+             "answer": ["A"], "options": [{"id": "A", "text": "对"}, {"id": "B", "text": "错"}]}
+    (pool / "2011_卷一.json").write_text(json.dumps({
+        "year": "2011", "volume": "卷一", "count": 2, "questions": [
+            {"id": 1, "question": "甲为掩饰隐瞒\ufffd\ufffd而实施下列行为", "type": "单选题",
+             "answer": ["A\ufffd"], "options": [{"id": "A", "text": "选项\ufffd甲"}, {"id": "B", "text": "选项乙"}]},
+            q_dup,
+        ]}, ensure_ascii=False), encoding="utf-8")
+    (pool / "2012_卷一.json").write_text(json.dumps({
+        "year": "2012", "volume": "卷一", "count": 1, "questions": [dict(q_dup, id=9)]},
+        ensure_ascii=False), encoding="utf-8")
+    (pool / "all_objective_questions.json").write_text(
+        json.dumps({"questions": [dict(q_dup, id=99)]}, ensure_ascii=False), encoding="utf-8")
+    out = tmp_path / "report.json"
+    r = subprocess.run([sys.executable, str(SCRIPTS / "clean_zhuma_pool.py"),
+                        "--pool", str(pool), "--out", str(out)],
+                       capture_output=True, text=True, encoding="utf-8", errors="replace")
+    assert r.returncode == 0, r.stderr[-400:]
+    rep = json.loads(out.read_text(encoding="utf-8"))
+    assert rep["total_items"] == 3  # 汇总文件跳过，防双计
+    assert rep["ufffd_spots"] == 3  # question + options[0] + answer 各一处
+    assert {u["field"] for u in rep["ufffd"]} == {"question", "options[0]", "answer[0]"}
+    assert rep["n_dup_groups"] == 1 and sorted(rep["dup_groups"][0]["ids"]) == ["2", "9"]
+
+    # 真池只读：跑真池后逐文件 sha256 不变，且默认不写题池目录
+    real = REPO / "data" / "zhuma_fakao"
+    if not real.is_dir():
+        pytest.skip("data/zhuma_fakao 缺失")
+    before = {p.name: hashlib.sha256(p.read_bytes()).hexdigest() for p in real.glob("*")}
+    out2 = tmp_path / "real-report.json"
+    r2 = subprocess.run([sys.executable, str(SCRIPTS / "clean_zhuma_pool.py"),
+                         "--pool", str(real), "--out", str(out2)],
+                        capture_output=True, text=True, encoding="utf-8", errors="replace")
+    assert r2.returncode == 0, r2.stderr[-400:]
+    after = {p.name: hashlib.sha256(p.read_bytes()).hexdigest() for p in real.glob("*")}
+    assert before == after, "题池文件被修改（违反只读契约）"
+    rep2 = json.loads(out2.read_text(encoding="utf-8"))
+    assert rep2["total_items"] == 4139  # 审计量：37 卷 4139 题
+    assert rep2["ufffd_spots"] > 0  # 已知约 80 处乱码在案，清洗前必须可检出
+
+
+def test_c378_pollution_run_dirs_self_marked():
+    """污染 run 目录必须自带 CONTAMINATED.md（脱离总账也能自证，防误引用）。
+
+    reports/runs/ 为 gitignored 本地产物：目录不存在（新 clone/CI）则跳过。"""
+    for pattern in ("glm53f-self-v06*", "mimo-sub-full*"):
+        for d in sorted((REPO / "reports" / "runs").glob(pattern)):
+            if d.is_dir():
+                mark = d / "CONTAMINATED.md"
+                assert mark.is_file(), f"污染 run 缺自证标注：{d}"
+                assert "禁止引用" in mark.read_text(encoding="utf-8")
