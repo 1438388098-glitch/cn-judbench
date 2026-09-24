@@ -15,9 +15,9 @@ from __future__ import annotations
 
 import argparse
 import json
-import random
 from pathlib import Path
 
+from cnjudbench.metrics.bootstrap import bootstrap_ci_mean
 from cnjudbench.metrics.cost import pass_power_k_per_item
 
 THRESHOLD_DEFAULT = 100.0
@@ -57,13 +57,10 @@ def _grand_passk(ids, per_run, k, threshold):
     if len(item_passk) < len(ids):
         item_passk += [0.0] * (len(ids) - len(item_passk))
     grand = sum(item_passk) / len(item_passk) if item_passk else 0.0
-    rng = random.Random(SEED)
-    boots = []
-    for _ in range(N_BOOT):
-        idx = [rng.randrange(len(item_passk)) for _ in range(len(item_passk))]
-        boots.append(sum(item_passk[j] for j in idx) / len(idx))
-    boots.sort()
-    return grand, boots[int(0.025 * (N_BOOT - 1))], boots[int(0.975 * (N_BOOT - 1))]
+    if not item_passk:
+        return grand, grand, grand
+    ci = bootstrap_ci_mean(item_passk, n_boot=N_BOOT, seed=SEED)
+    return grand, ci["ci95_low"], ci["ci95_high"]
 
 
 def drop_saturated(ids: list[str]) -> list[str]:
@@ -120,14 +117,10 @@ def main() -> int:
         item_passk += [0.0] * (len(ids) - len(item_passk))
     grand = sum(item_passk) / len(item_passk) if item_passk else 0.0
 
-    rng = random.Random(SEED)
-    boots = []
-    for _ in range(N_BOOT):
-        idx = [rng.randrange(len(item_passk)) for _ in range(len(item_passk))]
-        boots.append(sum(item_passk[j] for j in idx) / len(idx))
-    boots.sort()
-    # 分位数口径与 metrics/bootstrap.py 一致：int(q*(n_boot-1))
-    lo, hi = boots[int(0.025 * (N_BOOT - 1))], boots[int(0.975 * (N_BOOT - 1))]
+    # c415：bootstrap 收敛到 metrics.bootstrap_ci_mean（同 seed 同分位口径，
+    # 金样锁定；此前同文件两份逐字复制靠注释人肉对齐）
+    ci = bootstrap_ci_mean(item_passk, n_boot=N_BOOT, seed=SEED) if item_passk else None
+    lo, hi = (ci["ci95_low"], ci["ci95_high"]) if ci else (grand, grand)
 
     # flip：相邻 run 题分不同（共同题）
     flips = total = 0

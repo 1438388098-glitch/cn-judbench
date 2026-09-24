@@ -10,6 +10,7 @@
 from __future__ import annotations
 
 import hashlib
+import math
 import json
 import random
 import re
@@ -79,9 +80,11 @@ def _extract_amounts(text: str) -> list[float]:
     out = []
     for m in re.finditer(r"(\d[\d,]*)\s*元", text):
         try:
-            out.append(float(m.group(1).replace(",", "")))
+            v = float(m.group(1).replace(",", ""))
         except ValueError:
             continue
+        if math.isfinite(v):  # c413：超大数字串 float→inf 会炸 _fee_rule/JSON
+            out.append(v)
     return out
 
 
