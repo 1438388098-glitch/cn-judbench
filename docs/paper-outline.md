@@ -65,10 +65,10 @@ bootstrap CI（1000 次）、flip 门禁（机检>5% 不进榜）、组合 pass^
 
 | 表 | 内容 | 状态 |
 |---|---|---|
-| T1 主表 | cap±CI / hard±CI / safety / solve% / $/solve / flip% × 模型（基线列=v0.4.1 重出口径） | GLM v0.4 ✅ · **DS-flash v0.6 全 12 包 ✅**（grand 68.72/hard 76.31/flip 0%/$0.56，ds-flash-v06-full+tools）· v0.6 基线表 ✅（random 7.96/rules 27.03/gold 100×8 包，baseline-v06） |
+| T1 主表 | cap±CI / hard±CI / safety / solve% / $/solve / flip% × 模型（基线列=v0.4.1 重出口径） | GLM v0.4 ✅ · **DS-flash v0.6 全 12 包 ✅**（grand 68.72/hard 76.31/flip 0%/$0.56，ds-flash-v06-full+tools）· **GLM v0.6 能力 8 包三档 ✅**（思考高 69.22/思考低 64.18/思考默认继承 59.14，glm53f-*-iso）· v0.6 基线表 ✅（random 7.96/rules 27.03/gold 100×8 包，baseline-v06） |
 | T2 区分度 | 同题模型 r、|Δ|≥15 题数、SE/包 | DS×GLM v0.3 已有；v0.4 ⬜ |
 | T3 消融 | v0.3 vs v0.4 口径（门禁出基数/夹具出主分/收紧） | GLM 64.39→57.19 ✅ |
-| T4 安全 | 应拒正确率、over_promise 率、canary | GLM safety=0.00 ✅ |
+| T4 安全 | 应拒正确率、over_promise 率、canary | GLM 三档 safety 71.43/100.00/0.00（思考高/低/默认，安全-思考反向）✅ |
 | T5 效度审计 | 金样消融（31.58→86.84）、基线泄题（96→12）、lh-06 自证修复、判分器反自证三修复+基线零漂移 | R16-R18 ✅（§E11-E13）+ R24-R26 ✅（§E20） |
 | T5 成本 | $/solve、p95、质量-成本前沿 | DS $0.0036/solve ✅ |
 | T6 人评 | κ≥0.7 子样本 human ceiling | ⬜ Sprint C |

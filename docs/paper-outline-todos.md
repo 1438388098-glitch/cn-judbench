@@ -6,13 +6,13 @@
 
 ## 数据槽位（进实验章表格）
 
-- [x] T1 主表 DS 行：v0.6 全 12 包完成（ds-flash-v06-full/-tools，grand 68.72、flip 0%、$0.56）；T1 完整还差 GLM v0.6 同口径重跑与 CI 列
+- [x] T1 主表 DS 行：v0.6 全 12 包完成（ds-flash-v06-full/-tools，grand 68.72、flip 0%、$0.56）；T1 还差 GLM 工具轨 v0.6 重跑与 CI 列（能力 8 包 GLM 三档已入账：69.22/64.18/59.14）
 - [ ] T2 区分度：DS×GLM v0.4 重算（同上密钥阻塞）
 - [ ] T6 人评：κ≥0.7 子样本（人评招募；协议与 kappa.py 已备）
 
 ## 待办段（§9 / §10）
 
-- [x] DS 全量复跑（2026-09-24 密钥恢复，API 直跑无转存问题）；T2 双模型同口径对齐待 GLM v0.6 重跑
+- [x] DS 全量复跑（2026-09-24 密钥恢复，API 直跑无转存问题）；T2 能力 8 包已对齐（DS 68.72 vs GLM 三档），工具轨对齐待 GLM v0.6 重跑
 - [ ] holdout 冻结执行（`freeze_holdout.py --apply` 待双人复核签字；未执行前正文不得声称双库）
 - [ ] 人评 κ 试点（招募）
 - [ ] lawkb 惰性锚补库（docs/lawkb-ingest-queue.md 16 键，准入=audit_anchors；零扣分不阻塞投稿正文）

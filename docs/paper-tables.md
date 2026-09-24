@@ -5,7 +5,8 @@
 > rules 27.03 / mock:gold 100×8 包（reports/runs/baseline-v06；判分效度修复后
 > 重导验证零漂移见 baseline-v06b）。**DS-flash v0.6 全 12 包已跑**
 > （grand 68.72/hard 76.31/flip 0%/$0.56，ds-flash-v06-full+tools，见
-> run-params-ds-flash-v06.md）；GLM v0.6 同口径重跑待做。
+> run-params-ds-flash-v06.md）；GLM v0.6 能力 8 包三档已入账（思考高 69.22 / 思考低 64.18 /
+> 思考默认继承 59.14，glm53f-hi/low/iso-scored）；工具轨 v0.6 重跑待做。
 > 引用本表数字前先核对 `生成自 runs` 的时效。
 
 ## T-main（正式对比表）

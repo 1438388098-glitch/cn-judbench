@@ -34,8 +34,8 @@
 | 6/62（缺陷率 9.7%） | fresh 题真考生轮抓出金样/题面缺陷 | `docs/paper-outline.md` §E17、`docs/self-review-new-items-*.md` |
 | random 7.96 / rules 27.03 | v0.6 判分收紧后基线（baseline-v06） | `reports/runs/baseline-v06`、dataset-card 口径行 | ✓ |
 | 判分修复后基线零漂移 | R24 c322-c324 修复重导 baseline-v06b：245 题逐题分与三基线汇总与修复前完全一致 | `reports/runs/baseline-v06b`、`tests/test_baseline_zero_drift_v06.py`、calc-real-model-report §C5 | ✓ |
-| DS-flash v0.6 全 12 包 grand 68.72（hard 76.31，flip 0%，$0.56）
-| GLM 隔离 subagent 考生 grand 59.14（hard 67.38，safety 0 错） | T1/T2 首个双模型隔离对照：DS 领先近 10 分（a_irac 75.22 vs 47.79、gaia 86.96 vs 60.87）；自答 69.36−隔离 59.14=10 分即自答污染量 | `reports/runs/glm53f-iso-scored`、`docs/run-params-glm53f-iso-v06.md` | 历史运行记录 | | T1 首个非 GLM 真考生 v0.6 全量行；工具轨分化首证（dms 96.23 vs GLM 64.36、fault 37.50 vs GLM 58.33，GLM 为 v0.4 口径） | `reports/runs/ds-flash-v06-full` + `-tools`、`docs/run-params-ds-flash-v06.md` | 历史运行记录 |
+| DS-flash v0.6 全 12 包 grand 68.72（hard 76.31，flip 0%，$0.56） | T1 首个非 GLM 真考生 v0.6 全量行；工具轨分化首证（dms 96.23 vs GLM 64.36、fault 37.50 vs GLM 58.33，GLM 为 v0.4 口径） | `reports/runs/ds-flash-v06-full` + `-tools`、`docs/run-params-ds-flash-v06.md` | 历史运行记录 |
+| GLM 隔离 subagent 考生 grand 59.14（hard 67.38，safety 0/7 全未拒对=safety_score 0.00） | T1/T2 首个双模型隔离对照：DS 领先近 10 分（a_irac 75.22 vs 47.79、gaia 86.96 vs 60.87）；自答 69.36−隔离 59.14=10 分即自答污染量 | `reports/runs/glm53f-iso-scored`、`docs/run-params-glm53f-iso-v06.md` | 历史运行记录 |
 | c322-c324 修复组 | as_of 强制题面 / 极性对冲 / 拒绝否定豁免（判分效度 v0.6 收尾） | `tests/test_validity_fixes_v06.py`（8 测试，s-006 伪 as_of 反自证样例） | ✓ |
 | c373-c380 判分修复组 | judge 列剔 safety 夹具（与 machine 同分母）/ ftp.refuse 同步 c324 否定豁免 / over_refuse 实词表补行政·知产 9 词 / truncated 题带 abst 双标签 / summary.abst.over_refuse_items 触发题单列 | `tests/test_cli_with_judge.py`（c373）、`tests/test_predicates_ftp_ptp.py`（c374）、`tests/test_abst_refuse_r38.py`（c376）、`tests/test_adapter_measure_v06.py`（c375）、`tests/test_cli_with_judge.py`（c380） | ✓ |
 | a-008 引语豁免修复 | 复述当事人原话不触发 over_promise zero：成对引号区间任意长度豁免（弯/直角）、转述引导词、紧邻后置否定四类；反豁免守卫（真实承诺、否定转移仍触发） | `tests/test_abst_refuse_r38.py`（四类金样 + 两反例，a-008 为 glm53f-hi 隔离跑真实误伤案例） | ✓ |
