@@ -508,7 +508,8 @@ def _execute_runs(args: argparse.Namespace, task_ids: list[str]) -> tuple[list[T
         rubrics = {tid: load_rubric(d) for tid, d in task_dirs.items()}
         items_by_id = {item.id: item for item in all_items}  # v2 prompt：Judge 吃题面+参考答案
         judge_scores = apply_judge(runs, judge, rubrics, accountant=accountant,
-                                   k_pass=args.k_pass, items_by_id=items_by_id)
+                                   k_pass=args.k_pass, items_by_id=items_by_id,
+                                   concurrency=getattr(args, "concurrency", 8))
 
     accountant.stop_timer()
     # DESIGN v0.4 §8：stats/judge 块进 manifest；provisional 由缺件情况自动判定
@@ -922,6 +923,12 @@ def _cmd_compare(args: argparse.Namespace) -> int:
     """两 run 同题配对比较（FRAMEWORK §8：分差 CI + McNemar；论文"A 比 B"依据）。"""
     from .metrics.compare import compare_runs
 
+    for label in ("run_a", "run_b"):
+        if not (Path(getattr(args, label)) / "summary.json").is_file():
+            # c396：友好报错——缺 summary 时裸抛 FileNotFoundError 不可读
+            raise SystemExit(
+                f"compare: {getattr(args, label)} 缺 summary.json——"
+                "run 目录须先由 run/run-all 产出（reports/runs/ 不入库）")
     rep = compare_runs(Path(args.run_a), Path(args.run_b), threshold=args.threshold,
                        preregistered=args.preregistered)
     if "error" in rep:
