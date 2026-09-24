@@ -60,7 +60,9 @@ CN-JudBench 全部文档的分组导航（c276）。新增 `docs/*.md` 时必须
 | run-params-glm53f-iso-v06.md | GLM-5.3-Flash 隔离 subagent 考生跑参数与结果（8 包 245 题） |
 | run-params-glm53f-self-v06.md | GLM-5.3-Flash 会话内自答参考跑参数与结果（file: 回灌，污染警告，禁止进正式表） |
 | run-params-space-bunny-free-sub-iso-20260924.md | Space Bunny Free 隔离 subagent 考生跑参数与结果（8 包 245 题，provisional） |
-| run-params-mimo-sub-iso-20260924.md | general subagent 隔离考生跑参数与结果（8 包 245 题，grand_eq 62.80，provisional） |
+| run-params-mimo-sub-iso-20260924.md | MiMo-V2.6-Flash 隔离考生跑参数与结果（8 包 245 题，grand_eq 62.80，provisional） |
+| run-params-mimo-sub-iso-20260924b.md | MiMo(思考默认继承)隔离 subagent 考生跑参数与结果(8 包 245 题,grand_eq 65.75,safety 100,provisional) |
+| run-params-minimax-m3-iso-20260924.md | MiniMax-M3(思考默认继承)隔离 subagent 考生跑参数与结果(8 包 245 题,grand_eq 62.81,safety 71.43,provisional) |
 | [sprint-a-report.md](sprint-a-report.md) | Sprint A 收官报告 |
 | [run-params-ds-flash-v41.md](run-params-ds-flash-v41.md) · [run-params-ds-flash-v41-c50.md](run-params-ds-flash-v41-c50.md) · [run-params-airac-hard2-r25.md](run-params-airac-hard2-r25.md) · [run-params-glm53flash-subagent-c5.md](run-params-glm53flash-subagent-c5.md) | 各模型/并发档运行参数记录（花费/耗时/得分） |
 | [passk-airac-r20.md](passk-airac-r20.md) | a_irac pass^k 运行报表 |
