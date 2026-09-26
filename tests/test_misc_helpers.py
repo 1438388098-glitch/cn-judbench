@@ -9,6 +9,7 @@ import json
 from pathlib import Path
 
 import pytest
+from pydantic import ValidationError
 
 from cnjudbench.adapters.mock import mock_dialog_adapter
 from cnjudbench.runner.account import price_key_from_model
@@ -105,3 +106,28 @@ def test_mock_dialog_adapter_is_deterministic(store):
     t1 = r1.complete("turn").text
     t2 = r2.complete("turn").text
     assert t1 == t2
+
+
+# ---------- round-24 补测：LawAnchor schema 与 sync_dashboard.load_tasks_meta ----------
+
+def test_law_anchor_requires_core_fields():
+    from cnjudbench.schemas.item import LawAnchor
+
+    a = LawAnchor(law="中华人民共和国刑法", article="264", effective_on="2024-06-01")
+    assert a.law.endswith("刑法")
+    with pytest.raises(ValidationError):
+        LawAnchor(article="264")  # 缺 law
+
+
+def test_load_tasks_meta_covers_all_packages():
+    import importlib.util
+
+    spec = importlib.util.spec_from_file_location(
+        "sync_dashboard", REPO / "scripts" / "sync_dashboard.py")
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+
+    meta = mod.load_tasks_meta()
+    assert len(meta) == 12
+    for name, m in meta.items():
+        assert m["title"] == name and m["level"] and "capability" in m
