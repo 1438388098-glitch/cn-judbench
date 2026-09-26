@@ -106,6 +106,9 @@ py -3.13 -m venv .venv
 cat reports/runs/demo/report.csv                  # §6.1 论文表直贴列（solve% 为保守口径：n/a 计未解决）
 ```
 
+> 运行约束：本包按「克隆仓库根目录运行」设计——`tasks/`、`data/public/`、
+> `lawkb/`、`configs/` 为仓库根资产，不随 pip 包分发；请在克隆根目录执行命令。
+
 换真实模型：`--model openai:<model> --base-url …`（密钥仅经环境变量）；已有答案文件用
 `--model file:<answers 目录>` 回灌（全管线同 API 跑法，见 docs/paper-outline.md §7）。
   回灌前必跑换答对齐 guard：`python scripts/check_answer_alignment.py --run-dir <run 目录>`（bigram Dice + 反向最佳确认；SUSPECT 清单人工复核，已两次抓到 subagent 答案错位事故）。

@@ -37,6 +37,13 @@ package-dir = { "" = "src" }
 [tool.setuptools.packages.find]
 where = ["src"]
 
+# 包内数据文件（工具金样与文书 schema）随 wheel/sdist 分发；
+# 缺失会导致 tools/cases.py、lint_doc.py 在安装后 ImportError/FileNotFoundError。
+# 注意：tasks/ data/ lawkb/ configs/ 属仓库根资产，不随包分发——
+# 本包按「克隆仓库根运行」设计（见 README 快速开始）。
+[tool.setuptools.package-data]
+"cnjudbench.tools" = ["gold/*.json", "schema/*.json"]
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 # 全局超时（秒）：防单个挂起用例烧穿 CI；子进程测试自带更短的内部 timeout。
