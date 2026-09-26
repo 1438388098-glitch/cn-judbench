@@ -161,6 +161,9 @@ Item = 多维标签 + prompt
 | `amount` / `deadline` | — | ✓ | ✓ | ✓ | ✓ | — | ✓ | ✗ | ✓ |
 | `schema` / `lint` | — | — | — | ✓ | ✓ | — | — | ✓（栏目级） | ✓（参数 AST） |
 | `state`（终态 diff） | — | — | — | — | ✓ | — | — | ✗ | ✓（工具副作用） |
+| `status_ladder`（引用效力分档，DESIGN v0.4 §4.2） | ✓ | ✓ | ✓ | ✓ | ✓ | — | — | ✗ | ✗ |
+| `unit_tests`（隐藏单测 fail-to-pass，DESIGN v0.4 §5.2） | — | — | — | — | ✓ | — | — | ✓ | ✓ |
+| `env_diff`（案管副作用终态，DESIGN v0.4 §5.3）／`fault_recovery`（故障注入恢复，§5.4） | — | — | — | — | ✗ | — | — | ✗ | ✓（工具副作用） |
 | `tool_sequence` / `tool_ast`（PTP）／`fake_tool`（FTP） | — | — | — | — | — | — | — | ✗ | ✓（P2 工具轨迹） |
 | `risk_disclosure` / `refuse` / `no_fabrication` | ✓ | — | — | — | ✓ | — | — | ✓* | ✗ |
 | `progress_keyword` | — | — | ✓（弱） | — | — | — | — | ✓（弱） | ✓（弱） |
@@ -552,6 +555,7 @@ L4 的「律师 2h/8h 基线」成本与工作产品归属重，**个人项目�
 statute | must_not_statute | element | field | field_keep | amount
 | deadline | schema | lint | state | risk_disclosure | refuse | no_fabrication
 | progress_keyword | tool_sequence | tool_ast | fake_tool | custom_script
+| status_ladder | unit_tests | env_diff | fault_recovery
 ```
 
 字段：`type, match|path|law|article|…, as_of?, on_fail: zero|cap_50|partial|flag`。  

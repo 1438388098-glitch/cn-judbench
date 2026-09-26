@@ -98,3 +98,45 @@ def test_compare_runs_no_common_items_errors(tmp_path: Path):
     _write_summary(b, [("y-001", 100.0, "capability")])
     rep = compare_runs(a, b)
     assert "error" in rep
+
+
+# ---------- c429：provisional 出口强制降档（DESIGN §8 不得进对外对比表） ----------
+
+def _write_manifest(run_dir: Path, provisional: bool) -> None:
+    run_dir.joinpath("manifest.json").write_text(
+        json.dumps({"provisional": provisional}, ensure_ascii=False), encoding="utf-8")
+
+
+def test_compare_provisional_run_downgrades_tier(tmp_path):
+    a, b = tmp_path / "a", tmp_path / "b"
+    _write_summary(a, [("x-1", 80.0, "capability")])
+    _write_summary(b, [("x-1", 40.0, "capability")])
+    _write_manifest(a, True)
+    _write_manifest(b, False)
+    rep = compare_runs(a, b)
+    assert rep["eligibility"]["tier"] == "descriptive_only"
+    assert rep["eligibility"]["provisional_runs"] == ["run_a"]
+    assert "DESIGN §8" in rep["eligibility"]["downgraded_reason"]
+
+
+def test_compare_missing_manifest_fails_closed(tmp_path):
+    a, b = tmp_path / "a", tmp_path / "b"
+    _write_summary(a, [("x-1", 80.0, "capability")])
+    _write_summary(b, [("x-1", 40.0, "capability")])
+    _write_manifest(b, False)  # a 缺 manifest → 同样按 provisional 计
+    rep = compare_runs(a, b)
+    assert rep["eligibility"]["tier"] == "descriptive_only"
+    assert "run_a" in rep["eligibility"]["provisional_runs"]
+
+
+def test_compare_formal_runs_keep_tier(tmp_path):
+    # 双方 provisional=false 且 n≥100 → 原 c326 两档制不受降档影响
+    items = [(f"x-{i:03d}", 100.0 if i % 2 else 0.0, "capability") for i in range(120)]
+    a, b = tmp_path / "a", tmp_path / "b"
+    _write_summary(a, items)
+    _write_summary(b, items)
+    _write_manifest(a, False)
+    _write_manifest(b, False)
+    rep = compare_runs(a, b)
+    assert rep["eligibility"]["tier"] == "rankable"
+    assert "provisional_runs" not in rep["eligibility"]

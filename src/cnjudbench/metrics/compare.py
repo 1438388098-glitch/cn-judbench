@@ -112,6 +112,22 @@ def _eligibility(n_aligned: int, protocol: str = "FRAMEWORK §8.3") -> dict:
     return {"tier": tier, "n_threshold": RANKABLE_MIN_N, "protocol": protocol}
 
 
+def _is_provisional(run_dir: Path) -> bool:
+    """run 是否 provisional（c429）：缺 manifest / manifest 不可解析 /
+    provisional 标志为真，一律按 provisional 计——fail-closed。
+
+    DESIGN v0.4 §8：provisional 产物不得进对外对比表；compare 是统计出口，
+    不得让未过 flip 门禁/依赖锁定的 run 产出「显著」级结论。
+    """
+    mp = Path(run_dir) / "manifest.json"
+    if not mp.is_file():
+        return True
+    try:
+        return bool(json.loads(mp.read_text(encoding="utf-8")).get("provisional"))
+    except (OSError, ValueError):
+        return True
+
+
 def compare_runs(
     run_a: Path,
     run_b: Path,
@@ -168,6 +184,16 @@ def compare_runs(
                                    [x >= threshold for x in b])
     # c326：排名资格两档制（FRAMEWORK §8.3）——小样本不再与 n≥100 同措辞
     out["eligibility"] = _eligibility(len(common))
+    # c429：provisional 出口强制降档——任一侧 provisional（含缺 manifest）
+    # 时不得产出 rankable/ci_descriptive 级结论，数字仅作描述性呈现
+    prov_sides = sorted(name for name, run in (("run_a", run_a), ("run_b", run_b))
+                        if _is_provisional(run))
+    if prov_sides:
+        out["eligibility"]["tier"] = "descriptive_only"
+        out["eligibility"]["provisional_runs"] = prov_sides
+        out["eligibility"]["downgraded_reason"] = (
+            f"provisional run（{', '.join(prov_sides)}）未过 flip 门禁/依赖锁定，"
+            "按 DESIGN §8 不得进对外对比表")
     if preregistered:
         # c144：六包等权 macro（FRAMEWORK §8.3「核心六包等权 grand」的题级实现）
         task_of = [tasks_a[i] for i in common]

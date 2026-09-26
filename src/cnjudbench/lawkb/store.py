@@ -109,6 +109,15 @@ class LawkbStore:
             texts=texts,
         )
 
+    def pending_text_review(self) -> list[str]:
+        """note 标「待校对」的版本清单（c430）——limits 报告据此如实披露，
+        不得硬编码空表制造「全部已核」假象。返回 ``version_id（note）``。"""
+        return [
+            f"{v.version_id}（{v.note}）"
+            for v in self.versions.values()
+            if v.note and "待校对" in v.note
+        ]
+
 
 def _parse_law_file(data: object, filename: str):
     from pydantic import ValidationError

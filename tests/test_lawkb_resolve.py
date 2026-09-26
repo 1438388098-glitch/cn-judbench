@@ -230,3 +230,23 @@ def test_slice_union_hash_stable_and_order_free():
     assert a == b and a.startswith("sha256:")
     assert a != slice_union_hash([h1, h2])
     assert slice_union_hash([h1, h1]) != slice_union_hash([h1])  # 不去重：逐版本计入
+
+
+# ---------- c430：待校对清单实时收集（limits 报告不得硬编码「无」） ----------
+
+def test_store_collects_pending_text_review(tmp_path):
+    lf = law_spec()
+    lf["article_version"] = [
+        article("test_law", "1", "t1_v1", "2000-01-01", None, "第一条文本"),
+        article("test_law", "2", "t1_v2", "2000-01-01", None, "第二条文本"),
+    ]
+    lf["article_version"][0]["note"] = "原文录入（待校对）"
+    store = LawkbStore.load(write_store(tmp_path, [lf]))
+    assert store.pending_text_review() == ["t1_v1（原文录入（待校对））"]
+
+
+def test_store_pending_empty_when_no_notes(tmp_path):
+    lf = law_spec()
+    lf["article_version"] = [article("test_law", "1", "t1_v1", "2000-01-01", None, "第一条文本")]
+    store = LawkbStore.load(write_store(tmp_path, [lf]))
+    assert store.pending_text_review() == []

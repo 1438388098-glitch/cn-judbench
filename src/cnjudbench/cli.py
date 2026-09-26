@@ -567,7 +567,9 @@ def _execute_runs(args: argparse.Namespace, task_ids: list[str]) -> tuple[list[T
     return runs, {"manifest": manifest, "summary": summary, "judge": judge,
                   "unknown_in_lawkb": sum(
                       1 for r in runs for x in r.results
-                      if any("unknown_in_lawkb" in line for line in x.predicate_lines))}
+                      if any("unknown_in_lawkb" in line for line in x.predicate_lines)),
+                  # c430：待校对法条从 store 实时收集——limits 报告不得谎报「无」
+                  "pending_text_review": store.pending_text_review()}
 
 
 def _limits_text(args: argparse.Namespace, artifacts: dict) -> str:
@@ -581,7 +583,7 @@ def _limits_text(args: argparse.Namespace, artifacts: dict) -> str:
         flip_rate=None,  # 单跑不测翻转；复跑测定走 scripts/flip_rate_check.py
         unknown_in_lawkb=artifacts["unknown_in_lawkb"],
         judge_bias=bias,
-        pending_text_review=[],
+        pending_text_review=artifacts.get("pending_text_review", []),
     )
 
 
@@ -963,7 +965,12 @@ def _cmd_compare(args: argparse.Namespace) -> int:
     sig = "显著（CI 不含 0）" if (ci["ci95_low"] > 0 or ci["ci95_high"] < 0) else "不显著（CI 含 0）"
     # c326：排名资格两档制（FRAMEWORK §8.3）——小样本抑制显著性结论措辞
     tier = rep.get("eligibility", {}).get("tier")
-    if tier == "rankable":
+    prov = rep.get("eligibility", {}).get("provisional_runs")
+    if prov:
+        # c429：provisional 降档专属措辞——原因比 n 更重要，须显式可读
+        print(f"结论：含 provisional run（{', '.join(prov)}）——"
+              "未过 flip 门禁/依赖锁定，禁止进排名/显著性表述；数字仅描述性呈现")
+    elif tier == "rankable":
         print(f"结论：A-B 分差 {sig}")
     elif tier == "ci_descriptive":
         print(f"结论：n={rep['n_aligned']}∈[50,100)——CI 仅作描述性报告，"

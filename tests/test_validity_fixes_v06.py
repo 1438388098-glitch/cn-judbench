@@ -128,10 +128,13 @@ def test_c326_eligibility_tiers():
     assert _eligibility(99)["tier"] == "ci_descriptive"
     assert _eligibility(50)["tier"] == "ci_descriptive"
     assert _eligibility(49)["tier"] == "descriptive_only"
-    # E18 对：62 题 → ci_descriptive（CI 仅描述性，不作排名依据）
+    # E18 对：62 题 → ci_descriptive；但 c429 起 provisional 出口强制降档——
+    # v05new 存量 run 未过 flip 门禁（provisional 或缺 manifest），按 DESIGN §8
+    # 只得 descriptive_only，且降档原因须显式可读
     out = compare_runs(REPO / "reports" / "runs" / "v05new-s1m-score",
                        REPO / "reports" / "runs" / "v05new-s2m-score")
-    assert out["eligibility"]["tier"] == "ci_descriptive"
+    assert out["eligibility"]["tier"] == "descriptive_only"
+    assert out["eligibility"]["provisional_runs"] == ["run_a", "run_b"]
 
 
 def test_c328_macro_missing_tasks_warned():

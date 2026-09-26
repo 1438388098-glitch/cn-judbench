@@ -12,7 +12,12 @@ DISCLAIMER = (
 def limits_md(*, flip_rate: float | None = None, unknown_in_lawkb: int = 0,
               judge_bias: str = "MockJudge 启发式，正式对比前须换真 Judge 并锁 prompt_hash",
               pending_text_review: list[str] | None = None) -> str:
-    pending = ", ".join(pending_text_review or []) or "无"
+    # c430：待校对清单如实列名（超 8 处截断计数）；空表才写「无」
+    items = list(pending_text_review or [])
+    if len(items) > 8:
+        pending = ", ".join(items[:8]) + f" …等共 {len(items)} 处"
+    else:
+        pending = ", ".join(items) or "无"
     fr = "n/a" if flip_rate is None else f"{flip_rate:.4f}"
     return (
         "# limits\n\n"

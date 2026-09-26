@@ -4,6 +4,52 @@
 版本号遵循语义化版本。数据面（data/public、lawkb）与代码面同版本发布，
 每版配套 `data/public/MANIFEST.json` 的 `dataset_content_hash` 供第三方核对。
 
+## [未发布]
+
+### 新增
+- 判分复核与报告真实性（c398/c416/c430）：面板 MODELS 数据块由 summary.json
+  一键再生（字节级对账机检锁定）；思考对照/安全卡数据纳入账面互锁；
+  limits 报告的「lawkb 待校对」改为从 store 实时收集（超 8 处截断计数），
+  不再硬编码空表谎报「全部已核」。
+- compare 统计出口 provisional 门禁（c429）：任一侧 run 缺 manifest 或
+  provisional=true（含 baseline-v06c 等全部现行主记分板 run）时，排名资格
+  一律降档 descriptive_only 并显式给出原因——落实 DESIGN §8「provisional
+  产物不得进对外对比表」，防止未过 flip 门禁的 run 产出「显著」级结论。
+- 评测管线信任面（round-1 批次）：ci_gate 两版新增第 7/9 步「导出→占位
+  作答→换答对齐 guard→file: 回灌→产物核对」全管线（R14/R20 两次真实
+  错位事故的防线入 Gate）；测试侧跨平台解释器 helper
+  （`tests/conftest.py::project_python`）与测试卫生元测试。
+
+### 修正
+- 判分与数据链（c399/c401/c402/c404/c405）：dialog proto 转介判定同步
+  censored 否定豁免口径；lawkb 别名剥尾逐级尝试中间态（合同法解释（二）
+  （2009年）类引用不再解析失败）；连字符条号 253-1 映射 253之一；dialog
+  taxonomy 通道对齐（删未登记字面量）。
+- 确定性与健壮性（c400/c410-c413/c459）：user_sim 随机种子换 crc32
+  （`hash()` 进程盐化曾致 run-dialog 同 seed 跨进程话轮漂移）；smoke 目录
+  模式过滤非 cit 题；fmt2 超大值精度放宽+负零规范化；常驻工具裸跑缺输入
+  友好 SystemExit；export_prompts 重导出清场；baselines 抽取源头过滤非
+  有限值（超大标的额 inf 崩溃/非法 Infinity）；aggregate_passk 两份逐字
+  复制的 bootstrap 收敛到 `metrics.bootstrap_ci_mean`（同口径金样锁定）。
+- 面板与校验（c406-c409）：validate 跨对象交叉一致性三件；面板藏匿规则
+  特异性回归修复（`.rank-row` 反超 `.is-in` 致真实浏览器整榜永久隐藏）。
+- 基线与账面对账（c417-c419）：判分语义修订后按纪律重导
+  baseline-v06c（rules 27.03 → **27.40**，归因 R29/R32 修复晚于 v06b；
+  双树逐题对比证当晚零漂移）；存量 12 run 重评（a_irac 应拒族 7 题
+  0→100，6 行总分上修/排名 #10/#11 换位），ledger/面板/论文轨全链更新。
+- 评测管线信任面（round-1 批次续）：修复 pytest 运行把受跟踪文件
+  `docs/holdout-dual-review-pack.md` 生成日期刷成当天（工作区变脏）——
+  c226 快照恢复网补齐；修复 10+ 测试硬编码 `.venv/Scripts/python.exe`
+  （Linux CI 必 FileNotFoundError）；修复 ci_gate.ps1 在 powershell.exe
+  下本就无法解析的三处潜伏断裂（无 BOM 文件按 GBK 误读吃引号致 4 处
+  parser error、`python -c` 传参引号剥落改 stdin 管道、步骤编号 /7 与
+  实际步数不符），PSParser 0 errors 且新步骤定向执行通过。
+- 文档真源对账（round-1/2 批次）：论文轨五处 v0.6 基线 rules 27.03 →
+  现行 27.40（baseline-v06c，历史链保留）；FRAMEWORK v0.6 横幅补现行
+  规模 12 任务包 323 题（机检对账 MANIFEST）与附录 B/§4.2.1 矩阵补
+  status_ladder/unit_tests/env_diff/fault_recovery 四类（与校验器 22 类
+  枚举对齐）；README 测试数下限与 lawkb 版本数勘误。
+
 ## [0.6.0] — 2026-09-24
 
 ### 新增
@@ -67,9 +113,10 @@
 ## [0.5.0] — 2026-09-23
 
 ### 新增
-- 题库扩充：271 → **323 题**（12 包）。Phase 1 剖减 a_irac 全分饱和题 20 题
-  入 archive；Phase 3a/3b/3c 新增难题 36 题；Phase 4 新增实务题 30 题；
-  v0.6 batch4 新增 cit stale 族 6 题。
+- 题库扩充：271 → **317 题**（12 包）。Phase 1 剖减 a_irac 全分饱和题 20 题
+  入 archive；Phase 3a/3b/3c 新增难题 36 题；Phase 4 新增实务题 30 题
+  （v0.6 batch4 再增 cit stale 族 6 题至 323，见 0.6.0 与 FRAMEWORK v0.6
+  横幅现行规模）。
 - 双考生（at/lh/c 人设轮换）实证：有效区分 confirmed；考生轮修 4 处
   金样缺陷。
 - holdout/live 前瞻集冻结协议（`docs/holdout-live-protocol.md`）与
