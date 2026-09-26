@@ -93,3 +93,4 @@ CN-JudBench 全部文档的分组导航（c276）。新增 `docs/*.md` 时必须
 [impl-P1-rest.md](impl-P1-rest.md) · [impl-P2.md](impl-P2.md) · [impl-P3.md](impl-P3.md) ·
 [impl-audit-fix.md](impl-audit-fix.md) —— Sprint A 分阶段实施记录。
 | [contamination-calibration-set.md](contamination-calibration-set.md) | 污染阈值校准集（§9.1：近重复/独立各 50 对） |
+| [autopilot-run-report-2026-09-27.md](autopilot-run-report-2026-09-27.md) | 自动迭代运行报告（round1-24 审计记录） |
