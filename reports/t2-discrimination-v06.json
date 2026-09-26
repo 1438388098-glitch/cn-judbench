@@ -1,0 +1,120 @@
+{
+ "generated": "2026-09-27",
+ "caveat": "全部 run provisional=true（无 flip 复跑）——按 c429 门禁与 DESIGN §8，本表为描述性区分度统计，不构成排名/显著性结论",
+ "pairs": {
+  "ds_vs_glm_iso_cap8": {
+   "run_a": "reports\\runs\\ds-flash-v06-full",
+   "run_b": "reports\\runs\\glm53f-iso-scored-rescore-c419",
+   "n_aligned": 238,
+   "mean_a": 77.96,
+   "mean_b": 70.29,
+   "pearson_r": 0.655,
+   "abs_diff_ge_15": 52,
+   "diff_ci95": [
+    3.852142857142857,
+    11.682857142857145
+   ],
+   "mcnemar_p_exact": 0.01862383661500644,
+   "eligibility_tier": "descriptive_only",
+   "provisional_runs": [
+    "run_a",
+    "run_b"
+   ]
+  },
+  "ds_vs_glm_iso_prereg6": {
+   "run_a": "reports\\runs\\ds-flash-v06-full",
+   "run_b": "reports\\runs\\glm53f-iso-scored-rescore-c419",
+   "n_aligned": 161,
+   "mean_a": 69.28,
+   "mean_b": 62.29,
+   "pearson_r": 0.684,
+   "abs_diff_ge_15": 42,
+   "diff_ci95": [
+    2.2480124223602482,
+    11.63894409937888
+   ],
+   "mcnemar_p_exact": 0.18774155899882317,
+   "eligibility_tier": "descriptive_only",
+   "provisional_runs": [
+    "run_a",
+    "run_b"
+   ]
+  },
+  "ds_vs_glm_hi_cap8": {
+   "run_a": "reports\\runs\\ds-flash-v06-full",
+   "run_b": "reports\\runs\\glm53f-hi-iso-0924-rescore-c419",
+   "n_aligned": 238,
+   "mean_a": 77.96,
+   "mean_b": 77.41,
+   "pearson_r": 0.772,
+   "abs_diff_ge_15": 53,
+   "diff_ci95": [
+    -2.3392436974789925,
+    3.7079411764705883
+   ],
+   "mcnemar_p_exact": 0.31050465907901525,
+   "eligibility_tier": "descriptive_only",
+   "provisional_runs": [
+    "run_a",
+    "run_b"
+   ]
+  },
+  "ds_vs_glm_hi_prereg6": {
+   "run_a": "reports\\runs\\ds-flash-v06-full",
+   "run_b": "reports\\runs\\glm53f-hi-iso-0924-rescore-c419",
+   "n_aligned": 161,
+   "mean_a": 69.28,
+   "mean_b": 70.64,
+   "pearson_r": 0.838,
+   "abs_diff_ge_15": 42,
+   "diff_ci95": [
+    -4.546086956521738,
+    1.8371428571428574
+   ],
+   "mcnemar_p_exact": 1.0,
+   "eligibility_tier": "descriptive_only",
+   "provisional_runs": [
+    "run_a",
+    "run_b"
+   ]
+  },
+  "ds_vs_glm_low_cap8": {
+   "run_a": "reports\\runs\\ds-flash-v06-full",
+   "run_b": "reports\\runs\\glm53f-low-iso-20260924-scored-rescore-c419",
+   "n_aligned": 238,
+   "mean_a": 77.96,
+   "mean_b": 72.7,
+   "pearson_r": 0.667,
+   "abs_diff_ge_15": 70,
+   "diff_ci95": [
+    1.3500420168067224,
+    8.995966386554622
+   ],
+   "mcnemar_p_exact": 0.035697803555194696,
+   "eligibility_tier": "descriptive_only",
+   "provisional_runs": [
+    "run_a",
+    "run_b"
+   ]
+  },
+  "ds_vs_glm_low_prereg6": {
+   "run_a": "reports\\runs\\ds-flash-v06-full",
+   "run_b": "reports\\runs\\glm53f-low-iso-20260924-scored-rescore-c419",
+   "n_aligned": 161,
+   "mean_a": 69.28,
+   "mean_b": 66.17,
+   "pearson_r": 0.741,
+   "abs_diff_ge_15": 54,
+   "diff_ci95": [
+    -1.1624844720496892,
+    7.213788819875777
+   ],
+   "mcnemar_p_exact": 0.711071103811264,
+   "eligibility_tier": "descriptive_only",
+   "provisional_runs": [
+    "run_a",
+    "run_b"
+   ]
+  }
+ }
+}
