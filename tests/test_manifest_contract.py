@@ -78,3 +78,12 @@ def test_report_csv_exported(tmp_path, monkeypatch):
     assert "100.00" in lines[1]  # mock:gold 满分
     assert lines[1].endswith("True")  # 单跑缺 flip_rate/锁 → provisional 诚实标注
     assert "n/a" in lines[1]  # 工具轨列与 flip% 不编造
+
+
+def test_c449_harness_sha_unknown_forces_provisional():
+    deps = {"lock_sha256": "sha256:" + "a" * 64}
+    stats = {"flip_rate": 0.0, "n_replicates": 3}
+    # 显式 unknown/None → 降档；合法 sha → 不降档（缺省参数保持旧契约）
+    assert mark_provisional(deps, stats, harness_sha="unknown") is True
+    assert mark_provisional(deps, stats) is False
+    assert mark_provisional(deps, stats, harness_sha="sha256:" + "b" * 64) is False

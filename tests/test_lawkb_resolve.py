@@ -250,3 +250,41 @@ def test_store_pending_empty_when_no_notes(tmp_path):
     lf["article_version"] = [article("test_law", "1", "t1_v1", "2000-01-01", None, "第一条文本")]
     store = LawkbStore.load(write_store(tmp_path, [lf]))
     assert store.pending_text_review() == []
+
+
+# ---------- c448：text_ref 路径逃逸校验（P0-5 对称化） ----------
+
+# ---------- c448：text_ref 路径逃逸校验（P0-5 对称化） ----------
+# write_store 会归一 text_ref，故逃逸用例直接构造 yaml 字典绕过夹具覆写
+
+def _raw_law(text_ref: str) -> dict:
+    return {
+        "law": {"law_id": "test_law", "names": ["测试法律"], "level": "law",
+                "promulgated_on": "2000-01-01"},
+        "article_version": [{
+            "law_id": "test_law", "article_no": "1", "version_id": "t1_v1",
+            "text_hash": "sha256:" + "0" * 64, "effective_from": "2000-01-01",
+            "effective_to": None, "superseded_by": None,
+            "text_ref": text_ref, "note": "",
+        }],
+    }
+
+
+def test_schema_rejects_absolute_text_ref():
+    import pytest as _pytest
+    from cnjudbench.lawkb.schema import LawFile
+    with _pytest.raises(Exception) as ei:
+        LawFile.model_validate(_raw_law("C:/Windows/win.ini"))
+    assert "text_ref" in str(ei.value)
+
+
+def test_store_rejects_parent_escape_text_ref(tmp_path):
+    from cnjudbench.lawkb.store import LawkbError
+    root = tmp_path / "lawkb"
+    (root / "laws").mkdir(parents=True)
+    (root / "text").mkdir()
+    (root / "VERSION").write_text("lawkb-2026.09.4", encoding="utf-8")
+    (root / "laws" / "law0.yaml").write_text(
+        yaml.safe_dump(_raw_law("../outside.txt"), allow_unicode=True), encoding="utf-8")
+    with pytest.raises(LawkbError):
+        LawkbStore.load(root)

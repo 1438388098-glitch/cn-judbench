@@ -11,7 +11,7 @@
         --with-judge --judge mock            # P1：机检分 + Judge 分分列 + limits.md
 
 退出码：校验失败 / 冒烟不一致 → 1；run 中存在拒判（n/a）→ 1；
-holdout 路径/题面进入评测输入（守卫拒读）→ 2。
+用法/配置错误（模型或 Judge 规格未知、profile 解析失败）或 holdout 守卫 → 2。（c450）
 """
 
 from __future__ import annotations
@@ -218,9 +218,10 @@ def _make_adapter_factory(args: argparse.Namespace, store: LawkbStore):
             api_key=(getattr(args, "_cnjb_profile", {}) or {}).get("api_key"),
         )
         return lambda item: adapter
-    raise SystemExit(
-        f"未知模型规格: {args.model!r}（支持 mock:gold / mock:tools / mock:dialog / openai:<model> / file:<答案目录>）"
-    )
+    print(
+        f"未知模型规格: {args.model!r}（支持 mock:gold / mock:tools / mock:dialog / openai:<model> / file:<答案目录>）",
+        file=sys.stderr)
+    raise SystemExit(2)
 
 
 def _make_judge(args: argparse.Namespace):
@@ -244,9 +245,10 @@ def _make_judge(args: argparse.Namespace):
             thinking={"type": "enabled", "clear_thinking": False} if effort else None,
         )
         return OpenAIJudge(adapter, judge_id=args.judge_id or "openai-judge", k_pass=args.k_pass)
-    raise SystemExit(
-        f"未知 --judge 规格: {spec!r}（支持 mock / openai / file:<judge答案目录>）"
-    )
+    print(
+        f"未知 --judge 规格: {spec!r}（支持 mock / openai / file:<judge答案目录>）",
+        file=sys.stderr)
+    raise SystemExit(2)
 
 
 def _build_summary(

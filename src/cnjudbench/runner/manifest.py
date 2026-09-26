@@ -59,11 +59,19 @@ def deps_lock_sha256(repo_hint: Path | None = None) -> str | None:
     return None
 
 
-def mark_provisional(deps_block: dict, stats_block: dict, *, formal_board: bool = True) -> bool:
-    """缺 ``deps.lock_sha256`` 或（正式榜要求时）``stats.flip_rate`` → provisional。"""
+def mark_provisional(deps_block: dict, stats_block: dict, *, formal_board: bool = True,
+                     harness_sha: str | None = None) -> bool:
+    """缺 ``deps.lock_sha256`` 或（正式榜要求时）``stats.flip_rate`` → provisional。
+
+    c449：harness_sha 缺失/为 "unknown" 占位（非 git 环境）同样降级——
+    FRAMEWORK §7.1 溯源字段缺一不得进正式结果。
+    """
     if not deps_block.get("lock_sha256"):
         return True
     if formal_board and stats_block.get("flip_rate") is None:
+        return True
+    # c449：仅在调用方显式传入 harness_sha 时才做占位降级（缺省保持旧契约）
+    if harness_sha is not None and (not harness_sha or harness_sha == "unknown"):
         return True
     return False
 
@@ -130,7 +138,8 @@ def build_manifest(
     manifest["stats"] = stats_block
     manifest["baselines"] = baselines_block or {"random": None, "rules": None}
     manifest["human_eval"] = None
-    manifest["provisional"] = mark_provisional(deps_block, stats_block)
+    manifest["provisional"] = mark_provisional(
+        deps_block, stats_block, harness_sha=manifest["harness_sha"])
     if extra:
         manifest.update(extra)
     return manifest

@@ -10,6 +10,7 @@
 from __future__ import annotations
 
 import re
+from pathlib import Path
 from datetime import date
 from typing import Literal
 
@@ -54,6 +55,15 @@ class ArticleVersion(BaseModel):
     superseded_by: str | None = None
     text_ref: str = Field(min_length=1)
     note: str = ""
+
+    @model_validator(mode="after")
+    def _check_text_ref(self) -> "ArticleVersion":
+        # c448：与 predicates_ref 同等的路径逃逸防线（P0-5 对称化）——
+        # 法条 YAML 可能来自外部贡献，禁止绝对路径与 .. 触碰库外文件
+        ref = Path(self.text_ref)
+        if ref.is_absolute() or ".." in ref.parts:
+            raise ValueError(f"text_ref 须为库内相对路径: {self.text_ref!r}")
+        return self
 
     @model_validator(mode="after")
     def _check_window(self) -> "ArticleVersion":

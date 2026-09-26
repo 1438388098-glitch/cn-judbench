@@ -77,7 +77,10 @@ class LawkbStore:
             for v in lf.article_version:
                 if v.version_id in versions:
                     raise LawkbError(f"version_id 全局重复: {v.version_id}")
-                tpath = root / v.text_ref
+                # c448：text_ref 逃逸防线（与 predicates_ref 的 P0-5 对称化）
+                tpath = (root / v.text_ref).resolve()
+                if not tpath.is_relative_to(root.resolve()):
+                    raise LawkbError(f"text_ref 逃逸库目录: {v.text_ref!r}")
                 if not tpath.is_file():
                     raise LawkbError(f"{v.version_id}: 条文文件缺失 {v.text_ref}")
                 digest = "sha256:" + hashlib.sha256(tpath.read_bytes()).hexdigest()
