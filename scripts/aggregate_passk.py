@@ -131,9 +131,13 @@ def main() -> int:
                 flips += 1 if a[i] != b[i] else 0
     flip_rate = (flips / total) if total else None
 
+    from datetime import datetime, timezone
+
+    generated = datetime.now(timezone.utc).astimezone().isoformat(timespec="seconds")
     lines = [
         f"# pass^{k} 聚合报告（组合语义，DESIGN v0.4 §6.2）",
         "",
+        f"- 生成：{generated}",
         f"- runs：{', '.join(str(r) for r in args.runs)}",
         f"- 通过阈值：≥{args.threshold:g}；n 题 = {len(ids)}；k = {k}"
         f"（题目在任一 run 缺分按未通过计，结果为保守下界）",

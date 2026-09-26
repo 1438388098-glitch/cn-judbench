@@ -331,6 +331,9 @@ def evaluate_item(
                   abst_over_refuse=abst.over_refuse, abst_over_promise=abst.over_promise)
 
 
+_PRED_CACHE: dict[tuple[str, str], PredicatesFile] = {}
+
+
 def _resolve_predicates(item: Item, task_dir: Path, default: PredicatesFile) -> PredicatesFile:
     """按题分派谓词集：``item.predicates_ref``（L2/L3a 混合任务按题判分）。
 
@@ -354,9 +357,14 @@ def _resolve_predicates(item: Item, task_dir: Path, default: PredicatesFile) -> 
         if not resolved.is_relative_to(task_root):
             continue
         if resolved.is_file():
-            return PredicatesFile.model_validate(
-                yaml.safe_load(resolved.read_text(encoding="utf-8-sig"))
-            )
+            # c444：同一场评测内同文件反复解析校验（320 题 × 各步基线重跑）纯属浪费；
+            # 以 (task_root, ref) 为键的进程内备忘录——文件内容不变、对象等价，判分语义零改动
+            key = (str(task_root), ref)
+            if key not in _PRED_CACHE:
+                _PRED_CACHE[key] = PredicatesFile.model_validate(
+                    yaml.safe_load(resolved.read_text(encoding="utf-8-sig"))
+                )
+            return _PRED_CACHE[key]
     raise PredicateError(f"predicates_ref 不可解析: {ref}（题 {item.id}）")
 
 

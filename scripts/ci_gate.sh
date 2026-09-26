@@ -4,15 +4,16 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
+GATE_T0=$SECONDS
 PY="${PYTHON:-python}"
 
-echo "== [1/9] validate =="
+echo "== [$(date +%T)] [1/9] validate =="
 "$PY" -m cnjudbench validate --items data/public --tasks tasks
 
-echo "== [2/9] pytest =="
+echo "== [$(date +%T)] [2/9] pytest =="
 "$PY" -m pytest -q
 
-echo "== [3/9] run-all (mock:gold, with-judge) =="
+echo "== [$(date +%T)] [3/9] run-all (mock:gold, with-judge) =="
 "$PY" -m cnjudbench run-all \
   --tasks cit_validity,u_element_extract,s_charge_subsume,a_irac_reason \
   --model mock:gold --with-judge --judge mock \
@@ -81,17 +82,17 @@ assert ALL == EXPECT, f"12 包自证矩阵不完整：缺 {EXPECT - ALL} 多 {AL
 print(f"self-proof matrix: {len(ALL)}/12 packages covered")
 PY
 
-echo "== [5/9] assert run gate =="
+echo "== [$(date +%T)] [5/9] assert run gate =="
 "$PY" scripts/assert_run_gate.py reports/runs/ci
 
-echo "== [6/9] flip rate (mock 必须 0) =="
+echo "== [$(date +%T)] [6/9] flip rate (mock 必须 0) =="
 "$PY" scripts/flip_rate_check.py
 
 
 echo "== [7/9] 换答对齐 guard + file: 回灌全管线（导出→占位作答→guard→回灌→产物核对；R14/R20 事故防线入 Gate） =="
 bash scripts/demo_pipeline.sh
 
-echo "== [8/9] n-gram 污染双检接线（--ngram-corpus 实测生效） =="
+echo "== [$(date +%T)] [8/9] n-gram 污染双检接线（--ngram-corpus 实测生效） =="
 GATE_TMP="$(mktemp -d)"
 "$PY" scripts/export_prompts.py --tasks cit_validity --run-dir "$GATE_TMP"
 cat "$GATE_TMP"/prompts/*.txt > "$GATE_TMP/corpus.txt"
@@ -113,4 +114,4 @@ rm -rf "$GATE_TMP"
 echo "== [9/9] 锚×as_of 审计（E14 脚本化；惰性锚白名单见 reports/anchor-whitelist.json）=="
 "$PY" scripts/audit_anchors.py
 
-echo "CI GATE: ALL GREEN"
+echo "CI GATE: ALL GREEN（总耗时 $((SECONDS - GATE_T0))s）"

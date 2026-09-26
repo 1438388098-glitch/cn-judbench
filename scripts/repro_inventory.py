@@ -47,8 +47,11 @@ def main() -> int:
         if f not in report_files and not f.startswith("reports/runs/"):
             report_files.append(f)
 
+    from datetime import datetime, timezone
+
+    generated = datetime.now(timezone.utc).astimezone().isoformat(timespec="seconds")
     lines = [
-        "# 复现资产盘点（scripts/repro_inventory.py 自动生成）",
+        f"# 复现资产盘点（scripts/repro_inventory.py 自动生成于 {generated}）",
         "",
         "论文轨文档（paper-outline/numbers/tables/dataset-card）引用的证据资产及当前机器存在性；run 目录不入 git，",
         "缺席=当前机器不可复现，正文引用前须重跑或注明数据截至（FRAMEWORK §8.4）。",

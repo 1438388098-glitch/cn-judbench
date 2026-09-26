@@ -36,8 +36,12 @@ def main() -> int:
         return 1
 
     warns: list[str] = []
+    from datetime import datetime, timezone
+
+    generated = datetime.now(timezone.utc).astimezone().isoformat(timespec="seconds")
     lines = [
         f"# 基线分布报告（{args.run}，阈值 ≥{args.warn:g} 警告）",
+        f"> 生成：{generated} · 源 summary created_at：{summary.get('created_at', 'n/a')}",
         "",
         "| 基线 | 任务包 | 分 |",
         "|---|---|---|",

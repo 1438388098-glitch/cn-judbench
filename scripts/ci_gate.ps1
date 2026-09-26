@@ -7,11 +7,14 @@ $PY = if ($env:PYTHON) { $env:PYTHON } else { "python" }
 
 function Invoke-Step([string]$Title, [string[]]$CmdArgs) {
     Write-Host "== $Title =="
+    $sw = [System.Diagnostics.Stopwatch]::StartNew()
     & $PY @CmdArgs
+    $sw.Stop()
     if ($LASTEXITCODE -ne 0) {
         Write-Host "CI GATE: FAIL ($Title exit $LASTEXITCODE)"
         exit $LASTEXITCODE
     }
+    Write-Host ("   done in {0:n1}s" -f $sw.Elapsed.TotalSeconds)
 }
 
 Invoke-Step "[1/9] validate" @("-m", "cnjudbench", "validate", "--items", "data/public", "--tasks", "tasks")

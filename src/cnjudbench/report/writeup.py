@@ -11,13 +11,19 @@ DISCLAIMER = (
 
 def limits_md(*, flip_rate: float | None = None, unknown_in_lawkb: int = 0,
               judge_bias: str = "MockJudge 启发式，正式对比前须换真 Judge 并锁 prompt_hash",
-              pending_text_review: list[str] | None = None) -> str:
+              pending_text_review: list[str] | None = None,
+              failure_taxonomy: dict | None = None) -> str:
     # c430：待校对清单如实列名（超 8 处截断计数）；空表才写「无」
     items = list(pending_text_review or [])
     if len(items) > 8:
         pending = ", ".join(items[:8]) + f" …等共 {len(items)} 处"
     else:
         pending = ", ".join(items) or "无"
+    # c446：失败/taxonomy 分布一行（与 summary.failure_taxonomy 同源），无失败则缺省
+    tax_line = ""
+    if failure_taxonomy:
+        pairs = "；".join(f"{k}×{v}" for k, v in failure_taxonomy.items())
+        tax_line = f"- 失败分布：{pairs}\n"
     fr = "n/a" if flip_rate is None else f"{flip_rate:.4f}"
     return (
         "# limits\n\n"
@@ -25,6 +31,7 @@ def limits_md(*, flip_rate: float | None = None, unknown_in_lawkb: int = 0,
         f"- unknown_in_lawkb 分列数：{unknown_in_lawkb}（不计幻觉）\n"
         f"- Judge：{judge_bias}\n"
         f"- lawkb 待校对：{pending}\n"
+        + tax_line +
         "- Min-K% 等 logit 污染检测仅开源权重。\n\n"
         f"{DISCLAIMER}\n"
     )

@@ -92,10 +92,16 @@ scoring shortcuts. Code is MIT-licensed; the public split is CC BY 4.0
 ## 快速开始（5 分钟）
 
 ```bash
-# Windows:  py -3.13 -m venv .venv
-# Linux/macOS:  python3 -m venv .venv
+# 1) 建 venv 并安装依赖与包（含 pytest/pydantic/PyYAML）
+# Windows:
+py -3.13 -m venv .venv
+.venv\Scripts\python -m pip install -e ".[dev]"
+# Linux/macOS:
+# python3 -m venv .venv && .venv/bin/python -m pip install -e ".[dev]"
 
-.venv/Scripts/python -m pytest -q                 # 630+ 项测试全绿（精确计数见 CI，勿在 README 硬编码）
+# 2) 跑测试（630+ 项测试全绿；精确计数见 CI，勿在 README 硬编码）
+# Windows 用 .venv\Scripts\python；Linux/macOS 用 .venv/bin/python
+.venv/Scripts/python -m pytest -q
 .venv/Scripts/python -m cnjudbench run-all   --tasks cit_validity,dms_side_effect_intake,tool_fault_recovery   --model mock:gold --out reports/runs/demo
 cat reports/runs/demo/report.csv                  # §6.1 论文表直贴列（solve% 为保守口径：n/a 计未解决）
 ```

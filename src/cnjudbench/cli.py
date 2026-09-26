@@ -581,12 +581,20 @@ def _execute_runs(args: argparse.Namespace, task_ids: list[str]) -> tuple[list[T
             "max_overlap_str": f"{word_rep.max_overlap:.4f}",
             "mean_overlap_str": f"{word_rep.mean_overlap:.4f}",
         }
+    # c446：失败/taxonomy 聚合直方图——低分 run 一眼定位失败通道，免逐题人肉扫描
+    from collections import Counter as _Counter
+
+    _tax = _Counter(t for r in runs for x in r.results for t in (x.taxonomy or []))
+    if _tax:
+        summary["failure_taxonomy"] = dict(_tax.most_common())
     return runs, {"manifest": manifest, "summary": summary, "judge": judge,
                   "unknown_in_lawkb": sum(
                       1 for r in runs for x in r.results
                       if any("unknown_in_lawkb" in line for line in x.predicate_lines)),
                   # c430：待校对法条从 store 实时收集——limits 报告不得谎报「无」
-                  "pending_text_review": store.pending_text_review()}
+                  "pending_text_review": store.pending_text_review(),
+                  # c446：失败分布透传给 limits
+                  "failure_taxonomy": dict(_tax) if _tax else None}
 
 
 def _limits_text(args: argparse.Namespace, artifacts: dict) -> str:
@@ -601,6 +609,7 @@ def _limits_text(args: argparse.Namespace, artifacts: dict) -> str:
         unknown_in_lawkb=artifacts["unknown_in_lawkb"],
         judge_bias=bias,
         pending_text_review=artifacts.get("pending_text_review", []),
+        failure_taxonomy=artifacts.get("failure_taxonomy"),
     )
 
 
