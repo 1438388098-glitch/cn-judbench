@@ -1,0 +1,21 @@
+# contract_risk 主观 rubric（round-10，c437；与机检分并列展示，禁止混入机检总分）
+# 机检已锁 risk_labels FTP 与 advice 风险披露（risk_disclosure）；本 rubric 评
+# 自由说理语义：识别是否准、建议是否可执行、表述是否专业稳健。
+rubric_id: contract_risk_r1
+items:
+  - id: risk_identification
+    weight: 1.0
+    prompt: 风险点识别与严重度判断是否准确完整（不遗漏主要风险、不高估低危事项）
+    lo: 0
+    hi: 4
+  - id: advice_quality
+    weight: 1.0
+    prompt: 处理建议是否具体可执行、诉讼/履约风险提示是否充分
+    lo: 0
+    hi: 4
+  - id: professionalism
+    weight: 1.0
+    prompt: 表述是否专业稳健——无结果保证、措辞符合合同审查执业规范
+    lo: 0
+    hi: 4
+gates: []

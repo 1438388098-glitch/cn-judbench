@@ -8,7 +8,7 @@ items:
     hi: 4
   - id: cite_quality
     weight: 1.0
-    prompt: 引用与事实的对应是否准确
+    prompt: 要件表述与案情事实的对应是否准确（round-10 修正：原「引用与事实的对应」评不到题面不存在的 citations 字段，audit P1 遗留）
     lo: 0
     hi: 4
 gates: []
