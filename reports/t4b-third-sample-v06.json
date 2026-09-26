@@ -1,0 +1,718 @@
+{
+ "generated": "2026-09-27",
+ "note": "T4b 第三样本裁断：5 个 v0.6 真实考生 run（DS 能力 8 包+DS 工具轨+GLM 三档 c419 重评）通过率(score≥60)，结合 difficulty-audit-v05 两样本历史证据。砍留执行（移题 archive）须经数据集所有者批准，本表仅提供裁断依据。",
+ "runs": {
+  "ds-v06-cap": "reports/runs/ds-flash-v06-full",
+  "ds-v06-tools": "reports/runs/ds-flash-v06-tools",
+  "glm-iso": "reports/runs/glm53f-iso-scored-rescore-c419",
+  "glm-hi": "reports/runs/glm53f-hi-iso-0924-rescore-c419",
+  "glm-low": "reports/runs/glm53f-low-iso-20260924-scored-rescore-c419"
+ },
+ "summary": {
+  "saturate": 42,
+  "floor": 0,
+  "discriminating": 11,
+  "insufficient": 7
+ },
+ "rows": [
+  {
+   "item": "calc_fail_to_pass/cf-001",
+   "audit_glm_mean": 100.0,
+   "v06_scores": {
+    "ds-v06-cap": 100.0,
+    "glm-iso": 100.0,
+    "glm-hi": 100.0,
+    "glm-low": 100.0
+   },
+   "v06_pass_rate": 1.0,
+   "n_runs_covered": 4
+  },
+  {
+   "item": "calc_fail_to_pass/cf-002",
+   "audit_glm_mean": 100.0,
+   "v06_scores": {
+    "ds-v06-cap": 100.0,
+    "glm-iso": 100.0,
+    "glm-hi": 100.0,
+    "glm-low": 100.0
+   },
+   "v06_pass_rate": 1.0,
+   "n_runs_covered": 4
+  },
+  {
+   "item": "calc_fail_to_pass/cf-003",
+   "audit_glm_mean": 100.0,
+   "v06_scores": {
+    "ds-v06-cap": 100.0,
+    "glm-iso": 100.0,
+    "glm-hi": 100.0,
+    "glm-low": 100.0
+   },
+   "v06_pass_rate": 1.0,
+   "n_runs_covered": 4
+  },
+  {
+   "item": "calc_fail_to_pass/cf-004",
+   "audit_glm_mean": 100.0,
+   "v06_scores": {
+    "ds-v06-cap": 100.0,
+    "glm-iso": 100.0,
+    "glm-hi": 100.0,
+    "glm-low": 100.0
+   },
+   "v06_pass_rate": 1.0,
+   "n_runs_covered": 4
+  },
+  {
+   "item": "calc_fail_to_pass/cf-005",
+   "audit_glm_mean": 100.0,
+   "v06_scores": {
+    "ds-v06-cap": 100.0,
+    "glm-iso": 100.0,
+    "glm-hi": 100.0,
+    "glm-low": 100.0
+   },
+   "v06_pass_rate": 1.0,
+   "n_runs_covered": 4
+  },
+  {
+   "item": "calc_fail_to_pass/cf-006",
+   "audit_glm_mean": 100.0,
+   "v06_scores": {
+    "ds-v06-cap": 100.0,
+    "glm-iso": 100.0,
+    "glm-hi": 100.0,
+    "glm-low": 50.0
+   },
+   "v06_pass_rate": 0.75,
+   "n_runs_covered": 4
+  },
+  {
+   "item": "calc_fail_to_pass/cf-007",
+   "audit_glm_mean": 100.0,
+   "v06_scores": {
+    "ds-v06-cap": 100.0,
+    "glm-iso": 100.0,
+    "glm-hi": 100.0,
+    "glm-low": 50.0
+   },
+   "v06_pass_rate": 0.75,
+   "n_runs_covered": 4
+  },
+  {
+   "item": "calc_fail_to_pass/cf-008",
+   "audit_glm_mean": 100.0,
+   "v06_scores": {
+    "ds-v06-cap": 100.0,
+    "glm-iso": 100.0,
+    "glm-hi": 50.0,
+    "glm-low": 100.0
+   },
+   "v06_pass_rate": 0.75,
+   "n_runs_covered": 4
+  },
+  {
+   "item": "calc_fail_to_pass/cf-009",
+   "audit_glm_mean": 100.0,
+   "v06_scores": {
+    "ds-v06-cap": 100.0,
+    "glm-iso": 100.0,
+    "glm-hi": 50.0,
+    "glm-low": 50.0
+   },
+   "v06_pass_rate": 0.5,
+   "n_runs_covered": 4
+  },
+  {
+   "item": "calc_fail_to_pass/cf-010",
+   "audit_glm_mean": 100.0,
+   "v06_scores": {
+    "ds-v06-cap": 100.0,
+    "glm-iso": 100.0,
+    "glm-hi": 50.0,
+    "glm-low": 50.0
+   },
+   "v06_pass_rate": 0.5,
+   "n_runs_covered": 4
+  },
+  {
+   "item": "calc_fail_to_pass/cf-013",
+   "audit_glm_mean": 100.0,
+   "v06_scores": {
+    "ds-v06-cap": 100.0,
+    "glm-iso": 100.0,
+    "glm-hi": 50.0,
+    "glm-low": 50.0
+   },
+   "v06_pass_rate": 0.5,
+   "n_runs_covered": 4
+  },
+  {
+   "item": "calc_fail_to_pass/cf-014",
+   "audit_glm_mean": 100.0,
+   "v06_scores": {
+    "ds-v06-cap": 100.0,
+    "glm-iso": 100.0,
+    "glm-hi": 100.0,
+    "glm-low": 50.0
+   },
+   "v06_pass_rate": 0.75,
+   "n_runs_covered": 4
+  },
+  {
+   "item": "calc_fail_to_pass/cf-016",
+   "audit_glm_mean": 100.0,
+   "v06_scores": {
+    "ds-v06-cap": 100.0,
+    "glm-iso": 100.0,
+    "glm-hi": 100.0,
+    "glm-low": 100.0
+   },
+   "v06_pass_rate": 1.0,
+   "n_runs_covered": 4
+  },
+  {
+   "item": "calc_fail_to_pass/cf-017",
+   "audit_glm_mean": 100.0,
+   "v06_scores": {
+    "ds-v06-cap": 100.0,
+    "glm-iso": 100.0,
+    "glm-hi": 50.0,
+    "glm-low": 100.0
+   },
+   "v06_pass_rate": 0.75,
+   "n_runs_covered": 4
+  },
+  {
+   "item": "calc_fail_to_pass/cf-hard-001",
+   "audit_glm_mean": 100.0,
+   "v06_scores": {
+    "ds-v06-cap": 100.0,
+    "glm-iso": 100.0,
+    "glm-hi": 100.0,
+    "glm-low": 100.0
+   },
+   "v06_pass_rate": 1.0,
+   "n_runs_covered": 4
+  },
+  {
+   "item": "calc_fail_to_pass/ci-003",
+   "audit_glm_mean": 100.0,
+   "v06_scores": {
+    "ds-v06-cap": 100.0,
+    "glm-iso": 100.0,
+    "glm-hi": 100.0,
+    "glm-low": 100.0
+   },
+   "v06_pass_rate": 1.0,
+   "n_runs_covered": 4
+  },
+  {
+   "item": "calc_fail_to_pass/ci-005",
+   "audit_glm_mean": 100.0,
+   "v06_scores": {
+    "ds-v06-cap": 100.0,
+    "glm-iso": 100.0,
+    "glm-hi": 100.0,
+    "glm-low": 100.0
+   },
+   "v06_pass_rate": 1.0,
+   "n_runs_covered": 4
+  },
+  {
+   "item": "calc_fail_to_pass/ci-007",
+   "audit_glm_mean": 100.0,
+   "v06_scores": {
+    "ds-v06-cap": 100.0,
+    "glm-iso": 100.0,
+    "glm-hi": 100.0,
+    "glm-low": 100.0
+   },
+   "v06_pass_rate": 1.0,
+   "n_runs_covered": 4
+  },
+  {
+   "item": "calc_fail_to_pass/ci-hard-001",
+   "audit_glm_mean": 100.0,
+   "v06_scores": {
+    "ds-v06-cap": 100.0,
+    "glm-iso": 100.0,
+    "glm-hi": 100.0,
+    "glm-low": 100.0
+   },
+   "v06_pass_rate": 1.0,
+   "n_runs_covered": 4
+  },
+  {
+   "item": "calc_fail_to_pass/cp-001",
+   "audit_glm_mean": 100.0,
+   "v06_scores": {
+    "ds-v06-cap": 100.0,
+    "glm-iso": 100.0,
+    "glm-hi": 100.0,
+    "glm-low": 100.0
+   },
+   "v06_pass_rate": 1.0,
+   "n_runs_covered": 4
+  },
+  {
+   "item": "calc_fail_to_pass/cp-002",
+   "audit_glm_mean": 100.0,
+   "v06_scores": {
+    "ds-v06-cap": 100.0,
+    "glm-iso": 100.0,
+    "glm-hi": 100.0,
+    "glm-low": 100.0
+   },
+   "v06_pass_rate": 1.0,
+   "n_runs_covered": 4
+  },
+  {
+   "item": "calc_fail_to_pass/cp-003",
+   "audit_glm_mean": 100.0,
+   "v06_scores": {
+    "ds-v06-cap": 100.0,
+    "glm-iso": 100.0,
+    "glm-hi": 100.0,
+    "glm-low": 100.0
+   },
+   "v06_pass_rate": 1.0,
+   "n_runs_covered": 4
+  },
+  {
+   "item": "calc_fail_to_pass/cp-004",
+   "audit_glm_mean": 100.0,
+   "v06_scores": {
+    "ds-v06-cap": 100.0,
+    "glm-iso": 100.0,
+    "glm-hi": 100.0,
+    "glm-low": 100.0
+   },
+   "v06_pass_rate": 1.0,
+   "n_runs_covered": 4
+  },
+  {
+   "item": "calc_fail_to_pass/cp-007",
+   "audit_glm_mean": 100.0,
+   "v06_scores": {
+    "ds-v06-cap": 100.0,
+    "glm-iso": 100.0,
+    "glm-hi": 100.0,
+    "glm-low": 100.0
+   },
+   "v06_pass_rate": 1.0,
+   "n_runs_covered": 4
+  },
+  {
+   "item": "calc_fail_to_pass/cp-008",
+   "audit_glm_mean": 100.0,
+   "v06_scores": {
+    "ds-v06-cap": 100.0,
+    "glm-iso": 100.0,
+    "glm-hi": 100.0,
+    "glm-low": 100.0
+   },
+   "v06_pass_rate": 1.0,
+   "n_runs_covered": 4
+  },
+  {
+   "item": "calc_fail_to_pass/cp-009",
+   "audit_glm_mean": 100.0,
+   "v06_scores": {
+    "ds-v06-cap": 100.0,
+    "glm-iso": 100.0,
+    "glm-hi": 100.0,
+    "glm-low": 100.0
+   },
+   "v06_pass_rate": 1.0,
+   "n_runs_covered": 4
+  },
+  {
+   "item": "calc_fail_to_pass/cp-010",
+   "audit_glm_mean": 100.0,
+   "v06_scores": {
+    "ds-v06-cap": 100.0,
+    "glm-iso": 100.0,
+    "glm-hi": 100.0,
+    "glm-low": 100.0
+   },
+   "v06_pass_rate": 1.0,
+   "n_runs_covered": 4
+  },
+  {
+   "item": "calc_fail_to_pass/cp-011",
+   "audit_glm_mean": 100.0,
+   "v06_scores": {
+    "ds-v06-cap": 100.0,
+    "glm-iso": 100.0,
+    "glm-hi": 100.0,
+    "glm-low": 100.0
+   },
+   "v06_pass_rate": 1.0,
+   "n_runs_covered": 4
+  },
+  {
+   "item": "calc_fail_to_pass/cp-012",
+   "audit_glm_mean": 100.0,
+   "v06_scores": {
+    "ds-v06-cap": 100.0,
+    "glm-iso": 100.0,
+    "glm-hi": 100.0,
+    "glm-low": 100.0
+   },
+   "v06_pass_rate": 1.0,
+   "n_runs_covered": 4
+  },
+  {
+   "item": "calc_fail_to_pass/cp-hard-001",
+   "audit_glm_mean": 100.0,
+   "v06_scores": {
+    "ds-v06-cap": 100.0,
+    "glm-iso": 100.0,
+    "glm-hi": 100.0,
+    "glm-low": 100.0
+   },
+   "v06_pass_rate": 1.0,
+   "n_runs_covered": 4
+  },
+  {
+   "item": "dms_side_effect_intake/d-004",
+   "audit_glm_mean": 100.0,
+   "v06_scores": {
+    "ds-v06-tools": 100.0
+   },
+   "v06_pass_rate": 1.0,
+   "n_runs_covered": 1
+  },
+  {
+   "item": "dms_side_effect_intake/d-005",
+   "audit_glm_mean": 100.0,
+   "v06_scores": {
+    "ds-v06-tools": 100.0
+   },
+   "v06_pass_rate": 1.0,
+   "n_runs_covered": 1
+  },
+  {
+   "item": "dms_side_effect_intake/d-006",
+   "audit_glm_mean": 100.0,
+   "v06_scores": {
+    "ds-v06-tools": 100.0
+   },
+   "v06_pass_rate": 1.0,
+   "n_runs_covered": 1
+  },
+  {
+   "item": "dms_side_effect_intake/d-008",
+   "audit_glm_mean": 100.0,
+   "v06_scores": {
+    "ds-v06-tools": 83.33
+   },
+   "v06_pass_rate": 1.0,
+   "n_runs_covered": 1
+  },
+  {
+   "item": "dms_side_effect_intake/d-102",
+   "audit_glm_mean": 100.0,
+   "v06_scores": {
+    "ds-v06-tools": 100.0
+   },
+   "v06_pass_rate": 1.0,
+   "n_runs_covered": 1
+  },
+  {
+   "item": "dms_side_effect_intake/d-103",
+   "audit_glm_mean": 100.0,
+   "v06_scores": {
+    "ds-v06-tools": 100.0
+   },
+   "v06_pass_rate": 1.0,
+   "n_runs_covered": 1
+  },
+  {
+   "item": "dms_side_effect_intake/d-104",
+   "audit_glm_mean": 100.0,
+   "v06_scores": {
+    "ds-v06-tools": 100.0
+   },
+   "v06_pass_rate": 1.0,
+   "n_runs_covered": 1
+  },
+  {
+   "item": "u_element_extract/u-011",
+   "audit_glm_mean": 100.0,
+   "v06_scores": {
+    "ds-v06-cap": 100.0,
+    "glm-iso": 100.0,
+    "glm-hi": 100.0,
+    "glm-low": 100.0
+   },
+   "v06_pass_rate": 1.0,
+   "n_runs_covered": 4
+  },
+  {
+   "item": "u_element_extract/u-012",
+   "audit_glm_mean": 100.0,
+   "v06_scores": {
+    "ds-v06-cap": 100.0,
+    "glm-iso": 100.0,
+    "glm-hi": 100.0,
+    "glm-low": 100.0
+   },
+   "v06_pass_rate": 1.0,
+   "n_runs_covered": 4
+  },
+  {
+   "item": "u_element_extract/u-013",
+   "audit_glm_mean": 100.0,
+   "v06_scores": {
+    "ds-v06-cap": 100.0,
+    "glm-iso": 100.0,
+    "glm-hi": 100.0,
+    "glm-low": 100.0
+   },
+   "v06_pass_rate": 1.0,
+   "n_runs_covered": 4
+  },
+  {
+   "item": "u_element_extract/u-014",
+   "audit_glm_mean": 100.0,
+   "v06_scores": {
+    "ds-v06-cap": 100.0,
+    "glm-iso": 100.0,
+    "glm-hi": 100.0,
+    "glm-low": 100.0
+   },
+   "v06_pass_rate": 1.0,
+   "n_runs_covered": 4
+  },
+  {
+   "item": "u_element_extract/u-020",
+   "audit_glm_mean": 100.0,
+   "v06_scores": {
+    "ds-v06-cap": 100.0,
+    "glm-iso": 100.0,
+    "glm-hi": 100.0,
+    "glm-low": 100.0
+   },
+   "v06_pass_rate": 1.0,
+   "n_runs_covered": 4
+  },
+  {
+   "item": "u_element_extract/u-021",
+   "audit_glm_mean": 100.0,
+   "v06_scores": {
+    "ds-v06-cap": 100.0,
+    "glm-iso": 100.0,
+    "glm-hi": 100.0,
+    "glm-low": 100.0
+   },
+   "v06_pass_rate": 1.0,
+   "n_runs_covered": 4
+  },
+  {
+   "item": "u_element_extract/u-022",
+   "audit_glm_mean": 100.0,
+   "v06_scores": {
+    "ds-v06-cap": 100.0,
+    "glm-iso": 100.0,
+    "glm-hi": 100.0,
+    "glm-low": 100.0
+   },
+   "v06_pass_rate": 1.0,
+   "n_runs_covered": 4
+  },
+  {
+   "item": "u_element_extract/u-023",
+   "audit_glm_mean": 100.0,
+   "v06_scores": {
+    "ds-v06-cap": 100.0,
+    "glm-iso": 100.0,
+    "glm-hi": 100.0,
+    "glm-low": 100.0
+   },
+   "v06_pass_rate": 1.0,
+   "n_runs_covered": 4
+  },
+  {
+   "item": "u_element_extract/u-024",
+   "audit_glm_mean": 100.0,
+   "v06_scores": {
+    "ds-v06-cap": 100.0,
+    "glm-iso": 100.0,
+    "glm-hi": 100.0,
+    "glm-low": 100.0
+   },
+   "v06_pass_rate": 1.0,
+   "n_runs_covered": 4
+  },
+  {
+   "item": "u_element_extract/u-025",
+   "audit_glm_mean": 100.0,
+   "v06_scores": {
+    "ds-v06-cap": 100.0,
+    "glm-iso": 100.0,
+    "glm-hi": 100.0,
+    "glm-low": 100.0
+   },
+   "v06_pass_rate": 1.0,
+   "n_runs_covered": 4
+  },
+  {
+   "item": "u_element_extract/u-026",
+   "audit_glm_mean": 100.0,
+   "v06_scores": {
+    "ds-v06-cap": 100.0,
+    "glm-iso": 100.0,
+    "glm-hi": 100.0,
+    "glm-low": 100.0
+   },
+   "v06_pass_rate": 1.0,
+   "n_runs_covered": 4
+  },
+  {
+   "item": "u_element_extract/u-028",
+   "audit_glm_mean": 100.0,
+   "v06_scores": {
+    "ds-v06-cap": 100.0,
+    "glm-iso": 100.0,
+    "glm-hi": 100.0,
+    "glm-low": 100.0
+   },
+   "v06_pass_rate": 1.0,
+   "n_runs_covered": 4
+  },
+  {
+   "item": "u_element_extract/u-029",
+   "audit_glm_mean": 100.0,
+   "v06_scores": {
+    "ds-v06-cap": 50.0,
+    "glm-iso": 50.0,
+    "glm-hi": 50.0,
+    "glm-low": 100.0
+   },
+   "v06_pass_rate": 0.25,
+   "n_runs_covered": 4
+  },
+  {
+   "item": "u_element_extract/u-032",
+   "audit_glm_mean": 100.0,
+   "v06_scores": {
+    "ds-v06-cap": 100.0,
+    "glm-iso": 100.0,
+    "glm-hi": 100.0,
+    "glm-low": 100.0
+   },
+   "v06_pass_rate": 1.0,
+   "n_runs_covered": 4
+  },
+  {
+   "item": "u_element_extract/u-033",
+   "audit_glm_mean": 100.0,
+   "v06_scores": {
+    "ds-v06-cap": 100.0,
+    "glm-iso": 100.0,
+    "glm-hi": 100.0,
+    "glm-low": 100.0
+   },
+   "v06_pass_rate": 1.0,
+   "n_runs_covered": 4
+  },
+  {
+   "item": "u_element_extract/u-034",
+   "audit_glm_mean": 100.0,
+   "v06_scores": {
+    "ds-v06-cap": 100.0,
+    "glm-iso": 100.0,
+    "glm-hi": 100.0,
+    "glm-low": 100.0
+   },
+   "v06_pass_rate": 1.0,
+   "n_runs_covered": 4
+  },
+  {
+   "item": "u_element_extract/u-035",
+   "audit_glm_mean": 100.0,
+   "v06_scores": {
+    "ds-v06-cap": 100.0,
+    "glm-iso": 100.0,
+    "glm-hi": 100.0,
+    "glm-low": 100.0
+   },
+   "v06_pass_rate": 1.0,
+   "n_runs_covered": 4
+  },
+  {
+   "item": "u_element_extract/u-037",
+   "audit_glm_mean": 100.0,
+   "v06_scores": {
+    "ds-v06-cap": 100.0,
+    "glm-iso": 100.0,
+    "glm-hi": 100.0,
+    "glm-low": 100.0
+   },
+   "v06_pass_rate": 1.0,
+   "n_runs_covered": 4
+  },
+  {
+   "item": "u_element_extract/u-038",
+   "audit_glm_mean": 100.0,
+   "v06_scores": {
+    "ds-v06-cap": 100.0,
+    "glm-iso": 100.0,
+    "glm-hi": 100.0,
+    "glm-low": 100.0
+   },
+   "v06_pass_rate": 1.0,
+   "n_runs_covered": 4
+  },
+  {
+   "item": "u_element_extract/u-039",
+   "audit_glm_mean": 100.0,
+   "v06_scores": {
+    "ds-v06-cap": 100.0,
+    "glm-iso": 100.0,
+    "glm-hi": 100.0,
+    "glm-low": 100.0
+   },
+   "v06_pass_rate": 1.0,
+   "n_runs_covered": 4
+  },
+  {
+   "item": "u_element_extract/u-040",
+   "audit_glm_mean": 100.0,
+   "v06_scores": {
+    "ds-v06-cap": 100.0,
+    "glm-iso": 100.0,
+    "glm-hi": 100.0,
+    "glm-low": 50.0
+   },
+   "v06_pass_rate": 0.75,
+   "n_runs_covered": 4
+  },
+  {
+   "item": "u_element_extract/u-042",
+   "audit_glm_mean": 100.0,
+   "v06_scores": {
+    "ds-v06-cap": 50.0,
+    "glm-iso": 100.0,
+    "glm-hi": 100.0,
+    "glm-low": 100.0
+   },
+   "v06_pass_rate": 0.75,
+   "n_runs_covered": 4
+  },
+  {
+   "item": "u_element_extract/u-043",
+   "audit_glm_mean": 100.0,
+   "v06_scores": {
+    "ds-v06-cap": 100.0,
+    "glm-iso": 100.0,
+    "glm-hi": 100.0,
+    "glm-low": 100.0
+   },
+   "v06_pass_rate": 1.0,
+   "n_runs_covered": 4
+  }
+ ]
+}
