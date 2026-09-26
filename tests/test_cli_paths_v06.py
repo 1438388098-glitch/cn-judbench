@@ -21,7 +21,8 @@ from cnjudbench.lawkb.store import LawkbStore
 from cnjudbench.runner.evaluate import evaluate_item, load_task_package, run_task, run_tasks
 
 REPO = Path(__file__).resolve().parents[1]
-PY = REPO / ".venv" / "Scripts" / "python.exe"
+from conftest import project_python  # 跨平台解释器（CI 无 .venv 时回退当前解释器）
+PY = Path(project_python())
 
 
 def _load_item(tid: str, iid: str):

@@ -20,7 +20,7 @@
   C3 **中间带原则 + 安全/能力分列**（夹具出主分；谎言 ok=0 档位化）；
   C4 论文级统计协议（bootstrap CI、flip 门禁、组合 pass^k、random/rules 双基线、污染四级，其中 L2 n-gram 双检已入 ci_gate 第 7 步守门）；
   C5 **测量效度审计协议**（金样逐题法学复核消融、基线泄题扫描、公平性契约 answer_enums——三者均为可复用的基准工程方法学）。
-- **结果**：金样质量消融显示同份答案重判分差达 **55.26 分**（31.58→86.84）；基线泄题修复使 random 从 96→12（曾高于真实考生 90）；v0.4.1 口径下 random 9.03 / rules 29.25 与模型分层可分；v0.6 判分收紧后 random 7.96 / rules 27.03（baseline-v06，反刷分方向一致）；判分效度修复（as_of 自证封堵/极性对冲/拒绝否定豁免）重导基线**零漂移**（baseline-v06b，245 题逐题分一致）——修复只打击考生侧作弊路径，不动基线判分面。
+- **结果**：金样质量消融显示同份答案重判分差达 **55.26 分**（31.58→86.84）；基线泄题修复使 random 从 96→12（曾高于真实考生 90）；v0.4.1 口径下 random 9.03 / rules 29.25 与模型分层可分；v0.6 判分收紧后 random 7.96 / rules 27.03（baseline-v06，反刷分方向一致）；判分效度修复（as_of 自证封堵/极性对冲/拒绝否定豁免）重导基线**零漂移**（baseline-v06b，245 题逐题分一致）——修复只打击考生侧作弊路径，不动基线判分面；c417 判分语义修订后重导**现行锚点** random 7.96 / rules 27.40（baseline-v06c，rules +0.37 归因 R29/R32 修复晚于 v06b，演进见 run-score-ledger）。
 
 ## 2. 相关工作对比表（§Related Work 主表素材）
 
@@ -65,7 +65,7 @@ bootstrap CI（1000 次）、flip 门禁（机检>5% 不进榜）、组合 pass^
 
 | 表 | 内容 | 状态 |
 |---|---|---|
-| T1 主表 | cap±CI / hard±CI / safety / solve% / $/solve / flip% × 模型（基线列=v0.4.1 重出口径） | GLM v0.4 ✅ · **DS-flash v0.6 全 12 包 ✅**（grand 68.72/hard 76.31/flip 0%/$0.56，ds-flash-v06-full+tools）· **GLM v0.6 能力 8 包三档 ✅**（思考高 69.59/思考低 64.18/思考默认继承 59.14，glm53f-*-iso，2026-09-25 c419 重评）· v0.6 基线表 ✅（random 7.96/rules 27.03/gold 100×8 包，baseline-v06） |
+| T1 主表 | cap±CI / hard±CI / safety / solve% / $/solve / flip% × 模型（基线列=v0.4.1 重出口径） | GLM v0.4 ✅ · **DS-flash v0.6 全 12 包 ✅**（grand 68.72/hard 76.31/flip 0%/$0.56，ds-flash-v06-full+tools）· **GLM v0.6 能力 8 包三档 ✅**（思考高 69.59/思考低 64.18/思考默认继承 59.14，glm53f-*-iso，2026-09-25 c419 重评）· v0.6 基线表 ✅（random 7.96/rules 27.40/gold 100×8 包，现行=baseline-v06c；v06 27.03→v06b 零漂移→v06c 演进见 run-score-ledger） |
 | T2 区分度 | 同题模型 r、|Δ|≥15 题数、SE/包 | DS×GLM v0.3 已有；v0.4 ⬜ |
 | T3 消融 | v0.3 vs v0.4 口径（门禁出基数/夹具出主分/收紧） | GLM 64.39→57.19 ✅ |
 | T4 安全 | 应拒正确率、over_promise 率、canary | GLM 三档 safety 71.43/100.00/0.00（思考高/低/默认，安全-思考反向）✅ |

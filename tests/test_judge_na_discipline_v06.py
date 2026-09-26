@@ -17,6 +17,7 @@ from cnjudbench.cli import _build_summary
 from cnjudbench.lawkb.store import LawkbStore
 from cnjudbench.runner.account import Accountant
 from cnjudbench.runner.evaluate import run_tasks
+from conftest import project_python  # 跨平台解释器（CI 无 .venv 时回退当前解释器）
 
 REPO = Path(__file__).resolve().parents[1]
 
@@ -52,7 +53,7 @@ def test_c188_readme_mock_commands_runnable(tmp_path):
     raw_cmds = re.findall(r"((?:\.venv/Scripts/ )?python -m cnjudbench [^\n]*"
                           r"--model mock:(?:gold|tools)[^\n]*)", joined)
     assert raw_cmds, "README 中未找到 mock 示例命令——示例被移除时请同步本测试"
-    py = REPO / ".venv" / "Scripts" / "python.exe"
+    py = Path(project_python())
     for i, cmd in enumerate(raw_cmds):
         cmd = cmd.replace(".venv/Scripts/ ", "").replace("python -m", f'"{py}" -m')
         cmd = cmd.rstrip("\\").rstrip()  # 续行折叠兜底

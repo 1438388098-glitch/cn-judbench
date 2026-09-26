@@ -2,8 +2,9 @@
 
 > 全部 run 总分历史见 [run-score-ledger.md](run-score-ledger.md)（唯一汇总账）。
 > 数据截至：2026-09-24；v0.6 现行基线为 random 7.96 /
-> rules 27.03 / mock:gold 100×8 包（reports/runs/baseline-v06；判分效度修复后
-> 重导验证零漂移见 baseline-v06b）。**DS-flash v0.6 全 12 包已跑**
+> rules 27.40 / mock:gold 100×8 包（reports/runs/baseline-v06c 现行；历史链：
+> v06 27.03 → 判分效度修复重导零漂移 baseline-v06b → c417 判分语义修订重导 v06c，
+> 演进见 run-score-ledger.md）。**DS-flash v0.6 全 12 包已跑**
 > （grand 68.72/hard 76.31/flip 0%/$0.56，ds-flash-v06-full+tools，见
 > run-params-ds-flash-v06.md）；GLM v0.6 能力 8 包三档已入账（思考高 69.59 / 思考低 64.18 /
 > 思考默认继承 59.14，glm53f-hi/low/iso-scored，2026-09-25 c419 重评）；工具轨 v0.6 重跑待做。

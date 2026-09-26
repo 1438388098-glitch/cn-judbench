@@ -20,7 +20,8 @@ from pathlib import Path
 import pytest
 
 REPO = Path(__file__).resolve().parents[1]
-PY = str(REPO / ".venv" / "Scripts" / "python.exe")
+from conftest import project_python  # 跨平台解释器（CI 无 .venv 时回退当前解释器）
+PY = project_python()
 
 
 def _scharge_item(item_id: str):

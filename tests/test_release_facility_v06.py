@@ -20,6 +20,8 @@ from pathlib import Path
 from cnjudbench.adapters.cache import FileCache, cache_key
 from cnjudbench.adapters.base import CompletionResult
 
+from conftest import project_python
+
 REPO = Path(__file__).resolve().parents[1]
 
 
@@ -52,10 +54,12 @@ def test_c225_file_cache_multithreaded(tmp_path):
 def test_c226_holdout_pack_idempotent(tmp_path):
     script = REPO / "scripts" / "holdout_review_pack.py"
     out1 = REPO / "reports" / "holdout-prospective.json"
-    assert out1.is_file() and script.is_file()
+    out_md = REPO / "docs" / "holdout-dual-review-pack.md"
+    assert out1.is_file() and out_md.is_file() and script.is_file()
     original = out1.read_bytes()  # 快照恢复：测试不得把仓库文件跑脏
+    original_md = out_md.read_bytes()  # 生成器同时写出复核材料包 md（含日期头），一并恢复
     try:
-        r = subprocess.run([str(REPO / ".venv" / "Scripts" / "python.exe"),
+        r = subprocess.run([project_python(),
                             str(script)], cwd=REPO, capture_output=True, text=True,
                            encoding="utf-8", errors="replace", timeout=300)
         if r.returncode != 0:
@@ -63,7 +67,7 @@ def test_c226_holdout_pack_idempotent(tmp_path):
             assert "required" in r.stderr, r.stderr[-300:]
             return
         first = out1.read_bytes()
-        r2 = subprocess.run([str(REPO / ".venv" / "Scripts" / "python.exe"),
+        r2 = subprocess.run([project_python(),
                              str(script)], cwd=REPO, capture_output=True, text=True,
                             encoding="utf-8", errors="replace", timeout=300)
         assert r2.returncode == 0
@@ -73,6 +77,7 @@ def test_c226_holdout_pack_idempotent(tmp_path):
         assert a == b  # 双连跑（同一 HEAD）结构逐字相同
     finally:
         out1.write_bytes(original)
+        out_md.write_bytes(original_md)
 
 
 def test_c228_framework_dims_match_canonical():
@@ -102,12 +107,12 @@ def test_c230_ingest_queue_generator_idempotent(tmp_path):
     queue = REPO / "docs" / "lawkb-ingest-queue.md"
     original = queue.read_bytes()  # 快照恢复，防测试跑脏仓库文件
     try:
-        r1 = subprocess.run([str(REPO / ".venv" / "Scripts" / "python.exe"), str(script)],
+        r1 = subprocess.run([project_python(), str(script)],
                             cwd=REPO, capture_output=True, text=True,
                             encoding="utf-8", errors="replace", timeout=300)
         assert r1.returncode == 0, r1.stderr[-300:]
         before = queue.read_text(encoding="utf-8")
-        r2 = subprocess.run([str(REPO / ".venv" / "Scripts" / "python.exe"), str(script)],
+        r2 = subprocess.run([project_python(), str(script)],
                             cwd=REPO, capture_output=True, text=True,
                             encoding="utf-8", errors="replace", timeout=300)
         assert r2.returncode == 0
