@@ -6,7 +6,7 @@ roles: [lawyer, judge]
 domain: civil_commercial
 oracle: exact_hidden_answer
 status: draft
-description: Legal-GAIA 精品 10 题——诉讼费/期间/条号/金额多步终答（检索→计算→作答），gold 不进 prompt；progress 为诊断列不进主分。
+description: Legal-GAIA 23 题——诉讼费/期间/条号/金额/时间线多步终答（检索→计算→作答），gold 不进 prompt；progress 为诊断列不进主分。
 prompt_template: |
   你是司法工作台 Agent。多步完成下列任务（需要时先推理/计算），输出 JSON 对象：
   {"answer": "<终答>", "steps": ["<关键步骤一句话>", ...]}

@@ -26,7 +26,7 @@ Homepage = "https://github.com/TODO-assign-repo"
 Repository = "https://github.com/TODO-assign-repo"
 
 [project.optional-dependencies]
-dev = ["pytest>=8"]
+dev = ["pytest>=8", "pytest-timeout>=2.3"]
 
 [project.scripts]
 cnjudbench = "cnjudbench.cli:main"
@@ -39,3 +39,6 @@ where = ["src"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+# 全局超时（秒）：防单个挂起用例烧穿 CI；子进程测试自带更短的内部 timeout。
+timeout = 600
+

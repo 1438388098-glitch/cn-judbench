@@ -147,11 +147,25 @@ def test_c277_cost_ledger_pricing_source():
 
 
 def test_c278_reproduce_paper_script():
-    r = subprocess.run(["bash", "scripts/reproduce_paper.sh"], cwd=REPO,
-                       capture_output=True, text=True,
-                       encoding="utf-8", errors="replace", timeout=600)
-    assert r.returncode == 0, r.stderr[-800:]
-    assert "REPRODUCE: OK" in r.stdout
+    # 快照恢复：脚本会重写 3 个受跟踪报表（difficulty_emp.json /
+    # difficulty-emp-crosstab.md / passk-repro.md），测试不得把仓库跑脏
+    targets = [REPO / "reports" / "difficulty_emp.json",
+               REPO / "reports" / "difficulty-emp-crosstab.md",
+               REPO / "reports" / "passk-repro.md"]
+    snapshots = {t: (t.read_bytes() if t.is_file() else None) for t in targets}
+    try:
+        r = subprocess.run(["bash", "scripts/reproduce_paper.sh"], cwd=REPO,
+                           capture_output=True, text=True,
+                           encoding="utf-8", errors="replace", timeout=600)
+        assert r.returncode == 0, r.stderr[-800:]
+        assert "REPRODUCE: OK" in r.stdout
+    finally:
+        for t, original in snapshots.items():
+            if original is None:
+                if t.exists():
+                    t.unlink()
+            else:
+                t.write_bytes(original)
 
 
 def test_c279_max_workers_clamped(store):

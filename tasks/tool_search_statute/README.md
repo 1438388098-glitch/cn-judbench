@@ -6,7 +6,8 @@ FRAMEWORK §2 / §5 P2 的 Legal-Tool-Bench 最小集。6 工具沙箱全部本�
 
 ## 结构
 
-- 19 题 = 6 工具 × 3 题 + 1 假调用负例夹具（t-fake-001，必 0.00）；
+- 26 题 = 6 工具 × 3 基础题 + 7 进阶题（t-dl-004/005、t-ga-004/005、
+  t-cf-005/006、t-ld-004）+ 1 假调用负例夹具（t-fake-001，必 0.00）；
 - 按题谓词分派：题面 `predicates_ref` 指向 `predicates_<kind>.yaml`
   （search/article/case/deadline/fee/lint），默认 `predicates.yaml` 供假调用夹具；
 - gold.calls 由 `mock:tools` 适配器重放（`src/cnjudbench/adapters/mock.py`），

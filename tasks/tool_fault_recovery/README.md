@@ -11,5 +11,6 @@
 
 ## 数据
 
-`data/public/tool_fault_recovery.jsonl` 8 题 = 8 科目 × 故障四型 × 恢复形态
-（生成器 `scripts/add_fault_items.py`，幂等）。
+`data/public/tool_fault_recovery.jsonl` 16 题：基础 8 题（8 科目 × 故障四型 ×
+恢复形态）+ 进阶 8 题（f-101..104 nth=2「先成功后故障」、f-105..108 nth=3
+故障链/部分成功状态判断）（生成器 `scripts/add_fault_items.py`，幂等）。
