@@ -467,6 +467,15 @@ def _execute_runs(args: argparse.Namespace, task_ids: list[str]) -> tuple[list[T
     for tid in task_ids:
         task_dir = Path(args.tasks_root) / tid
         items_path = Path(args.items_root) / f"{tid}.jsonl"
+        # c452：路径错误给「原因 + 下一步动作」，与 run-dialog/compare 的友好报错对齐
+        if not task_dir.is_dir():
+            raise SystemExit(
+                f"run: 任务包目录不存在: {task_dir}——请检查 --tasks-root 下的任务包名，"
+                "或先运行 `python -m cnjudbench validate --tasks tasks` 查看可用包")
+        if not items_path.is_file():
+            raise SystemExit(
+                f"run: 题面文件不存在: {items_path}——请检查 --items-root 与任务包名，"
+                "或先运行 `python -m cnjudbench validate --items data/public`")
         task, _ = load_task_package(task_dir)
         task_dirs[tid] = task_dir
         jobs.append((tid, task_dir, items_path))
