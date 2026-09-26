@@ -52,11 +52,23 @@ def test_get_article_unresolved_law_passthrough(store):
 
 
 def test_get_article_known_law_missing_article(store):
-    # 民诉法在库（2021 版两条），但 2023 版 122 条仍在入库队列（lawkb-fragment）：
-    # 可解析的法 + 库外条号 → unknown_in_lawkb（惰性锚白名单的语义来源）
-    out = get_article(store=store, law="民事诉讼法", article="122", as_of="2024-06-01")
+    # 可解析的法 + 库外条号 → unknown_in_lawkb（惰性锚白名单的语义来源）；
+    # 2023 版民诉条入库后，用仍在队列的 246 条锁这个语义
+    out = get_article(store=store, law="民事诉讼法", article="246", as_of="2024-06-01")
     assert out["status"] == "unknown_in_lawkb"
     assert out["text"] is None
+
+
+def test_get_article_civil_procedure_2023_articles(store):
+    # round-9 入库回归：民诉 2023 版四条真实解析（原 37 题惰性锚簇）
+    for no, vid in (("122", "msf_122_2023"), ("126", "msf_126_2023"),
+                    ("128", "msf_128_2023"), ("171", "msf_171_2023")):
+        out = get_article(store=store, law="民事诉讼法", article=no, as_of="2024-06-01")
+        assert out["status"] == "ok", (no, out["status"])
+        assert out["version_id"] == vid
+    # 时点边界：2023 版施行前一日不可用（2024-01-01 起施行）
+    early = get_article(store=store, law="民事诉讼法", article="122", as_of="2023-12-31")
+    assert early["status"] == "not_yet_effective"
 
 
 def test_get_article_not_yet_effective(store):

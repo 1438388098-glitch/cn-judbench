@@ -1,7 +1,7 @@
 {
  "note": "CN-JudBench public split 发布清单：逐题 item_line_hash 与 run manifest 同源（runner.manifest.item_line_hash），任何题面改动可被第三方检测。",
  "generated": "2026-09-27",
- "lawkb_store_version": "lawkb-2026.09.3",
+ "lawkb_store_version": "lawkb-2026.09.4",
  "dataset_content_hash": "sha256:5acd39a2779ecc960bddbcb19cc0a21d0a5c6f184ddb19453dffdba6e0a1f8d1",
  "n_items_total": 323,
  "packages": {

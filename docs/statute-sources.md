@@ -151,3 +151,5 @@
 
 > 新增 `docs/sources/*` 存档时必须在此登记（tests/test_pipeline_v06.py 交叉机检）。
 - docs/sources/state_council_fee_measures_481_gongbao.html — 《诉讼费用交纳办法》（国务院令第481号）国务院公报页存档（2026-09-27 抓取，fee_13/fee_14 入库逐字节来源；对照 lawkb/text/fee_13_2007.txt、lawkb/text/fee_14_2007.txt）
+- docs/sources/npc_civil_procedure_2023_dhzf.html — 《中华人民共和国民事诉讼法》（2023年9月1日修正）全文页存档
+  （2026-09-27 抓取；民诉 122/126/128/171 条 2023 版入库逐字节来源；标点宽度规范化为全角）
