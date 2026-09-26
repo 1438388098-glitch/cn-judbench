@@ -1,0 +1,26 @@
+law:
+  law_id: state_council_fee_measures_481
+  names:
+  - 诉讼费用交纳办法
+  - 诉讼费用交纳办法（国务院令第481号）
+  level: regulation
+  promulgated_on: '2006-12-19'
+article_version:
+- law_id: state_council_fee_measures_481
+  article_no: '13'
+  version_id: fee_13_2007
+  text_hash: sha256:9f646e5a61a706bd5894ddc1f88e315d5b2a9517beba6d05b1ae8f6826eb01d9
+  effective_from: '2007-04-01'
+  effective_to: null
+  superseded_by: null
+  text_ref: text/fee_13_2007.txt
+  note: 第十三条（案件受理费交纳标准；财产案件分段累计/非财产/知产/劳动/行政/管辖权异议六项及省级授权）；来源：国务院公报 gov.cn/gongbao/content/2007/content_512694.htm 公报 HTML 逐字节提取（2026-09-27 入库，取代 docs 片段的截断稿）
+- law_id: state_council_fee_measures_481
+  article_no: '14'
+  version_id: fee_14_2007
+  text_hash: sha256:f32519fb712c150d7fe94f0884e9b47994a5a5229b2dfc973c0a917840c31b92
+  effective_from: '2007-04-01'
+  effective_to: null
+  superseded_by: null
+  text_ref: text/fee_14_2007.txt
+  note: 第十四条（申请费交纳标准）；来源：国务院公报 gov.cn/gongbao/content/2007/content_512694.htm 公报 HTML 逐字节提取（2026-09-27 入库）

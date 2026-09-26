@@ -150,3 +150,4 @@
 | sources/spc_civil_temporal_2020_gongbao.html | 最高人民法院关于适用《民法典》时间效力的若干规定（公报 HTML 原文存档） | spc_civtemp_1_2020 等版本（text_hash 见 lawkb/laws/*.yaml） |
 
 > 新增 `docs/sources/*` 存档时必须在此登记（tests/test_pipeline_v06.py 交叉机检）。
+- docs/sources/state_council_fee_measures_481_gongbao.html — 《诉讼费用交纳办法》（国务院令第481号）国务院公报页存档（2026-09-27 抓取，fee_13/fee_14 入库逐字节来源；对照 lawkb/text/fee_13_2007.txt、lawkb/text/fee_14_2007.txt）

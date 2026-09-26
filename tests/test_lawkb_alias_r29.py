@@ -49,7 +49,7 @@ def test_alias_exact_names_unchanged():
     assert store.alias["中华人民共和国民法典"] == "npc_civil_code"
     assert store.alias["中华人民共和国刑法"] == "npc_criminal_law"
     assert store.alias["民间借贷规定"] == "spc_private_lending_2015"
-    assert len(store.laws) == 12
+    assert len(store.laws) == 13  # round-4 增补诉讼费用交纳办法（481号）
 
 
 def test_c401_alias_strip_intermediate_states():

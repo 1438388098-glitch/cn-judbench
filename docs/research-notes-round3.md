@@ -10,7 +10,7 @@
 | 路线 | 范围 | 产出 |
 |---|---|---|
 | 判分管线 | predicates/{ftp,ptp}.py、scale、runner/evaluate、judge、abst | 证据化发现 N₁ 条 |
-| 数据与法条 | data/public 12 包、lawkb 12 法 61 版本、anchor×as_of | N₂ 条 |
+| 数据与法条 | data/public 12 包、lawkb 13 法 63 版本、anchor×as_of | N₂ 条 |
 | 统计与发布 | bootstrap/aggregate/report.csv/manifest/许可/文档一致性 | N₃ 条 |
 
 合计 **45 条**发现，逐条附文件行号或可复现命令；去重合并后入 backlog 为

@@ -301,7 +301,7 @@ Manifest 必填：
 
 ```yaml
 lawkb:
-  store_version: "lawkb-2026.09.2"          # 库发行版本（SemVer；与 lawkb/VERSION 一致，机检 c371）
+  store_version: "lawkb-2026.09.3"          # 库发行版本（SemVer；与 lawkb/VERSION 一致，机检 c371）
   resolution: "as_of"                        # 固定
   as_of_used: ["2024-06-01", "2025-03-01"]   # 本 run 实际触达的 as_of 集合
   slice_union_hash: "sha256:…"               # 所用切片内容的联合哈希

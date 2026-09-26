@@ -78,7 +78,7 @@ oracle 硬度阶梯（隐藏单测 > 状态 diff > exact > 受约束 F1 > Judge�
    （§6.1 n 规则以 FRAMEWORK §8.3 两档制为准：n≥100 可排名 / 50≤n<100 报 CI 标 descriptive / n<50 仅描述）。
 5. fault 任务 final_exact 口径公平性修正进行中
    （docs/fault-dms-real-model-report.md 发现 2/3）。
-6. lawkb 为节录口径（12 法 61 版本，v0.5 增补法释〔2020〕15号 10 条时间效力条文 + 民间借贷16条2021版）：statute 类谓词的判别力受库覆盖约束，
+6. lawkb 为节录口径（13 法 63 版本；v0.5 增补法释〔2020〕15号 10 条时间效力条文 + 民间借贷16条2021版；2026-09-27 增补诉讼费用交纳办法 13/14 条）：statute 类谓词的判别力受库覆盖约束，
    库外条文分列 unknown_in_lawkb、不记幻觉；扩库准入见 anchor×as_of 审计
    （docs/calc-real-model-report.md §C5）。
 

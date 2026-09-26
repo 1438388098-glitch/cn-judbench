@@ -1,4 +1,18 @@
 # lawkb 入库片段：诉讼费用交纳办法 + 民诉 2023 + 刑诉 2018
+#
+# 处置记录（2026-09-27 round-4）：
+#   fee_13_2007 / fee_14_2007：已按国务院公报页 HTML 逐字节提取入库
+#     （lawkb/laws/state_council_fee_measures_481.yaml；公报页存档
+#     docs/sources/state_council_fee_measures_481_gongbao.html）。
+#     本片段的 fee_13 稿有两处缺陷已由入库取代：①申报 text_hash 与自身
+#     文本不一致（草稿漂移）；②正文仅含第（一）项 311 字，并非声称的
+#     「全量保留」（官方全文 755 字，含非财产/知产/劳动/行政/管辖权异议
+#     与省级授权句）。
+#   msf_122/128/171：仍在队列。2026-09-27 已做两轮语义级交叉印证
+#     （WebSearch 摘要 + 地方政府转载页），但受 125 字引用限制未达成
+#     逐字节比对，flk 详情正文核验仍待完成。
+#   xsf_230_2018：仍在队列（未取到 flk 详情）。
+
 # schema 对齐 lawkb/laws/*.yaml（law / article_version）
 # 来源见 docs/statute-sources.md；正文摘录 ≤200 字/条（第十三条含分段表，为计算锚点全量保留）
 # 核验状态：
