@@ -302,4 +302,9 @@ baseline-v06b：random 7.96 / rules 27.03 / mock:gold 100×8 包与修复前
 
 **局限**：F4（proto 红线 transcript 污染）与 F5（statute 倾倒无精确率）
 同类自查命中但未修——两者会重排历史分数，须真考生轮消融留痕后再动
-（与 gold 改判同纪律）。
+（与 gold 改判同纪律）。**2026-09-27 代码级确认**（round-12）：F4 成立——
+`dialog/proto.py check_proto` 的红线关键词扫 `transcript_text+answer_text`
+拼接 blob，用户话轮的「委托/保证胜诉/风险」可跨话轮误伤或误豁免候选人判定；
+F5 成立——`predicates/ftp.py statute` 仅计 anchors 覆盖（covered+0.5×同法异条），
+锚外倾倒引用不参与精确率，10 引中 1 命中即满分。修复提案与消融方案见
+backlog candidate-571；修复须按纪律走存量答案消融+基线重导全链。
