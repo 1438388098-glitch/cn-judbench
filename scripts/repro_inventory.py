@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
-"""复现资产盘点（c231）：扫描 docs/paper-outline.md 引用的本地证据资产，
-输出存在性清单到 reports/repro-inventory.md。
+"""复现资产盘点（c231；round-6 扩面）：扫描论文轨全部文档
+（paper-outline / paper-numbers / paper-tables / dataset-card）引用的本地
+证据资产，输出存在性清单到 reports/repro-inventory.md。
 
 论文可复现性纪律（FRAMEWORK §8.4）：证据条目必须带「复现命令 + 输入指纹」；
 run 目录等大产物不入 git（reports/runs 除少数白名单），缺席=当前机器不可
@@ -17,7 +18,8 @@ import sys
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[1]
-OUTLINE = REPO / "docs" / "paper-outline.md"
+SOURCES = ["docs/paper-outline.md", "docs/paper-numbers.md",
+           "docs/paper-tables.md", "docs/dataset-card.md"]
 OUT = REPO / "reports" / "repro-inventory.md"
 
 PAT_RUN_DIR = re.compile(r"reports/runs/([A-Za-z0-9._\-]+)")
@@ -32,7 +34,8 @@ def _tracked(path: Path) -> bool:
 
 
 def main() -> int:
-    text = OUTLINE.read_text(encoding="utf-8")
+    text = chr(10).join(
+        (REPO / src).read_text(encoding="utf-8") for src in SOURCES)
     run_dirs: list[str] = []
     for m in PAT_RUN_DIR.finditer(text):
         d = m.group(0)
@@ -47,7 +50,7 @@ def main() -> int:
     lines = [
         "# 复现资产盘点（scripts/repro_inventory.py 自动生成）",
         "",
-        "paper-outline.md 引用的证据资产及当前机器存在性；run 目录不入 git，",
+        "论文轨文档（paper-outline/numbers/tables/dataset-card）引用的证据资产及当前机器存在性；run 目录不入 git，",
         "缺席=当前机器不可复现，正文引用前须重跑或注明数据截至（FRAMEWORK §8.4）。",
         "",
         "## run 目录（E17/E18 等实验输入）",

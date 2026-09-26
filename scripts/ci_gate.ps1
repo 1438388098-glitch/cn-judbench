@@ -31,13 +31,15 @@ Invoke-Step "[4/9] L2 mock:tools (t-fake-001)" @(
 $pyAssert = @'
 import json
 from pathlib import Path
-text = Path("reports/runs/ci-l2/summary.json").read_text(encoding="utf-8")
-assert "t-fake-001" in text or "fake_tool" in text
-# 负例应得 0.00
-s = json.loads(text)
-blob = json.dumps(s, ensure_ascii=False)
-assert '"id": "t-fake-001"' in blob or "'t-fake-001'" in blob or "t-fake-001" in blob
-print("L2 fake_tool gate: checked")
+s = json.loads(Path("reports/runs/ci-l2/summary.json").read_text(encoding="utf-8"))
+# 与 ci_gate.sh 同强度：负例 t-fake-001 必须在场且 0 分（找不到即失败）
+rows = list((s.get("per_item") or s.get("items") or [])
+            + [x for t in (s.get("tasks") or {}).values() for x in t.get("items", [])])
+hit = [r for r in rows if isinstance(r, dict) and r.get("id") == "t-fake-001"]
+assert hit, "summary missing negative fixture t-fake-001"
+row = hit[0]
+assert row.get("score") in (0, 0.0, "0.00") or row.get("display") == "0.00", row
+print("L2 fake_tool gate: checked (negative present, score 0.00)")
 '@
 $pyAssert | & $PY -
 if ($LASTEXITCODE -ne 0) { Write-Host "CI GATE: FAIL (L2 assert)"; exit $LASTEXITCODE }

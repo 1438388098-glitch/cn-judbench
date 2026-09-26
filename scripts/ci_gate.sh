@@ -27,15 +27,14 @@ echo "== [4/9] L2 mock:tools（含 t-fake-001 假调用负例） =="
 import json
 from pathlib import Path
 s = json.loads(Path("reports/runs/ci-l2/summary.json").read_text(encoding="utf-8"))
-# 负例 t-fake-001 必须 0.00
-for row in s.get("per_item") or s.get("items") or []:
-    if isinstance(row, dict) and row.get("id") == "t-fake-001":
-        assert row.get("score") in (0, 0.0, "0.00") or row.get("display") == "0.00", row
-        break
-else:
-    # summary 形态兼容：从 runs 明细找
-    pass
-print("L2 fake_tool gate: checked")
+# 负例 t-fake-001 必须在场且 0 分——找不到即门禁失败（round-6：删除 else:pass 逃逸分支）
+rows = list((s.get("per_item") or s.get("items") or [])
+            + [x for t in (s.get("tasks") or {}).values() for x in t.get("items", [])])
+hit = [r for r in rows if isinstance(r, dict) and r.get("id") == "t-fake-001"]
+assert hit, f"summary 中找不到负例 t-fake-001（负例夹具必须入场受检）：keys={list(s)[:6]}"
+row = hit[0]
+assert row.get("score") in (0, 0.0, "0.00") or row.get("display") == "0.00", row
+print("L2 fake_tool gate: checked (negative present, score 0.00)")
 PY
 
 echo "== [4b/9] v0.4 新任务 mock 管线（dms env_diff + fault recovery） =="
