@@ -497,6 +497,15 @@ def status_ladder(ctx: EvalContext, p, index: int) -> PredicateResult:
     got = str(got_raw).strip() if got_raw is not None else None
     want_raw = _walk(extra.get("gold_path") or path, ctx.item.gold) if isinstance(ctx.item.gold, dict) else None
     if want_raw is None and isinstance(ctx.item.gold, list) and ctx.item.gold:
+        # c433：多锚题静默只验首条是判分地雷（audit-task-packages P2）——
+        # 多元素列表必须走显式 per-anchor 断言，这里响亮失败而不是取 [0]
+        if len(ctx.item.gold) > 1:
+            return PredicateResult(
+                "ftp", index, "status_ladder", False, 0.0, p.on_fail,
+                detail=(f"gold 为 {len(ctx.item.gold)} 元素锚列表：status_ladder 单锚口径"
+                        "拒绝静默取首条，须拆 per-anchor 谓词或改金样形状"),
+                failure_taxonomy="format_fail",
+            )
         first = ctx.item.gold[0]
         want_raw = first.get("expect_status") if isinstance(first, dict) else None
     want = str(want_raw).strip() if want_raw is not None else None

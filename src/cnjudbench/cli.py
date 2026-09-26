@@ -551,18 +551,35 @@ def _execute_runs(args: argparse.Namespace, task_ids: list[str]) -> tuple[list[T
     )
     summary = _build_summary(args, runs, manifest, accountant, judge_scores,
                              baseline_runs=baseline_runs)
-    # L2 n-gram 污染双检（DESIGN v0.4 §7）：给了语料才实测，否则诚实 n/a
+    # L2 n-gram 污染双检（DESIGN v0.4 §7 + FRAMEWORK §9.1 一级）：
+    # 给了语料才实测，否则诚实 n/a；字符路默认，词路 jieba 可用即并跑
     corpus_ref = getattr(args, "ngram_corpus", None)
     if corpus_ref:
         from .contamination.ngram import load_corpus_ngrams, scan_items_overlap
 
+        items_pairs = [(it.id, it.input) for it in all_items]
         rep = scan_items_overlap(
-            [(it.id, it.input) for it in all_items],
+            items_pairs,
             load_corpus_ngrams(corpus_ref, n=args.ngram_size), n=args.ngram_size)
         summary.setdefault("contamination", {})["ngram_overlap"] = {
             **rep.as_dict(),
             "max_overlap_str": f"{rep.max_overlap:.4f}",
             "mean_overlap_str": f"{rep.mean_overlap:.4f}",
+        }
+        # §9.1 一级词路（分词 13-gram）：jieba 缺席时如实标注 unavailable
+        try:
+            word_rep = scan_items_overlap(
+                items_pairs, load_corpus_ngrams(corpus_ref, n=13, mode="word"),
+                n=13, mode="word", word_path_flag="jieba")
+        except ImportError:
+            word_rep = scan_items_overlap(
+                items_pairs, set(), n=13, mode="char", word_path_flag="unavailable")
+            word_rep.risk = "unavailable"
+            word_rep.items_over_threshold = []
+        summary.setdefault("contamination", {})["ngram_overlap_word"] = {
+            **word_rep.as_dict(),
+            "max_overlap_str": f"{word_rep.max_overlap:.4f}",
+            "mean_overlap_str": f"{word_rep.mean_overlap:.4f}",
         }
     return runs, {"manifest": manifest, "summary": summary, "judge": judge,
                   "unknown_in_lawkb": sum(

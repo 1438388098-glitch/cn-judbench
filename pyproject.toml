@@ -26,7 +26,7 @@ Homepage = "https://github.com/TODO-assign-repo"
 Repository = "https://github.com/TODO-assign-repo"
 
 [project.optional-dependencies]
-dev = ["pytest>=8", "pytest-timeout>=2.3"]
+dev = ["pytest>=8", "pytest-timeout>=2.3", "jieba>=0.42"]
 
 [project.scripts]
 cnjudbench = "cnjudbench.cli:main"
