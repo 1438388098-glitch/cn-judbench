@@ -39,7 +39,7 @@ def _run(cmd: list[str], **kw) -> subprocess.CompletedProcess:
 def test_c212_version_three_way():
     import cnjudbench
     pyproject = tomllib.loads((REPO / "pyproject.toml").read_text(encoding="utf-8"))
-    assert cnjudbench.__version__ == pyproject["project"]["version"] == "0.6.0"
+    assert cnjudbench.__version__ == pyproject["project"]["version"] == "0.6.1"
     assert "v0.6" in (REPO / "FRAMEWORK.md").read_text(encoding="utf-8")[:600]
 
 

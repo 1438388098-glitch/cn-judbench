@@ -47,6 +47,9 @@ class Item(BaseModel):
     hcut: list[HcutLiteral] = Field(min_length=1)
     # v0.6：饱和标注（difficulty-audit T4a/T4b 双考生实测无区分度）；None=未标注
     saturation_flag: bool | None = None
+    # 0.6.1：实证难度分带（E18 双考生 62 题标定，p≥0.85→1/0.6→2/0.3→3/<0.3→4；
+    # None=无实证覆盖，不虚构）；FRAMEWORK §7 difficulty_emp 回写落地
+    difficulty_emp: int | None = Field(default=None, ge=1, le=4)
     instruction: str = Field(min_length=1)
     input: str
     gold: Any

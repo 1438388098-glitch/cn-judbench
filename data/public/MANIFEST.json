@@ -2,7 +2,7 @@
  "note": "CN-JudBench public split 发布清单：逐题 item_line_hash 与 run manifest 同源（runner.manifest.item_line_hash），任何题面改动可被第三方检测。",
  "generated": "2026-09-27",
  "lawkb_store_version": "lawkb-2026.09.3",
- "dataset_content_hash": "sha256:da0db3df1537bb60e13369b0442b54216f42015faf4a3ae9763cf9c75fe51a96",
+ "dataset_content_hash": "sha256:5acd39a2779ecc960bddbcb19cc0a21d0a5c6f184ddb19453dffdba6e0a1f8d1",
  "n_items_total": 323,
  "packages": {
   "a_irac_reason": {
@@ -93,158 +93,158 @@
      "bytes": 1074
     },
     "at-001": {
-     "item_line_hash": "sha256:d53cf7990af0d40288c1e15155693964eeaec682c41fd094984974e8b0ae8246",
+     "item_line_hash": "sha256:5b0afce40933602e9173833cbfbed706b155264618576afeea5f7a231aefa8f4",
      "canary": "CNJB-CANARY-7e10",
      "difficulty": 4,
      "saturation_flag": false,
-     "bytes": 1927
+     "bytes": 1948
     },
     "at-002": {
-     "item_line_hash": "sha256:67a5410680423aaeca2bc8d9860100e1e0dfb7c3db0bf308242c3bf3d0fabb27",
+     "item_line_hash": "sha256:78e52c8495da51c2ad704ea71e9e6e3c9ae3d80d4a6018e1158b949317b31220",
      "canary": "CNJB-CANARY-7e11",
      "difficulty": 4,
      "saturation_flag": false,
-     "bytes": 1869
+     "bytes": 1890
     },
     "at-003": {
-     "item_line_hash": "sha256:b0653e0a4be9a821bc81aa46b96d822efdf9ed36f7a39b1ba6feb7aaa3a743c7",
+     "item_line_hash": "sha256:a4fa3a071eb0a16a8b9eddf68cca29cb8361f7b9a3f72bf6ddd0cc1f7fea6d67",
      "canary": "CNJB-CANARY-7e12",
      "difficulty": 4,
      "saturation_flag": false,
-     "bytes": 2070
+     "bytes": 2091
     },
     "at-004": {
-     "item_line_hash": "sha256:b691a202cb60219fd5cbfdf561a1d46416df49798d36ba4b0f32dec3b4517f38",
+     "item_line_hash": "sha256:7fa5128d97827148b0aa27797475c80ddfdff522a55bbf4d55b6be1c0409568b",
      "canary": "CNJB-CANARY-7e13",
      "difficulty": 4,
      "saturation_flag": false,
-     "bytes": 1704
+     "bytes": 1725
     },
     "at-005": {
-     "item_line_hash": "sha256:974cb8ae0fc1bc510302813b0ddb6a26101c7b0dbc2ff90768951ff7b4a3ce58",
+     "item_line_hash": "sha256:2bd9c207d7b78aae5c786c4f8c9cda807edcf57495b1344239431b05b8373392",
      "canary": "CNJB-CANARY-7e14",
      "difficulty": 4,
      "saturation_flag": false,
-     "bytes": 1953
+     "bytes": 1974
     },
     "at-006": {
-     "item_line_hash": "sha256:f054c067325c260df4d5599ce396437b42ca8366f1d0de1d026169eec2adadca",
+     "item_line_hash": "sha256:2c0ce5eaad561fab71ef8bf0688d88c24f0119b16f41f80e3ae13ecad01737d3",
      "canary": "CNJB-CANARY-7e15",
      "difficulty": 4,
      "saturation_flag": false,
-     "bytes": 1909
+     "bytes": 1930
     },
     "at-007": {
-     "item_line_hash": "sha256:8e63224684ee7c51d515f9c792cc440a503f413ba5b81d209a821ac1b3c06e21",
+     "item_line_hash": "sha256:fd5ac81803d1bec1c4f391e1ef256a190914452eaa4592c3b2aaf0ddd78199e6",
      "canary": "CNJB-CANARY-7e16",
      "difficulty": 4,
      "saturation_flag": false,
-     "bytes": 1866
+     "bytes": 1887
     },
     "at-008": {
-     "item_line_hash": "sha256:5b23352eff17d6de08cfc501cf97b963591b9ad809bac2459a3408fec512001f",
+     "item_line_hash": "sha256:4ca332c3110b01c9a2be00baa653cdb1f59d45a5420a48a18c67e737035b158a",
      "canary": "CNJB-CANARY-7e17",
      "difficulty": 4,
      "saturation_flag": false,
-     "bytes": 1943
+     "bytes": 1964
     },
     "at-009": {
-     "item_line_hash": "sha256:16fe405041076c87c1fdfb0ea6037df4ed5bf467180807d405bb5ca058d65960",
+     "item_line_hash": "sha256:2074f3a6b77e843b556615e9b47958185a5bd90ebd66486a62fa61c48003c2a0",
      "canary": "CNJB-CANARY-7e18",
      "difficulty": 4,
      "saturation_flag": false,
-     "bytes": 2076
+     "bytes": 2097
     },
     "at-010": {
-     "item_line_hash": "sha256:8baa944ec2c396dda947e411096283abcb8fc1a9630a0448044fbf5e722549c7",
+     "item_line_hash": "sha256:10fe5f97a56392949f05e898465cc50daa1d399d9d4ac19e9c65e4397bfcdffc",
      "canary": "CNJB-CANARY-7e19",
      "difficulty": 4,
      "saturation_flag": false,
-     "bytes": 1833
+     "bytes": 1854
     },
     "at-011": {
-     "item_line_hash": "sha256:bfe9ec06e66bbcaae34cf96ca068100dcd1733e593dd13bb28fcb757a2fb980c",
+     "item_line_hash": "sha256:a52dabd0279564ad9ae1d4a74185c7ed008afe787690efafedb1c5289898ef7a",
      "canary": "CNJB-CANARY-7e1a",
      "difficulty": 4,
      "saturation_flag": false,
-     "bytes": 1783
+     "bytes": 1804
     },
     "at-012": {
-     "item_line_hash": "sha256:0490a7d0bae9621346606efc1b5c71412226efc6fdb062b7c0ee84195aff10a0",
+     "item_line_hash": "sha256:00302099240500b4c200c0a9287db92a5bc12052cf1eaa7cc4dfdf31d6dd07a3",
      "canary": "CNJB-CANARY-7e1b",
      "difficulty": 4,
      "saturation_flag": false,
-     "bytes": 1791
+     "bytes": 1812
     },
     "at-013": {
-     "item_line_hash": "sha256:90380721ba22d589c60980f02e38bbed6ce6c18c4d8537ca7c81ab6cb68e25e7",
+     "item_line_hash": "sha256:71de057d87eed18771daea4e49f263e43d01f1d5876b2ad2d30826f9e8c8b039",
      "canary": "CNJB-CANARY-7e1c",
      "difficulty": 4,
      "saturation_flag": false,
-     "bytes": 1833
+     "bytes": 1854
     },
     "at-014": {
-     "item_line_hash": "sha256:0ee1322af45b6074cfe27b4d838baec370c11748eb2bac12849ecb3782689a4e",
+     "item_line_hash": "sha256:7ffba1459d3e661770c1132d231f861a432b678d47f83f1ccbd7a9b6fd13fb52",
      "canary": "CNJB-CANARY-7e1d",
      "difficulty": 4,
      "saturation_flag": false,
-     "bytes": 1656
+     "bytes": 1677
     },
     "at-015": {
-     "item_line_hash": "sha256:21c65aa9cba3295f9f0b6f4a062119f3070f4621e4cc8f22fd0245d3f9426ade",
+     "item_line_hash": "sha256:c6a41fa273682d852bbe7cbbb85c3c3d69f190d57999321b265b7bd4249bb5be",
      "canary": "CNJB-CANARY-7e1e",
      "difficulty": 4,
      "saturation_flag": false,
-     "bytes": 1729
+     "bytes": 1750
     },
     "at-016": {
-     "item_line_hash": "sha256:b9665ac982424e4e466ff0fb19489d8373f6b6d994aff796311fd2e5aa031147",
+     "item_line_hash": "sha256:4a1c6ec1b1793c6068ec4d3d7fe401ca1753502942c2b9bb5dfdfad78de359cb",
      "canary": "CNJB-CANARY-7e1f",
      "difficulty": 4,
      "saturation_flag": false,
-     "bytes": 1758
+     "bytes": 1779
     },
     "at-017": {
-     "item_line_hash": "sha256:4dda83271f0eac9a21d67913cc453061ba12508dcb1ff79cb89242247d8f6641",
+     "item_line_hash": "sha256:5ec11bd19590928ef58c9ce3908e95ee5a819782d75e163a34bcdc69632c885f",
      "canary": "CNJB-CANARY-7e20",
      "difficulty": 4,
      "saturation_flag": false,
-     "bytes": 1730
+     "bytes": 1751
     },
     "at-018": {
-     "item_line_hash": "sha256:d93d05985b47414869b37d3bcc043538010572f927962b0e418eef162760a52d",
+     "item_line_hash": "sha256:386e72ebcdf62e35e3d49910cf743128083bb07998f9057c69fd958746cc1a4f",
      "canary": "CNJB-CANARY-7e21",
      "difficulty": 4,
      "saturation_flag": false,
-     "bytes": 1764
+     "bytes": 1785
     },
     "at-019": {
-     "item_line_hash": "sha256:8fc79fb0b5701e18e349a465f27e3ae2161bc0c5813fe02184780e7801a3a191",
+     "item_line_hash": "sha256:2d96dac46a69684b982117006c728178208f8d5bed4c99bb44b7439583b56e26",
      "canary": "CNJB-CANARY-7e700001",
      "difficulty": 4,
      "saturation_flag": false,
-     "bytes": 1784
+     "bytes": 1805
     },
     "at-020": {
-     "item_line_hash": "sha256:a966d75b3d74266b26ef693c4702cce25e6e41287f21b4d3eef6b1565c4c4d71",
+     "item_line_hash": "sha256:f0977fe3c832574485cddc72e033d21355a1b7c432d1491e034bc274fd591750",
      "canary": "CNJB-CANARY-7e700002",
      "difficulty": 4,
      "saturation_flag": false,
-     "bytes": 1678
+     "bytes": 1699
     },
     "at-021": {
-     "item_line_hash": "sha256:489f3ba18c93d8d9988fa81f97cbf3b4c08a584cda38a89040f8cc5a0abedaef",
+     "item_line_hash": "sha256:b41d3126e41ce15dc587d7c206d0ce2ecc3df0490545d02d124255781c5ecffc",
      "canary": "CNJB-CANARY-7e700003",
      "difficulty": 4,
      "saturation_flag": false,
-     "bytes": 1641
+     "bytes": 1662
     },
     "at-022": {
-     "item_line_hash": "sha256:cab5378e821ab1eb43b86349be32bf9551aba2a60e94c6c010f30e2f2eca8df3",
+     "item_line_hash": "sha256:a1f41236040f05533cfff7382f809026c5a7a7c8db792d4050a7a286dfa63420",
      "canary": "CNJB-CANARY-7e700004",
      "difficulty": 4,
      "saturation_flag": false,
-     "bytes": 2362
+     "bytes": 2383
     }
    }
   },
@@ -574,60 +574,60 @@
      "bytes": 1197
     },
     "cx-001": {
-     "item_line_hash": "sha256:24ebcef121a9dfe58e1ab631234d5a233361d12d75b014a6494c9e21e45a52ea",
+     "item_line_hash": "sha256:4e1aeaafa1a252797aa3482c441bbb1766d4a588622411be7dd2a7d053703a4a",
      "canary": "CNJB-CANARY-00007e30",
      "difficulty": 4,
      "saturation_flag": false,
-     "bytes": 1334
+     "bytes": 1355
     },
     "cx-002": {
-     "item_line_hash": "sha256:75b4e3b2b12a1cc6d3b6bb5ce4261365be730a4d747e9eccf9cd73c595ef1fcf",
+     "item_line_hash": "sha256:ef1267c6b33c0843e364739d160f228681bf4eb2e7d44a02c037304379e9daaa",
      "canary": "CNJB-CANARY-00007e31",
      "difficulty": 4,
      "saturation_flag": false,
-     "bytes": 1206
+     "bytes": 1227
     },
     "cx-003": {
-     "item_line_hash": "sha256:8b7d8f47824a119a410004d4fc230e25a98505e0f672bd0870e39394e1f349e6",
+     "item_line_hash": "sha256:9da834bd43f278f0ca94dee5887576699a7c084d759a27c30139d8c8d3edf6e3",
      "canary": "CNJB-CANARY-00007e32",
      "difficulty": 4,
      "saturation_flag": false,
-     "bytes": 1349
+     "bytes": 1370
     },
     "cx-004": {
-     "item_line_hash": "sha256:5d48628be5b4dc05f4ece6a7d237ccc6a3031a05c0e9acf82e74e323316445f5",
+     "item_line_hash": "sha256:cf33222c368d52a648b39849ecbd93a5e953ee9c0b1310ab5b22ab299d99f5f7",
      "canary": "CNJB-CANARY-00007e33",
      "difficulty": 4,
      "saturation_flag": false,
-     "bytes": 1257
+     "bytes": 1278
     },
     "cx-005": {
-     "item_line_hash": "sha256:1464fab8f347f23f7aefdb1eb0f5d9ebd7654c08a5624cfa2b15dd27eb16ce78",
+     "item_line_hash": "sha256:d994d7cc9b30961118c03db4cb6bb3259b6fad8b612ae2a9010e0739289692fd",
      "canary": "CNJB-CANARY-00007e34",
      "difficulty": 4,
      "saturation_flag": false,
-     "bytes": 1130
+     "bytes": 1151
     },
     "cx-006": {
-     "item_line_hash": "sha256:f42e9b524aba73dc4092b066f3ade3e5112861e0263c05ee7a1a350d456094e7",
+     "item_line_hash": "sha256:ef520276a3b7a352cfdc7fb25965747672ca65d01863c78419839f19d3f3c399",
      "canary": "CNJB-CANARY-00007e35",
      "difficulty": 4,
      "saturation_flag": false,
-     "bytes": 1112
+     "bytes": 1133
     },
     "cx-007": {
-     "item_line_hash": "sha256:c1736061ac53d13d23477471bd99258a339dd5b8e1fc48fe66a903ec94c2fb0e",
+     "item_line_hash": "sha256:0ba3ea2dc07e15f7b5f6b8ec587ed2fd1de15391b3392b552a2421428f0d0738",
      "canary": "CNJB-CANARY-00007e36",
      "difficulty": 4,
      "saturation_flag": false,
-     "bytes": 1145
+     "bytes": 1166
     },
     "cx-008": {
-     "item_line_hash": "sha256:d70c791ab7a884f4dcc80a79ea49943cc36d8f7ed76f2401ae241d0c707236cb",
+     "item_line_hash": "sha256:32ac11c1269cafedd931db680817fc37819b0c3d7cf0dff5d872bae8fd3cae95",
      "canary": "CNJB-CANARY-00007e37",
      "difficulty": 4,
      "saturation_flag": false,
-     "bytes": 1060
+     "bytes": 1081
     }
    }
   },
@@ -948,46 +948,46 @@
      "bytes": 953
     },
     "c-018": {
-     "item_line_hash": "sha256:8bea4298d945f2478441d34c7bef079d78db901c2a16b4dea8276ef1c59a3990",
+     "item_line_hash": "sha256:8fea4fcb49c5db0c10064a5a23a5a5a10a6f72da9f274aed06a67f11848c29a4",
      "canary": "CNJB-CANARY-c018",
      "difficulty": 3,
      "saturation_flag": false,
-     "bytes": 1374
+     "bytes": 1395
     },
     "c-019": {
-     "item_line_hash": "sha256:8133893ed0a694bc9895b9cbc5e089f9fd24eef2419c6ba1162f52a9e188fc1b",
+     "item_line_hash": "sha256:f1e4bc7a9252f240075932d5e9e7d0e03d2b37931aa09782cbe91097b4564926",
      "canary": "CNJB-CANARY-c019",
      "difficulty": 3,
      "saturation_flag": false,
-     "bytes": 1273
+     "bytes": 1294
     },
     "c-020": {
-     "item_line_hash": "sha256:64205aaeb28ae8ad36bdab65f66dda342414bfb89593de9676f90280ebab1c9b",
+     "item_line_hash": "sha256:38e6da084e1dbc4b0c56aa08c4b913274461c250213f79cc556592e8ef14574c",
      "canary": "CNJB-CANARY-c020",
      "difficulty": 3,
      "saturation_flag": false,
-     "bytes": 1330
+     "bytes": 1351
     },
     "c-021": {
-     "item_line_hash": "sha256:d8baf623aae210778a24888b0b993f6fa99bb6d04a85704fa384f7046a4d60a2",
+     "item_line_hash": "sha256:11419bd8e2ad0452221af42eb006bdac323df161978229c3f159356aa2077210",
      "canary": "CNJB-CANARY-c021",
      "difficulty": 3,
      "saturation_flag": false,
-     "bytes": 1359
+     "bytes": 1380
     },
     "c-022": {
-     "item_line_hash": "sha256:614d28f1bf32259cf409d35aff14de683ec2a7d05321929d0d7826fb2d97f618",
+     "item_line_hash": "sha256:16046c5a6625a013321a8d462bbf336fa40ce84db06102b3f327fcc73f28bd42",
      "canary": "CNJB-CANARY-c022",
      "difficulty": 3,
      "saturation_flag": false,
-     "bytes": 1343
+     "bytes": 1364
     },
     "c-023": {
-     "item_line_hash": "sha256:f757ec42b38f415e8845b33a0612f0ee4d9fa08dd7c58b9e9dafbb579950218e",
+     "item_line_hash": "sha256:fa95aa2148bf0bb1f8bd926e7aadabd7d6fe528b7b22955142c61ca07e542cbd",
      "canary": "CNJB-CANARY-c023",
      "difficulty": 3,
      "saturation_flag": false,
-     "bytes": 1583
+     "bytes": 1604
     }
    }
   },
@@ -1107,32 +1107,32 @@
      "bytes": 1273
     },
     "d-301": {
-     "item_line_hash": "sha256:5d30dc40b93fce1aeb5407fff43120ae168e05d15f8d7a3fae0ccfec2c56b84a",
+     "item_line_hash": "sha256:fd9978c5233fb02b4f988195fe5bb841f7b14c094376bac85348af9a4781ea10",
      "canary": "CNJB-CANARY-7e600001",
      "difficulty": 3,
      "saturation_flag": false,
-     "bytes": 2122
+     "bytes": 2143
     },
     "d-302": {
-     "item_line_hash": "sha256:13c7dd5606ee01e60f437105f7af9cd0ef65321460ae6e0fa2acb8a41616f123",
+     "item_line_hash": "sha256:61914005594f7f8e3521972b27bcd66b7acc99135f1e0ae6ecbefe16e6ffc812",
      "canary": "CNJB-CANARY-7e600002",
      "difficulty": 3,
      "saturation_flag": false,
-     "bytes": 2892
+     "bytes": 2913
     },
     "d-303": {
-     "item_line_hash": "sha256:795230e0e26091869515c8f169568f07c5fcb779a5cd6887d5a3b253e8742a7f",
+     "item_line_hash": "sha256:5f6065436831f25ac341dad05ef26ecfb7bf63d7c03602e299cd6848a3c014b1",
      "canary": "CNJB-CANARY-7e600003",
      "difficulty": 3,
      "saturation_flag": false,
-     "bytes": 1950
+     "bytes": 1971
     },
     "d-304": {
-     "item_line_hash": "sha256:07c47697f942c4c0fdb781c8539ed0967209bae7bde4e59746c85a07eb3db283",
+     "item_line_hash": "sha256:0c737f8de5abc42b8adb8f0f677c9823948aaa144b17dc089820db764aa772e1",
      "canary": "CNJB-CANARY-7e600004",
      "difficulty": 3,
      "saturation_flag": false,
-     "bytes": 2188
+     "bytes": 2209
     }
    }
   },
@@ -1259,46 +1259,46 @@
      "bytes": 849
     },
     "g-18": {
-     "item_line_hash": "sha256:3ffc225f42591de54eceefc0d77ddd2f208cd4f0970725ffbc20b26c0e0c8f2f",
+     "item_line_hash": "sha256:7ea8b748bb9caaf0c12f172094d810267a6b6015d5dfb697192d507e23bd2de8",
      "canary": "CNJB-CANARY-1a10",
      "difficulty": 4,
      "saturation_flag": false,
-     "bytes": 1266
+     "bytes": 1287
     },
     "g-19": {
-     "item_line_hash": "sha256:8d5b1ffb519b6e4f3a83179c3ad6ae90e3b9b39452410838fe93843e2a9166fa",
+     "item_line_hash": "sha256:eb5c59e9ec2921642ac4d2066e930afd05958a41f80e69486292574839404e45",
      "canary": "CNJB-CANARY-1a11",
      "difficulty": 3,
      "saturation_flag": false,
-     "bytes": 1180
+     "bytes": 1201
     },
     "g-20": {
-     "item_line_hash": "sha256:3a68e84c1def024b3b4cda8db7daa3a8e3559d6d727fed2333f9634091e3f96f",
+     "item_line_hash": "sha256:5672b08f02f42d852dd71da3c3c994035bd01d27eaa8f592ddf45153d71d9c3d",
      "canary": "CNJB-CANARY-1a12",
      "difficulty": 3,
      "saturation_flag": false,
-     "bytes": 1161
+     "bytes": 1182
     },
     "g-21": {
-     "item_line_hash": "sha256:d06a6a4e041293c67dc351dd50a05a00a95ba07ea2f0ff7696fd14a58f228926",
+     "item_line_hash": "sha256:0a43fa14bc207d387caee01d38c6d9de07b8c6542411c7f45f4c23af577a9f77",
      "canary": "CNJB-CANARY-1a13",
      "difficulty": 4,
      "saturation_flag": false,
-     "bytes": 1225
+     "bytes": 1246
     },
     "g-22": {
-     "item_line_hash": "sha256:aae18a97ef83c4f39472dddb74558830fd100c7b4773a91a7d2e3630c6728089",
+     "item_line_hash": "sha256:86e2fbc5cfcdd9ad3094eedc21d959f406b38e126de0bf3f71b84158211ba7f0",
      "canary": "CNJB-CANARY-1a14",
      "difficulty": 3,
      "saturation_flag": false,
-     "bytes": 1253
+     "bytes": 1274
     },
     "g-23": {
-     "item_line_hash": "sha256:efd682bf88e2ec15bea0b02c786fc21084bdcb99788539235cd223917789481b",
+     "item_line_hash": "sha256:1ae8fb4af912caa11bf6dd462154d336a0a68a4903619b6682f68521df2dc668",
      "canary": "CNJB-CANARY-1a15",
      "difficulty": 4,
      "saturation_flag": false,
-     "bytes": 1079
+     "bytes": 1100
     }
    }
   },
@@ -1369,46 +1369,46 @@
      "bytes": 1067
     },
     "lh-10": {
-     "item_line_hash": "sha256:32f353b3c1b3a539d94f61296e3c448152fccc0a50a07da402f44baec95e95f4",
+     "item_line_hash": "sha256:0fa29decb0d3ecc2cf07538a401f6b92ce876115a0e55f5d22bb1448373ed702",
      "canary": "CNJB-CANARY-f111",
      "difficulty": 4,
      "saturation_flag": false,
-     "bytes": 1191
+     "bytes": 1212
     },
     "lh-11": {
-     "item_line_hash": "sha256:7059a568150c9a06f18a0f1fb83e30512d65b2bd893a842baa2b04cba8835f71",
+     "item_line_hash": "sha256:f50da4acbc27204555fcd2d306172f9e4944010da9340fd1aeda3b179f44b990",
      "canary": "CNJB-CANARY-f112",
      "difficulty": 4,
      "saturation_flag": false,
-     "bytes": 1194
+     "bytes": 1215
     },
     "lh-12": {
-     "item_line_hash": "sha256:0aeb77c93c8a32d5e9741d0e6f928a917e9b366de79b5277a3a8cce5417c827a",
+     "item_line_hash": "sha256:ae9c98598e6072ced6bdae005aa7c2fc76ab27e9cb9834f2726fe5ca701e63f8",
      "canary": "CNJB-CANARY-f113",
      "difficulty": 4,
      "saturation_flag": false,
-     "bytes": 1165
+     "bytes": 1186
     },
     "lh-13": {
-     "item_line_hash": "sha256:4381acf799985a19e295ae4fdcedbb7b29aeb61062aa39224c48f084c42327b7",
+     "item_line_hash": "sha256:bece062883645dd396ccbe37d8f82b681586fece6f95015f4d1bcf55b5bdaecd",
      "canary": "CNJB-CANARY-f114",
      "difficulty": 4,
      "saturation_flag": false,
-     "bytes": 1195
+     "bytes": 1216
     },
     "lh-14": {
-     "item_line_hash": "sha256:09b966ea5351d39760c97652978943975a1415703b9f2dc6ae3e7ddf416b65df",
+     "item_line_hash": "sha256:8f98df233d1ad38250f4dbfda21663709e1deff020f1af2361942c6dda2aa318",
      "canary": "CNJB-CANARY-f115",
      "difficulty": 4,
      "saturation_flag": false,
-     "bytes": 1217
+     "bytes": 1238
     },
     "lh-15": {
-     "item_line_hash": "sha256:e7cffcebe015175f29c97ae6c94e4bdee62a2e4dcacebd50a939eb0e6dbfa55f",
+     "item_line_hash": "sha256:1bec6e85866782b50d31c47deca6b823cfa28a4d7765b32fe18814c017299e70",
      "canary": "CNJB-CANARY-f116",
      "difficulty": 4,
      "saturation_flag": false,
-     "bytes": 1208
+     "bytes": 1229
     }
    }
   },
@@ -1645,32 +1645,32 @@
      "bytes": 1494
     },
     "tj-013": {
-     "item_line_hash": "sha256:c7992542dec9f9b9371bdb80383ce4e660f2839ecb621363144bd9bf54284ad9",
+     "item_line_hash": "sha256:153c68e77c4b8ad46e308b7f4e92e08add6ee0bbba5c26a2aa1467aa73ecef0e",
      "canary": "CNJB-CANARY-ab1e01",
      "difficulty": 3,
      "saturation_flag": false,
-     "bytes": 1652
+     "bytes": 1673
     },
     "tj-014": {
-     "item_line_hash": "sha256:0f9bf6e3a8e3ea553cb9ff22f837f221ded0f6276f94fdb2d150f21cd8514e70",
+     "item_line_hash": "sha256:ec78955c8d7babfc0be262620803140abc8a3cb4a198223264920d4393eefa00",
      "canary": "CNJB-CANARY-ab1e02",
      "difficulty": 3,
      "saturation_flag": false,
-     "bytes": 1784
+     "bytes": 1805
     },
     "tj-015": {
-     "item_line_hash": "sha256:b0f6ad13aea295ae70884748bcac29be2af305e3aece80b1c323698b0a7ac9bd",
+     "item_line_hash": "sha256:c80379633857e806bc6744d901c24c2fcd2def75118be1012cd748c5fab3ddc0",
      "canary": "CNJB-CANARY-ab1e03",
      "difficulty": 3,
      "saturation_flag": false,
-     "bytes": 1825
+     "bytes": 1846
     },
     "tj-016": {
-     "item_line_hash": "sha256:2054e3bee168f88915e62bb4f59a09dfaf80a9f65d26d4e28b0dda3f9cc623e0",
+     "item_line_hash": "sha256:d9a6df566280da399aee0be25a125529be7b230bc1a3aac91c441d1641f70376",
      "canary": "CNJB-CANARY-ab1e04",
      "difficulty": 3,
      "saturation_flag": false,
-     "bytes": 1790
+     "bytes": 1811
     }
    }
   },
@@ -2283,46 +2283,46 @@
      "bytes": 1329
     },
     "u-044": {
-     "item_line_hash": "sha256:3760dd297d2ec4e43c86b7ce0fd6d4298c7ff6880dbca995783a873f4e00c97c",
+     "item_line_hash": "sha256:66f96611c3c879c76920ab58130dcbe7b50ede59b5cb2d0f436aae442dd2216a",
      "canary": "CNJB-CANARY-00007e40",
      "difficulty": 4,
      "saturation_flag": false,
-     "bytes": 1092
+     "bytes": 1113
     },
     "u-045": {
-     "item_line_hash": "sha256:bff2ed3f2201fa98ac28bcb8aa1aef28207a87023d5b901328ba4165a903d8dc",
+     "item_line_hash": "sha256:1c5df9bfdef66d172848679a7e98551f06f8cbe35f74e715d8fa7bc56114ea6b",
      "canary": "CNJB-CANARY-00007e41",
      "difficulty": 4,
      "saturation_flag": false,
-     "bytes": 1285
+     "bytes": 1306
     },
     "u-046": {
-     "item_line_hash": "sha256:2c172292f18d3543a2c8fc0d918d196a7089802af9c71f231348f2b40bd783e9",
+     "item_line_hash": "sha256:48b23d3160bba4090dd1476d42b323382d4d90bb2912623a54ddcc7fb561539d",
      "canary": "CNJB-CANARY-00007e42",
      "difficulty": 4,
      "saturation_flag": false,
-     "bytes": 1107
+     "bytes": 1128
     },
     "u-047": {
-     "item_line_hash": "sha256:f8c775fc0b4e52756fafa6fe92674e12b5f6bb6384e5dc3e5d3a80b2d4de25a5",
+     "item_line_hash": "sha256:bcb0c48e20317b1042db4d1fe600df0f1f213880b273daed6e2f296d689fd68c",
      "canary": "CNJB-CANARY-00007e43",
      "difficulty": 4,
      "saturation_flag": false,
-     "bytes": 1152
+     "bytes": 1173
     },
     "u-048": {
-     "item_line_hash": "sha256:1a9407502ec1f06b5344267bd3a67d5a282b4d405fa0eaa0b35c639aabc72768",
+     "item_line_hash": "sha256:98af80ee3f3f3bb798f080c4160410091db7ec837f227503af1552cd89703063",
      "canary": "CNJB-CANARY-00007e44",
      "difficulty": 4,
      "saturation_flag": false,
-     "bytes": 1152
+     "bytes": 1173
     },
     "u-049": {
-     "item_line_hash": "sha256:8fde5519016a11e2548d62298510b4c38328c6d47c0eabfd61a5a4c3db610918",
+     "item_line_hash": "sha256:37ae0dfa20381ccf2eb1bac7acb65e5fb785e40480ea20206ecae29489b182e4",
      "canary": "CNJB-CANARY-00007e45",
      "difficulty": 4,
      "saturation_flag": false,
-     "bytes": 1153
+     "bytes": 1174
     }
    }
   }

@@ -26,9 +26,9 @@ def test_c292_citation_cff_consistent():
     m = re.search(r'^version:\s*"?([^"\n]+)"?', cff, re.M)
     assert m and m.group(1).strip() == pyproject["project"]["version"], \
         "CITATION.cff 版本与 pyproject 不一致"
-    assert 'date-released: "2026-09-24"' in cff
+    assert 'date-released: "2026-09-27"' in cff
     card = (REPO / "docs" / "dataset-card.md").read_text(encoding="utf-8")
-    assert "v0.6, 323 items, 12 task packages" in card  # BibTeX note 同源
+    assert "v0.6.1, 323 items, 12 task packages" in card  # BibTeX note 同源
     assert "CC-BY-4.0" in cff and "MIT" in cff  # 双许可分表声明
 
 

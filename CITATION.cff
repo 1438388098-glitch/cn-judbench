@@ -4,8 +4,8 @@ message: "若在论文中引用本基准，请使用本文件元数据；BibTeX 
 authors:
   - name: "CN-JudBench (法衡) Authors"
 type: dataset
-version: "0.6.0"
-date-released: "2026-09-24"
+version: "0.6.1"
+date-released: "2026-09-27"
 url: "https://github.com/TODO-assign-repo"
 # 双许可：代码 MIT / 数据 CC BY 4.0（分表见 LICENSE 与 docs/dataset-card.md §6）
 license:

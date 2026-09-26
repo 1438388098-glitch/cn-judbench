@@ -1,6 +1,6 @@
-# CN-JudBench 数据集卡片（Dataset Card, v0.6.0）
+# CN-JudBench 数据集卡片（Dataset Card, v0.6.1）
 
-- **dataset_version: 0.6.0**（与 `pyproject.toml` / `CITATION.cff` / `CHANGELOG.md` 最新条目同源，一致性有机检）
+- **dataset_version: 0.6.1**（与 `pyproject.toml` / `CITATION.cff` / `CHANGELOG.md` 最新条目同源，一致性有机检）
 - **snapshot_date: 2026-09-24** · **license: MIT (code) / CC BY 4.0 (data)**（法条文本为官方作品，见 §7 与 LICENSE 分表声明）
 - 快照：2026-09-24 · public split 共 **323 题**（v0.5：Phase 1 剖减 a_irac 全分饱和题 20 题入 data/archive，Phase 3a/3b/3c 新增难题 18+8+10=36 题，Phase 4 新增实务题 30 题；v0.6 batch4 新增 cit stale 族 6 题；原 271；holdout/live 冻结见 docs/holdout-live-protocol.md，本卡不含）
 - 口径：题面 schema/适用面校验 `python -m cnjudbench validate` 全过（12 任务包）；
@@ -96,7 +96,7 @@ oracle 硬度阶梯（隐藏单测 > 状态 diff > exact > 受约束 F1 > Judge�
             in Chinese Judicial Workflows},
   author = {{CN-JudBench (法衡) Authors}},
   year   = {2026},
-  note   = {v0.6, 323 items, 12 task packages; MIT (code) / CC BY 4.0 (data)},
+  note   = {v0.6.1, 323 items, 12 task packages; MIT (code) / CC BY 4.0 (data)},
   url    = {https://github.com/TODO-assign-repo}
 }
 ```

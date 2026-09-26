@@ -4,4 +4,4 @@
 P0a 范围：lawkb 多版本解析、题面/谓词校验、cit_validity 冒烟；不调用模型。
 """
 
-__version__ = "0.6.0"
+__version__ = "0.6.1"

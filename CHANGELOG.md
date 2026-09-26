@@ -4,7 +4,7 @@
 版本号遵循语义化版本。数据面（data/public、lawkb）与代码面同版本发布，
 每版配套 `data/public/MANIFEST.json` 的 `dataset_content_hash` 供第三方核对。
 
-## [未发布]
+## [0.6.1] — 2026-09-27
 
 ### 新增
 - 判分复核与报告真实性（c398/c416/c430）：面板 MODELS 数据块由 summary.json
@@ -136,6 +136,7 @@
 - 判分纪律：缺 Judge 记 n/a 禁填 0.00；无价目 `est_cost_usd=null`
   禁编造费用。
 
+[0.6.1]: https://github.com/TODO-assign-repo/compare/v0.6.0...v0.6.1
 [0.6.0]: https://github.com/TODO-assign-repo/compare/v0.5.0...v0.6.0
 [0.5.0]: https://github.com/TODO-assign-repo/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/TODO-assign-repo/releases/tag/v0.4.0
