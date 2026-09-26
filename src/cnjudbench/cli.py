@@ -885,7 +885,10 @@ def _cmd_run_dialog(args: argparse.Namespace) -> int:
         "disclaimer": DISCLAIMER,
     }
 
-    run_id = f"dialog-{args.task}-{args.user_seed}"
+    # c451：model_id 进默认目录名——换模型重跑不再静默覆盖上次产物
+    # （显式 --out 仍优先；同 model+seed 重跑覆盖属可复现语义，保留）
+    _model_slug = args.model.split(":", 1)[-1].replace("/", "_") or "model"
+    run_id = f"dialog-{args.task}-{_model_slug}-{args.user_seed}"
     out_dir = Path(args.out) if args.out else Path("reports/runs") / run_id
     out_dir.mkdir(parents=True, exist_ok=True)
     (out_dir / "summary.json").write_text(

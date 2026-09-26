@@ -50,9 +50,11 @@ class OpenAICompatAdapter:
     def complete(
         self, prompt: str, *, temperature: float = 0.0, seed: int | None = None
     ) -> CompletionResult:
+        # c450：缓存键含 base_url——换端点（官方↔本地 vLLM/代理）不得静默重放
+        # 另一端点的答案（评测归因失真）；reasoning/thinking 属请求语义一并入键
         key = cache_key(
             self.model_id, self.revision, prompt, temperature, seed,
-            extra=f"{self._reasoning_effort}|{self._thinking}",
+            extra=f"{self._base_url}|{self._reasoning_effort}|{self._thinking}",
         )
         if (hit := self._cache.get(key)) is not None:
             hit.cache_hit = True  # v0.6：命中标记（latency/tokens 为旧值重放，分析时分列）
