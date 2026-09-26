@@ -101,4 +101,7 @@ def test_mock_dialog_adapter_is_deterministic(store):
     base = Item.model_validate(json.loads(next(l for l in lines if l.strip())))
     r1 = mock_dialog_adapter(base, store)
     r2 = mock_dialog_adapter(base, store)
-    assert r1 == r2  # 同题同 seed 确定性（c400 纪律）
+    # 同题同 seed：产出文本确定性一致（c400 纪律）；适配器对象本身无值相等语义
+    t1 = r1.complete("turn").text
+    t2 = r2.complete("turn").text
+    assert t1 == t2
