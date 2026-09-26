@@ -80,13 +80,16 @@ def _full_summary() -> dict:
 def test_render_entry_from_synthetic_summary():
     mod = _load_script("gen_panel_models")
     meta = {"some-run": {"name": "Some Model", "think": "默认", "purity": "隔离"}}
-    entry = mod.render_entry("some-run", meta, _full_summary())
-    assert "some-run" in entry  # 渲染不抛即契约成立（字段齐全性由 c398 对账机检兜底）
+    s = _full_summary()
+    s["capability"].update({"grand_eq": 59.14, "grand_w": 68.0, "hard": 67.38})
+    s["safety_score"] = 0.0
+    entry = mod.render_entry("some-run", meta["some-run"], s)
+    assert "some-run" in entry and "59.14" in entry
 
 
 def test_render_block_empty_ledger_fails_loud(tmp_path):
     mod = _load_script("gen_panel_models")
     ledger = tmp_path / "ledger.md"
-    ledger.write_text("# 账本\n\n无主记分板内容\n", encoding="utf-8")
+    ledger.write_text("# 账本\n\n## 1. 主记分板\n\n（空）\n\n## 2. 其他\n", encoding="utf-8")
     with pytest.raises(SystemExit):
         mod.render_block(tmp_path, ledger)  # 账本解析为空 → 响亮失败，不静默空块
