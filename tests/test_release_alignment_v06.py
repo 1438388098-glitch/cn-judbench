@@ -54,9 +54,8 @@ def test_c337_dataset_card_release_metadata():
 
 
 def test_c338_placeholder_repo_not_scattered():
-    """占位仓库地址（见 needle）只允许出现在四处发布元数据文件；散落新增即红。"""
+    """仓库已开源（2026-09-28），占位仓库地址必须全库清零（历史夜报除外），不许回潮。"""
     needle = "TODO-assign-" + "repo"  # 拆字面量：本文件自身不入扫描命中
-    allowed = {"pyproject.toml", "CITATION.cff", "CHANGELOG.md", "docs/dataset-card.md"}
     hits: list[str] = []
     for p in ROOT.rglob("*"):
         if not p.is_file() or p.suffix not in {".md", ".cff", ".toml", ".py", ".yml", ".yaml", ".json", ".html"}:
@@ -72,8 +71,7 @@ def test_c338_placeholder_repo_not_scattered():
             continue
         if needle in text:
             hits.append(rel)
-    assert set(hits) <= allowed, f"占位符散落到未授权文件: {sorted(set(hits) - allowed)}"
-    assert set(hits) == allowed, f"占位符清单变化（补登 allowed 或替换真址）: {hits}"
+    assert not hits, f"占位仓库地址残留（应已全部替换为 github.com/1438388098-glitch/cn-judbench）: {sorted(set(hits))}"
 
 
 def test_c339_citation_date_matches_changelog():

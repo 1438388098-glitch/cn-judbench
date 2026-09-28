@@ -233,4 +233,4 @@ reports/runs/    # 每次评测的 manifest + summary + limits.md + items/*.traj
 ## 许可
 
 - 代码：MIT（见 LICENSE）。  
-- 数据 / 题面 / 任务包：CC BY 4.0；lawkb 法条文本为官方作品（著作权法第五条不适用著作权保护），随附 sha256 text_hash 与来源注记（分表声明见 LICENSE 尾部）。
+- 数据 / 题面 / 任务包：CC BY 4.0；lawkb 法条文本为官方作品（著作权法第五条不适用著作权保护），随附 sha256 text_hash 与来源注记（分表声明见 LICENSE.DATA）。

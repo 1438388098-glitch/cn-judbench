@@ -22,8 +22,8 @@ dependencies = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/TODO-assign-repo"
-Repository = "https://github.com/TODO-assign-repo"
+Homepage = "https://github.com/1438388098-glitch/cn-judbench"
+Repository = "https://github.com/1438388098-glitch/cn-judbench"
 
 [project.optional-dependencies]
 dev = ["pytest>=8", "pytest-timeout>=2.3", "jieba>=0.42"]

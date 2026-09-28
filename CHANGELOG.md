@@ -136,7 +136,7 @@
 - 判分纪律：缺 Judge 记 n/a 禁填 0.00；无价目 `est_cost_usd=null`
   禁编造费用。
 
-[0.6.1]: https://github.com/TODO-assign-repo/compare/v0.6.0...v0.6.1
-[0.6.0]: https://github.com/TODO-assign-repo/compare/v0.5.0...v0.6.0
-[0.5.0]: https://github.com/TODO-assign-repo/compare/v0.4.0...v0.5.0
-[0.4.0]: https://github.com/TODO-assign-repo/releases/tag/v0.4.0
+[0.6.1]: https://github.com/1438388098-glitch/cn-judbench/compare/v0.6.0...v0.6.1
+[0.6.0]: https://github.com/1438388098-glitch/cn-judbench/compare/v0.5.0...v0.6.0
+[0.5.0]: https://github.com/1438388098-glitch/cn-judbench/compare/v0.4.0...v0.5.0
+[0.4.0]: https://github.com/1438388098-glitch/cn-judbench/releases/tag/v0.4.0

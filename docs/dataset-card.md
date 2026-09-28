@@ -84,7 +84,7 @@ oracle 硬度阶梯（隐藏单测 > 状态 diff > exact > 受约束 F1 > Judge�
 
 ## 7. 许可与引用
 
-- 代码 MIT；数据/题面/任务包 CC BY 4.0；lawkb 法条为官方作品（随附 sha256 text_hash 与来源注记）——分表声明见仓库根 LICENSE 尾部。
+- 代码 MIT；数据/题面/任务包 CC BY 4.0；lawkb 法条为官方作品（随附 sha256 text_hash 与来源注记）——分表声明见仓库根 LICENSE.DATA。
 - **`data/zhuma_fakao/` 不在本数据集声明范围内**：竹马法考历年真题候选池（4139 题），
   仅本地取材用，不入 MANIFEST、不判分、不进论文表；CC BY 4.0 不覆盖该目录，
   处置见 data/zhuma_fakao/README.md。
@@ -97,7 +97,7 @@ oracle 硬度阶梯（隐藏单测 > 状态 diff > exact > 受约束 F1 > Judge�
   author = {{CN-JudBench (法衡) Authors}},
   year   = {2026},
   note   = {v0.6.1, 323 items, 12 task packages; MIT (code) / CC BY 4.0 (data)},
-  url    = {https://github.com/TODO-assign-repo}
+  url    = {https://github.com/1438388098-glitch/cn-judbench}
 }
 ```
 

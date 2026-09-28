@@ -46,9 +46,11 @@ def test_c212_version_three_way():
 def test_c213_license_split():
     lic = (REPO / "LICENSE").read_text(encoding="utf-8")
     assert "MIT License" in lic
-    assert "CC BY 4.0" in lic
+    assert "CC BY 4.0" not in lic  # LICENSE 保持纯 MIT（GitHub 许可证机器识别要求）
+    data_lic = (REPO / "LICENSE.DATA").read_text(encoding="utf-8")
+    assert "CC BY 4.0" in data_lic  # 数据分表许可独立成文件
     card = (REPO / "docs" / "dataset-card.md").read_text(encoding="utf-8")
-    assert "代码 MIT" in card and "CC BY 4.0" in card  # §7 声明与 LICENSE 同口径
+    assert "代码 MIT" in card and "CC BY 4.0" in card  # §7 声明与 LICENSE.DATA 同口径
 
 
 def test_c214_readme_structure():

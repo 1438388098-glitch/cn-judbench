@@ -6,8 +6,8 @@ authors:
 type: dataset
 version: "0.6.1"
 date-released: "2026-09-27"
-url: "https://github.com/TODO-assign-repo"
-# 双许可：代码 MIT / 数据 CC BY 4.0（分表见 LICENSE 与 docs/dataset-card.md §6）
+url: "https://github.com/1438388098-glitch/cn-judbench"
+# 双许可：代码 MIT / 数据 CC BY 4.0（分表见 LICENSE.DATA 与 docs/dataset-card.md §6）
 license:
   - MIT
   - CC-BY-4.0
