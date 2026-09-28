@@ -3,6 +3,17 @@
 CN-JudBench 全部文档的分组导航（c276）。新增 `docs/*.md` 时必须在本页登记
 （`tests/test_release_docs_v06.py` 机检全收录）。
 
+## 阅读导览：两类文档
+
+**对外引用正典**（引用/评审请优先引这些）：[../FRAMEWORK.md](../FRAMEWORK.md)（框架总纲）、
+[technical-report.md](technical-report.md)（技术报告 v1）、[run-score-ledger.md](run-score-ledger.md)（跑分记分册，
+全部 run 的唯一汇总账）、[dataset-card.md](dataset-card.md)（数据集卡）、
+「协议与政策」区全部文档、[../CITATION.cff](../CITATION.cff)。
+
+**过程工作档案**（开发留痕，供核查演化过程，不是结论性口径）：impl-P\*、night-report-\*、
+run-params-\*、self-review-\*、autopilot-run-report、sprint/DESIGN 草稿等。
+透明全量保留，但引用数字请以正典为准。
+
 ## 框架与设计
 
 | 文档 | 内容 |
