@@ -99,6 +99,6 @@ abst：over_refuse 0.00%，over_promise 1.90%。诊断掉分：a_irac_reason dia
 ## 相关产物
 
 - run：`reports/runs/glm53flash-subagent-c5/`（manifest.json / summary.json / limits.md / prompts/ / answers/ / judge-prompts/ / judge-answers/ / index.json / judge-index.json）
-- 面板：`C:\Users\20579\XiaomiMiMoProjects\2026-09-22\ai-benchmark-subagent-github`（已同步）
+- 面板：`<本地面板仓库>\ai-benchmark-subagent-github`（已同步；本机绝对路径已脱敏）
 - 新增代码：`src/cnjudbench/adapters/file_answers.py`（含 HashedFileAnswersAdapter）、cli `file:` 模型规格与 `--judge file:` 规格、`scripts/export_prompts.py`、`scripts/export_judge_prompts.py`、测试 `tests/test_file_answers_adapter.py`（全套 208 passed）
 - 数据改动：`tasks/long_horizon_case/rubric.yaml` 两个 gate 补 `on_fail: flag`（零罚分占位，过 schema 校验；评分语义未变）

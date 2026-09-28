@@ -9,7 +9,7 @@
 ## 工作区
 
 - **权威库**：`D:\Claudeworkspace\cn-judbench`（所有命令在此目录执行）
-- **可视化面板**（可选同步）：`C:\Users\20579\XiaomiMiMoProjects\2026-09-22\ai-benchmark-subagent-github`
+- **可视化面板**（可选同步）：`<本地面板仓库>\ai-benchmark-subagent-github`（本机绝对路径已脱敏）
 - Python：`.venv\Scripts\python.exe`（没有则 `py -3.13 -m venv .venv` 后 `pip install -e ".[dev]"`）
 - **禁止**：把 API Key 写入任何被 git 跟踪的文件；禁止 `git add .env.local`；禁止在报告中粘贴完整密钥
 
