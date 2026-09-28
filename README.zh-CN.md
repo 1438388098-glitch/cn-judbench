@@ -2,6 +2,8 @@
 
 # CN-JudBench（法衡）
 
+[![ci-gate](https://github.com/1438388098-glitch/cn-judbench/actions/workflows/ci.yml/badge.svg)](https://github.com/1438388098-glitch/cn-judbench/actions/workflows/ci.yml)
+
 中国司法多维度大模型 / 司法 Agent 评测框架（**v0.6**：补判分效度与反刷分——tau 部分得分、set_f1 1-1 反倾倒、any-of 双口径与分包基线守门；新增 `cnjudbench compare`（bootstrap CI + McNemar + 预注册六包 macro/micro）与 gold 改判预注册政策、MIT/CC BY 4.0 分表许可；完整历史见 [CHANGELOG.md](CHANGELOG.md)，版本真源 = [FRAMEWORK.md](FRAMEWORK.md) 头部）。
 
 **Abstract (EN)**: CN-JudBench evaluates large language models on Chinese judicial
@@ -57,7 +59,7 @@ py -3.13 -m venv .venv
 # Linux/macOS:
 # python3 -m venv .venv && .venv/bin/python -m pip install -e ".[dev]"
 
-# 2) 跑测试（全绿即可；精确计数以 CI 为准）
+# 2) 跑测试（630+ 项测试全绿；精确数以 CI 徽章为准）
 # Windows 用 .venv\Scripts\python；Linux/macOS 用 .venv/bin/python
 .venv/Scripts/python -m pytest -q
 .venv/Scripts/python -m cnjudbench run-all   --tasks cit_validity,dms_side_effect_intake,tool_fault_recovery   --model mock:gold --out reports/runs/demo

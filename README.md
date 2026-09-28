@@ -1,5 +1,7 @@
 English · [简体中文](./README.zh-CN.md)
 
+[![ci-gate](https://github.com/1438388098-glitch/cn-judbench/actions/workflows/ci.yml/badge.svg)](https://github.com/1438388098-glitch/cn-judbench/actions/workflows/ci.yml)
+
 # CN-JudBench (法衡)
 
 A multi-dimensional benchmark for large language models / judicial agents on Chinese judicial workflows: **which capability a model has, where it is dangerous, whether it is stable across runs, and at what cost.** 12 task packages, 323 public items; scoring is machine-checked, statistics are pre-registered, and every published number links to a reproducible run. Current release: **v0.6** ([release notes](https://github.com/1438388098-glitch/cn-judbench/releases/tag/v0.6.0), [technical report](docs/technical-report.md)); full history in [CHANGELOG.md](CHANGELOG.md) — the version source of truth is the [FRAMEWORK.md](FRAMEWORK.md) header.
@@ -58,7 +60,7 @@ py -3.13 -m venv .venv
 # Linux/macOS:
 # python3 -m venv .venv && .venv/bin/python -m pip install -e ".[dev]"
 
-# 2) Run tests (green suite; exact count: see the CI badge)
+# 2) Run tests (630+ 项测试全绿; exact count on the CI badge)
 # Windows uses .venv\Scripts\python; Linux/macOS uses .venv/bin/python
 .venv/Scripts/python -m pytest -q
 .venv/Scripts/python -m cnjudbench run-all   --tasks cit_validity,dms_side_effect_intake,tool_fault_recovery   --model mock:gold --out reports/runs/demo
