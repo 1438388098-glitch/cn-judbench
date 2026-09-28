@@ -197,6 +197,7 @@ reports/runs/    # 每次评测的 manifest + summary + limits.md + items/*.traj
 
 | 文件 | 说明 |
 |---|---|
+| [docs/technical-report.md](docs/technical-report.md) | **技术报告 v1**（设计、判分协议、效度控制、统计协议、当前结果诚实口径） |
 | [docs/gold-adjudication-policy.md](docs/gold-adjudication-policy.md) | 金样验收与改判预注册规则（改 gold 必读） |
 | [FRAMEWORK.md](FRAMEWORK.md) | 框架设计总纲（版本真源，头部现为 **v0.6**） |
 | [docs/DESIGN-benchmark-optimization-v0.4.md](docs/DESIGN-benchmark-optimization-v0.4.md) | 优化设计（对标映射 + Sprint A/B/C） |

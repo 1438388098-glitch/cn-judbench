@@ -79,6 +79,7 @@ CN-JudBench 全部文档的分组导航（c276）。新增 `docs/*.md` 时必须
 
 | 文档 | 内容 |
 |---|---|
+| [technical-report.md](technical-report.md) | **技术报告 v1**（设计/判分协议/效度控制/统计协议/当前结果诚实口径，随 Release v0.6.0 发布） |
 | [paper-outline.md](paper-outline.md) | 论文提纲（实验口径与数字锚点） |
 | [paper-outline-todos.md](paper-outline-todos.md) | 提纲待办 |
 | [paper-numbers.md](paper-numbers.md) | 论文数字溯源清单（数字→来源→机检） |

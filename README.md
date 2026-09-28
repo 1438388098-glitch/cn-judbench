@@ -199,6 +199,7 @@ reports/runs/    # per-run manifest + summary + limits.md + items/*.trajectory.j
 
 | File | Description |
 |---|---|
+| [docs/technical-report.md](docs/technical-report.md) | **Technical report v1** (design, scoring protocol, validity controls, statistical protocol, current results with honest reading) |
 | [docs/gold-adjudication-policy.md](docs/gold-adjudication-policy.md) | Gold acceptance and preregistered re-adjudication rules (read before touching gold) |
 | [FRAMEWORK.md](FRAMEWORK.md) | Framework design master document (version source of truth, header currently **v0.6**) |
 | [docs/DESIGN-benchmark-optimization-v0.4.md](docs/DESIGN-benchmark-optimization-v0.4.md) | Optimization design (benchmark mapping + Sprint A/B/C) |
