@@ -1,11 +1,8 @@
-# CN-JudBench（法衡）
+English · [简体中文](./README.zh-CN.md)
 
-中国司法多维度大模型 / 司法 Agent 评测框架（**v0.6**：v0.5 基础上补判分效度与反刷分——tau 部分得分、set_f1 1-1 反倾倒、any-of 双口径、scored% n/a 口径、`cnjudbench compare`（bootstrap CI + McNemar + 预注册六包 macro/micro）、gold 改判预注册政策与台账、锚审计入 CI、MIT/CC BY 4.0 分表许可；版本真源=FRAMEWORK.md 头部）。
+# CN-JudBench (法衡)
 
-**目标**：测出模型在中国司法工作流里「哪一维能用、哪一维危险、是否稳定、代价多少」。  
-**分数**：百分制，保留两位小数（0.00–100.00）。  
-**非法律意见**：评测结果不得用于司法裁判、合规放行或当事人决策。
-**EN**：CN-JudBench is a multi-dimensional benchmark for Chinese judicial workflows — measuring *which* legal capability a model can perform, *where* it is dangerous, *whether* it is stable across runs, and *at what cost* (0–100 scale, two decimals).
+A multi-dimensional benchmark for large language models / judicial agents on Chinese judicial workflows. Current release **v0.6** — closes three scoring-validity gaps surfaced by live examinee rounds (partial credit for free-text state predicates, one-to-one set matching that blocks answer-dumping reward hacking, any-of multi-answer and per-package baseline guards), adds `cnjudbench compare` with bootstrap CI + McNemar + a preregistered six-package macro/micro protocol, and adopts a split MIT / CC BY 4.0 license. Full history: [CHANGELOG.md](CHANGELOG.md) — the version source of truth is the [FRAMEWORK.md](FRAMEWORK.md) header.
 
 **Abstract (EN)**: CN-JudBench evaluates large language models on Chinese judicial
 workflows across 12 task packages (323 public items) spanning citation validity,
@@ -21,216 +18,228 @@ blocked by one-to-one set matching, and per-package baselines guard against
 scoring shortcuts. Code is MIT-licensed; the public split is CC BY 4.0
 (see CITATION.cff).
 
+- **目标** (Goal): measure *which* legal capability a model can perform in Chinese judicial workflows, *where* it is dangerous, *whether* it is stable across runs, and *at what cost*.
+- **分数** (Score): percentage scale, two decimals (0.00–100.00).
+- **非法律意见** (Not legal advice): evaluation results must not be used for judicial rulings, compliance sign-off, or party decisions.
 
-## 任务包速览（12 包 / 323 题，机检对账 MANIFEST）
+## Task packages at a glance (12 packages / 323 items, machine-checked against MANIFEST)
 
-| 任务包 | 题数 | 主能力维 | oracle |
+| Package | Items | Capability dim. | Oracle |
 |---|---|---|---|
-| calc_fail_to_pass | 54 | U | 隐藏单测 |
-| u_element_extract | 49 | U | element 抽取 |
-| a_irac_reason | 34 | A | 结构化 IRAC |
-| cit_validity | 27 | Cit | 引用效力 status_ladder |
+| calc_fail_to_pass | 54 | U | hidden unit tests |
+| u_element_extract | 49 | U | element extraction |
+| a_irac_reason | 34 | A | structured IRAC |
+| cit_validity | 27 | Cit | citation status_ladder |
 | tool_search_statute | 26 | G/R/U | tool_sequence/ast |
-| contract_risk | 23 | C | must_not/风险披露 |
-| gaia_fee_deadline | 23 | K/U | 金额阶梯+progress |
-| dms_side_effect_intake | 20 | O | env_diff 终态 |
-| s_charge_subsume | 20 | S | 罪名归并 exact |
-| tau_jud_intake | 16 | C | 终态 F1+Proto |
-| tool_fault_recovery | 16 | O | recovery×final |
-| long_horizon_case | 15 | U | score–time 多日 |
+| contract_risk | 23 | C | must_not / risk disclosure |
+| gaia_fee_deadline | 23 | K/U | fee ladder + progress |
+| dms_side_effect_intake | 20 | O | env_diff end-state |
+| s_charge_subsume | 20 | S | charge subsumption (exact) |
+| tau_jud_intake | 16 | C | end-state F1 + Proto |
+| tool_fault_recovery | 16 | O | recovery × final |
+| long_horizon_case | 15 | U | score–time, multi-day |
 
-## 新增题目流程（draft → public）
+## Results at a glance
 
-草稿写入 `data/drafts/`（`draft: true` 硬标记，不进 MANIFEST）→ 两名隔离真考生作答（预期错误模式须实证触发，E17 教训）→ gold 五条件裁定（docs/gold-adjudication-policy.md §2）→ 官方锚文本逐字比对 + text_hash → 正式入库并 MANIFEST 对账。
+All scores quoted externally follow one scoring pipeline and are logged in
+[docs/run-score-ledger.md](docs/run-score-ledger.md) — the single ledger of record.
 
-> 命令跨平台：Windows 用 `.venv/Scripts/python`，Linux/macOS 等价 `.venv/bin/python`（或激活 venv 后直接 `python`）。
+- **Baseline anchors** (same scoring pipeline, `baseline-v06c`, re-exported 2026-09-25): random **7.96** · rules **27.40** · mock:gold **100.00**. `mock:gold` replays gold answers through the full scoring pipeline, so 100.00 is the pipeline ceiling and its health gate — **not** a model score.
+- **Live examinee round** (v0.5 Phase 5, dual isolated examinees, 62 items): pass^2 = **46.77** [33.87, 59.68] (docs/paper-outline.md §9, E17).
+- **Current model board**: 13 full-coverage rows (n_capability=238 · n_safety=7), headline metric = grand total (pack-equal, `capability.grand_eq`; question-weighted total for reference only). **All rows are provisional=true** pending the flip (<5%) gate — descriptive comparisons only, no formal ranking claims. Per-run table: docs/run-score-ledger.md §1; visual panel: [index.html](index.html).
 
-## 文档
-
-| 文件 | 说明 |
-|---|---|
-| [docs/gold-adjudication-policy.md](docs/gold-adjudication-policy.md) | 金样验收与改判预注册规则（改 gold 必读） |
-| [FRAMEWORK.md](FRAMEWORK.md) | 框架设计总纲（版本真源，头部现为 **v0.6**） |
-| [docs/DESIGN-benchmark-optimization-v0.4.md](docs/DESIGN-benchmark-optimization-v0.4.md) | 优化设计（对标映射 + Sprint A/B/C） |
-| [docs/paper-outline.md](docs/paper-outline.md) | 论文骨架与差距清单 |
-| [index.html](index.html) | 设计文档可读版（浏览器预览） |
-| [docs/research-notes.md](docs/research-notes.md) | 第一轮调研：中文法律评测 |
-| [docs/research-notes-round2.md](docs/research-notes-round2.md) | 第二轮调研：coding / agent / 工程硬化 |
-| [docs/research-notes-round3.md](docs/research-notes-round3.md) | 第三轮：判分反刷分与统计口径审计台账（45 条处置） |
-| [docs/lawkb-ingest-queue.md](docs/lawkb-ingest-queue.md) | 法条库逐字校对入队清单（官方文本 + text_hash） |
-| [docs/self-review-new-items-batch4.md](docs/self-review-new-items-batch4.md) | batch4 六题（cit-022..027）自审与基线扫描，待用户批准 |
-| `reports/baseline-report.md` | 基线分布与接近满分警告（R17 泄题监控常驻化） |
-| `reports/headroom-report.md` | 扩题/削题余量报告（饱和率×rules×实证 p） |
-| `reports/repro-inventory.md` | paper-outline 引用资产存在性盘点 |
-| [docs/impl-P0a.md](docs/impl-P0a.md) | **P0a 实施文档**（lawkb + 校验 + 冒烟任务包） |
-| [docs/impl-P0b.md](docs/impl-P0b.md) | **P0b 实施文档**（FTP/PTP + CiteGuard + API/Manifest） |
-| [docs/impl-P1.md](docs/impl-P1.md) | **P1 实施文档**（Judge / 红线 / 门禁） |
-| [docs/impl-P1-rest.md](docs/impl-P1-rest.md) | **P1 收尾**（Judge 进 runner / CI 门禁） |
-| [docs/impl-P2.md](docs/impl-P2.md) | **P2 实施文档**（工具沙箱 / Tool-Bench / Legal-GAIA） |
-| [docs/impl-P3.md](docs/impl-P3.md) | **P3 实施文档**（τ-Jud / 合同轨 / IRAC / Long-Horizon） |
-
-## 项目状态
-
-- [x] 设计与调研（v0.3.1，含外部审查修订）
-- [x] **P0a 实施文档**（`docs/impl-P0a.md`）
-- [x] **P0a 代码** lawkb 多版本解析 + 题面/谓词校验 + `cit_validity` 冒烟（60 项测试）
-- [x] **P0b 实施文档**（`docs/impl-P0b.md`）
-- [x] **P0b 代码** FTP/PTP 执行器 + CiteGuard + API adapter（104 项测试）
-- [x] **P1 实施文档**（`docs/impl-P1.md`）
-- [x] **P1 代码** Judge/Abst/红线/诊断掉分/bootstrap/$/solve/canary（114 项测试）
-- [x] **P1 收尾代码** `--with-judge` 进 runner + 机检/Judge 分列 + limits.md + holdout 守卫 + CI 门禁（133 项测试，`scripts/ci_gate` 全绿）
-- [x] **P2 代码** 6 工具沙箱 + Legal-Tool-Bench（L2 19 题，假调用零分）+ Legal-GAIA 精品 10 题（L3a exact + progress）+ 轨迹 hash 进 manifest（156 项测试）
-- [x] **P3 代码** τ-Jud（user_script + 终态 F1 + Proto + pass^k 双列/方差分解）+ 合同轨 + IRAC + Long-Horizon + `run-dialog`（175 项测试）
-- [x] **v0.4 Sprint A** safety/capability 分列 + status_ladder/金额阶梯/must_not + partial-only 基数 + over_refuse×0.50
-- [x] **v0.4 统计协议** bootstrap CI / pass^k 组合语义 / report.csv / 正式分 provisional 门禁 / n-gram 污染双检（ci_gate 第 7 步守门）/ random·rules 基线同管线
-- [x] **v0.4 新任务** calc_fail_to_pass 46 题（隐藏单测 oracle，五公式：受理费/单利/期间/半年复利/保全费，hard 变体考节假日顺延与封顶规则）+ u_element hard 子集 28 题（GLM 实测 82.1%，见 docs/u-hard-subset-report.md）+ dms_side_effect_intake 16 题（env_diff 终态 diff；state0 预置「在办案件」与双卡分心）+ tool_fault_recovery 12 题（§5.4 四型故障注入 recovery×final + R22 nth=2「先成功后故障」进阶 4 题）
-- [x] **v0.4 翻转实证** GLM 考生模式 k=3 复测：逐对题级翻转 6/11≈55% ≫ 5% 门禁（docs/u-hard-subset-report.md 追加节）→ 单样本 run 一律 provisional，主表强制 pass^k
-- [x] **v0.4.1 测量效度审计** 金样法学复核消融（同答案重判 31.58→86.84，acceptable_articles any-of 多解口径）· 基线泄题修复与扫描（law_anchors 判分锚禁入基线，a_irac random/rules 96→12）· lh-06 锚点时效修正（继承法10 带废止窗口）· lawkb v0.4.1 扩库（12 法 51 版本）· v0.4.1 基线表（random 9.03 / rules 29.25 / mock:gold 8 包全 100，见 docs/calc-real-model-report.md §C5） · E12+ 要素不点名实测（ah-101..104 仍饱和，as_of 版本选择是唯一实质错因）· E15 引用括注假阴性修复（2/29 题误罚 50→100，引用侧剥尾括注）
-- [x] **v0.5 难度重构 Phase 1+2a+3a+3b+3c+4** 全库四级盘点（38 实难 / 88 砍候选 / 143 待测，docs/difficulty-audit-v05.md）· a_irac 剖减 32→12（20 题全分饱和入 data/archive，8 科目×每包网格不变量保留）· lawkb 增补法释〔2020〕15号时间效力规定 10 条（12 法 61 版本，公报官方文本 + 逐条 text_hash 可事后核，docs/sources/spc_civil_temporal_2020_gongbao.html）· 时间效力轴难题 18 题（at-001..018：新旧法衔接 8/程序时效交叉 5/民间借贷三版 5，as_of 驱动版本解析，负例已验证）· 计算硬变体 8 题（cx-001..008：期间顺延/时效中断/封顶冲抵/复利竞合，隐藏单测 oracle + 陷阱值负例验证）· 抽取与工具进阶 10 题（u-044..049 否定式要件/多日期 + f-105..108 nth=3 故障链/部分成功状态判断）· 实务题 30 题（gaia 时间线 6/lh 六域整案 6/dms 期限监控 4/tau 临期接待 4/contract 风险告知 6/文书改编 4；4e Judge 写作轨按风险条款 defer）· Phase 5 双隔离考生 ×62 题实测（pass^2=46.77，at/lh/c 三族有效区分；环内修复 4 处金样/题面缺陷：at-019 锚 25→16、at-022 锚 27→1+acc19、cx-007 期望值 7470→11863.40、tau 题面显式化；lawkb 61 版本，docs/paper-outline.md §9 E17）
-- [ ] 待办：DS v0.4 复跑（密钥）· holdout 冻结执行（协议已备）· 人评 κ 试点（方案已备）· f-105..108 工具轨真考生实测（需 API 轮）· tau 真考生扩样（v0.6 部分得分判分已实测可区分，见 paper-outline E18）
-
-## 快速开始（5 分钟）
+## Quick start (5 minutes)
 
 ```bash
-# 1) 建 venv 并安装依赖与包（含 pytest/pydantic/PyYAML）
+# 1) Create a venv and install the package with dev dependencies (pytest/pydantic/PyYAML)
 # Windows:
 py -3.13 -m venv .venv
 .venv\Scripts\python -m pip install -e ".[dev]"
 # Linux/macOS:
 # python3 -m venv .venv && .venv/bin/python -m pip install -e ".[dev]"
 
-# 2) 跑测试（630+ 项测试全绿；精确计数见 CI，勿在 README 硬编码）
-# Windows 用 .venv\Scripts\python；Linux/macOS 用 .venv/bin/python
+# 2) Run tests (630+ 项测试全绿；精确计数见 CI，勿在 README 硬编码)
+# Windows uses .venv\Scripts\python; Linux/macOS uses .venv/bin/python
 .venv/Scripts/python -m pytest -q
 .venv/Scripts/python -m cnjudbench run-all   --tasks cit_validity,dms_side_effect_intake,tool_fault_recovery   --model mock:gold --out reports/runs/demo
-cat reports/runs/demo/report.csv                  # §6.1 论文表直贴列（solve% 为保守口径：n/a 计未解决）
+cat reports/runs/demo/report.csv                  # §6.1 paper-table-ready column (solve% is the conservative reading: n/a counts as unsolved)
 ```
 
-> 运行约束：本包按「克隆仓库根目录运行」设计——`tasks/`、`data/public/`、
-> `lawkb/`、`configs/` 为仓库根资产，不随 pip 包分发；请在克隆根目录执行命令。
+> Run constraint: the package is designed to run from a cloned repository root —
+> `tasks/`, `data/public/`, `lawkb/`, `configs/` are repo-root assets and are not
+> distributed with the pip package. Run commands from the clone root.
 
-换真实模型：`--model openai:<model> --base-url …`（密钥仅经环境变量）；已有答案文件用
-`--model file:<answers 目录>` 回灌（全管线同 API 跑法，见 docs/paper-outline.md §7）。
-  回灌前必跑换答对齐 guard：`python scripts/check_answer_alignment.py --run-dir <run 目录>`（bigram Dice + 反向最佳确认；SUSPECT 清单人工复核，已两次抓到 subagent 答案错位事故）。
+Switch to a real model: `--model openai:<model> --base-url …` (keys only via environment variables); already-generated answers can be replayed with
+`--model file:<answers directory>` (the whole pipeline runs on the same API surface, see docs/paper-outline.md §7).
+  Before backfilling, always run the answer-alignment guard: `python scripts/check_answer_alignment.py --run-dir <run dir>` (bigram Dice + reverse best-match confirmation; SUSPECT list requires manual review — it has caught two real subagent answer-misalignment incidents).
 
-两 run 配对比较（排名主张必带 CI 与 p 值；排名用 `--preregistered` 六包等权口径）：
+Paired comparison of two runs (any ranking claim must carry CI and p-values; rankings use the `--preregistered` six-package equal-weight reading):
 
 ```bash
-# A/B 换成两个真实 run 目录（如 reports/runs/ds-flash-v06-full）；reports/runs/ 不入库
+# A/B are two real run directories (e.g. reports/runs/ds-flash-v06-full); reports/runs/ is not committed
 .venv/Scripts/python -m cnjudbench compare --run-a <run-A> --run-b <run-B>     --preregistered --items-out reports/compare/items.csv
-# 输出：micro diff±CI + McNemar p；preregistered 时另报 macro(六包等权) diff±CI
+# Output: micro diff±CI + McNemar p; with --preregistered also macro (six-package equal-weight) diff±CI
 ```
 
-## 如何跑（完整）
+## Full run reference
 
 ```bash
-# 环境：Python 3.11+，装依赖与包
+# Environment: Python 3.11+, install the package with dev dependencies
 # Windows:  py -3.13 -m venv .venv
 # Linux/macOS:  python3 -m venv .venv
 
 
-# 校验任务包与题面（schema + §4.2.1 适用面矩阵 + lawkb 完整性）
+# Validate task packages and item text (schema + §4.2.1 applicability matrix + lawkb integrity)
 python -m cnjudbench validate --items data/public --tasks tasks
 
-# 按 as_of 解析法条版本（附录 D.4：四态 + 条文文本）
+# Resolve statute versions by as_of (Appendix D.4: four states + article text)
 python -m cnjudbench resolve-law --law 刑法 --article 264 --as-of 2024-06-01
 
-# cit_validity 冒烟：金样期望 vs 解析器对照（不调用模型）
+# cit_validity smoke: gold expectations vs parser (no model calls)
 python -m cnjudbench smoke-cit-validity
 
-# 机检跑分（P0b）：离线金样 Mock 或 OpenAI-compat 端点
+# Machine-checked scoring (P0b): offline gold Mock or OpenAI-compatible endpoint
 python -m cnjudbench run --task cit_validity --model mock:gold --out reports/runs/smoke-cit
 python -m cnjudbench run-all --tasks cit_validity,u_element_extract,s_charge_subsume --model mock:gold
-#   --model openai:<model> --base-url … 走真 API（密钥仅经 OPENAI_API_KEY / CNJUD_API_KEY 环境变量）
-# 产出 reports/runs/<run_id>/summary.json + manifest.json + limits.md（百分制两位小数；目录已 gitignore）
+#   --model openai:<model> --base-url … goes through the real API (keys only via OPENAI_API_KEY / CNJUD_API_KEY env vars)
+# Produces reports/runs/<run_id>/summary.json + manifest.json + limits.md (two-decimal percentage; the directory is gitignored)
 
-# 机检 + Judge 分列（P1）：--judge mock|openai；缺 rubric 的任务 judge 列为 n/a（禁填 0.00）
+# Machine check + judge column (P1): --judge mock|openai; tasks without a rubric get judge = n/a (0.00 is forbidden)
 python -m cnjudbench run-all --tasks u_element_extract --model mock:gold \
   --with-judge --judge mock --out reports/runs/j1
-#   --blend weighted 才显式加权（0.7 机检 + 0.3 Judge），默认 parallel 分列不混分
+#   --blend weighted is the only mode that mixes scores (0.7 machine + 0.3 judge); default parallel keeps columns separate
 
-# L2 工具调用 / L3a 多步（P2）：mock:tools 重放 gold 调用轨迹，mock:gold 出 exact 终答
+# L2 tool invocation / L3a multi-step (P2): mock:tools replays gold tool trajectories, mock:gold yields exact final answers
 python -m cnjudbench run --task tool_search_statute --model mock:tools --out reports/runs/t1
 python -m cnjudbench run --task gaia_fee_deadline --model mock:gold --out reports/runs/g1
-#   产出 items/<id>.trajectory.json（工具轨迹），hash 进 manifest.tools.trajectory_hashes
+#   Produces items/<id>.trajectory.json (tool trajectories), hashed into manifest.tools.trajectory_hashes
 
-# P3：合同轨 / IRAC / Long-Horizon（L1/L4 机检）
+# P3: contract track / IRAC / long-horizon (L1/L4 machine-checked)
 python -m cnjudbench run --task contract_risk --model mock:gold --out reports/runs/c1
 python -m cnjudbench run --task a_irac_reason --model mock:gold --out reports/runs/a1
 python -m cnjudbench run --task long_horizon_case --model mock:gold --out reports/runs/l4
 
-# P3：τ-Jud 多轮（run-dialog）——user_seed / model_seed 分列，pass^k 固定用户 vs 换 persona
+# P3: τ-Jud multi-turn (run-dialog) — user_seed / model_seed in separate columns, pass^k fixed-user vs swapped-persona
 python -m cnjudbench run-dialog --task tau_jud_intake --model mock:dialog \
   --user-seed 42 --k-pass 3 --out reports/runs/tau1
-#   summary.stability：pass_k_fixed_user / pass_k_swapped_persona / variance（model|user_script|judge）
-#   律师基线缺失时写「未测」，禁止编造对照
+#   summary.stability: pass_k_fixed_user / pass_k_swapped_persona / variance (model|user_script|judge)
+#   When the lawyer baseline is missing the report writes "未测" (not measured); fabricating comparisons is forbidden
 
-# CI 门禁（validate + pytest + mock run-all + 产物断言 + 复跑翻转率=0）
+# CI gate (validate + pytest + mock run-all + artifact assertions + re-run flip rate = 0)
 bash scripts/ci_gate.sh          # Windows: powershell -File scripts/ci_gate.ps1
-python scripts/flip_rate_check.py --tasks cit_validity --model mock:gold   # API 建议阈值 < 5%
+python scripts/flip_rate_check.py --tasks cit_validity --model mock:gold   # recommended API threshold < 5%
 ```
 
-Mock（`mock:gold`）零网络、确定性，CI 只跑 Mock；真 API 冒烟为可选步骤。
+Mock (`mock:gold`) is zero-network and deterministic; CI only runs Mock; real-API smoke tests are optional.
 
-## 答案回灌与统计协议（v0.4）
+## Answer backfill and statistical protocol (v0.4)
 
 ```bash
-# 1) 回灌判分（不调 API）：导出题面 → 外部生成 answers/<item_id>.txt → file: 模型官方判分
-# 1) 回灌判分（不调 API）：导出题面 → 外部生成 answers/<item_id>.txt → file: 模型官方判分
+# 1) Backfill scoring (no API calls): export prompts → generate answers/<item_id>.txt externally → file: model official scoring
 python scripts/export_prompts.py --tasks u_element_extract --run-dir runs/u1
-#   （答案放 runs/u1/answers/ 后）
+#   (after placing answers under runs/u1/answers/)
 python -m cnjudbench run-all --tasks u_element_extract --model file:runs/u1 --out reports/runs/u1-scored
 
-# 2) 翻转率门禁（同一模型两跑，API 建议 max-flip 0.05；超门禁 → provisional，不进正式表）
+# 2) Flip-rate gate (two runs of the same model, recommended API max-flip 0.05; above the gate → provisional, kept out of formal tables)
 python scripts/flip_rate_check.py --tasks u_element_extract --model openai:<model> --max-flip 0.05
 
-# 3) n-gram 污染双检（对全部题面扫描与语料重叠比，报告入 summary.contamination）
+# 3) n-gram contamination double check (scans all item text against a corpus, overlap ratio lands in summary.contamination)
 python -m cnjudbench run-all --tasks u_element_extract --model mock:gold   --ngram-corpus docs/corpus.txt --ngram-size 8 --out reports/runs/n1
 
-# 4) 论文表生成：正式表（T-main）只收 provisional=false，其余进附录 T-provisional
+# 4) Paper table generation: the formal table (T-main) only admits provisional=false; everything else goes to appendix T-provisional
 python scripts/make_paper_tables.py --runs reports/runs --out docs/paper-tables.md
 
-# 4b) pass^k 多 run 聚合（组合语义 + bootstrap CI + flip 门禁提示，同模型 ≥k 个 run）
+# 4b) pass^k multi-run aggregation (combinational semantics + bootstrap CI + flip-gate notice, ≥k runs of the same model)
 python scripts/aggregate_passk.py --runs reports/runs/ds-a reports/runs/ds-b reports/runs/ds-c   --threshold 100 --out docs/passk-ds.md
 
-# 5) 案管副作用任务（env_diff 终态 diff；d-101..104 为 state0 预置在办案件，d-104 双卡分心）
+# 5) Case-management side-effect task (env_diff end-state diff; d-101..104 ship with a preset open case in state0, d-104 dual-card distraction)
 python -m cnjudbench run-all --tasks dms_side_effect_intake --model mock:tools --out reports/runs/dms1
 
-# 6) 人评一致性（加权 κ + bootstrap CI + 与机检 spearman）
+# 6) Human-rating agreement (weighted κ + bootstrap CI + spearman vs machine scores)
 python scripts/kappa.py --ratings ratings.csv --machine machine.csv
 
-# 7) 成对比较（bootstrap CI + McNemar；--preregistered 只比核心六包，macro 六包等权）
+# 7) Paired comparison (bootstrap CI + McNemar; --preregistered compares only the core six packages, macro = six-package equal weight)
 python -m cnjudbench compare --run-a reports/runs/m1 --run-b reports/runs/m2 --preregistered
-#   summary.report 的 solve% 为保守口径（n/a 计未解决），与 scored%（n/a 剔除）并列读
+#   summary.report's solve% is the conservative reading (n/a counts as unsolved), read alongside scored% (n/a excluded)
 ```
 
-## 测试
+## How a new item is admitted (draft → public)
+
+Drafts go to `data/drafts/` (hard flag `draft: true`, not counted in the MANIFEST) → two isolated real examinees answer (expected error patterns must be empirically triggered, lesson E17) → gold adjudicated under the five-condition policy (docs/gold-adjudication-policy.md §2) → verbatim comparison against official anchor text + text_hash → promoted into the live set and reconciled against the MANIFEST.
+
+> Cross-platform commands: on Windows use `.venv/Scripts/python`; on Linux/macOS the equivalent is `.venv/bin/python` (or plain `python` inside an activated venv).
+
+## How to add a task package
+
+1. Create the three-file set in `tasks/<task_id>/`: `task.yaml` + `predicates.yaml` + `reference.md` (subjective tasks add `rubric.yaml`).  
+2. Item text goes into `data/public|holdout|live/*.jsonl`; fields are described in FRAMEWORK Appendix C.  
+3. Predicates must obey the §4.2 **output_type closed enum and applicability matrix**; `composite` requires `components`; `hcut` can only be `Cit/Abst/Hall/Cons/Proto`.  
+4. Statute anchors use full names + `as_of`, resolved through lawkb multi-version parsing (Appendix D).  
+5. Items enter `active` only after schema validation and the Verified state machine.
+
+## 测试 / Tests
 
 ```bash
 .venv/Scripts/python -m pytest -q
 ```
 
-## 如何加题
-
-1. 在 `tasks/<task_id>/` 建任务三件套：`task.yaml` + `predicates.yaml` + `reference.md`（主观另加 `rubric.yaml`）。  
-2. 题面放 `data/public|holdout|live/*.jsonl`，字段见 FRAMEWORK 附录 C。  
-3. 谓词必须符合 §4.2 的 **output_type 闭合枚举与适用面**；`composite` 必填 `components`；`hcut` 只能是 `Cit/Abst/Hall/Cons/Proto`。  
-4. 法条锚点写全称 + `as_of`，依赖 lawkb 多版本解析（附录 D）。  
-5. 通过 schema 校验与 Verified 状态机后再进 `active`。
-
-## 目录
+## Repository layout
 
 ```text
-src/cnjudbench/  # 包：lawkb 解析 / schemas / validate / scale / smoke / predicates / citeguard / adapters / runner / judge / metrics / gates / contamination / report / tools / cli
-lawkb/           # 法条时间轴多版本（生成脚本 scripts/build_min_lawkb.py）
-tasks/           # 任务包（cit_validity / u_element_extract / s_charge_subsume / tool_search_statute / gaia_fee_deadline）
-data/            # public / holdout（ignore） / live
+src/cnjudbench/  # package: lawkb parsing / schemas / validate / scale / smoke / predicates / citeguard / adapters / runner / judge / metrics / gates / contamination / report / tools / cli
+lawkb/           # statute timeline with multiple versions (generator: scripts/build_min_lawkb.py)
+tasks/           # task packages (cit_validity / u_element_extract / s_charge_subsume / tool_search_statute / gaia_fee_deadline)
+data/            # public / holdout (ignored) / live
 tests/           # pytest
-docs/            # 调研、实施文档与校准集
-reports/runs/    # 每次评测的 manifest + summary + limits.md + items/*.trajectory.json（gitignore）
+docs/            # research, implementation documents, calibration sets
+reports/runs/    # per-run manifest + summary + limits.md + items/*.trajectory.json (gitignored)
 ```
 
-## 许可
+## Documentation
 
-- 代码：MIT（见 LICENSE）。  
-- 数据 / 题面 / 任务包：CC BY 4.0；lawkb 法条文本为官方作品（著作权法第五条不适用著作权保护），随附 sha256 text_hash 与来源注记（分表声明见 LICENSE.DATA）。
+| File | Description |
+|---|---|
+| [docs/gold-adjudication-policy.md](docs/gold-adjudication-policy.md) | Gold acceptance and preregistered re-adjudication rules (read before touching gold) |
+| [FRAMEWORK.md](FRAMEWORK.md) | Framework design master document (version source of truth, header currently **v0.6**) |
+| [docs/DESIGN-benchmark-optimization-v0.4.md](docs/DESIGN-benchmark-optimization-v0.4.md) | Optimization design (benchmark mapping + Sprint A/B/C) |
+| [docs/paper-outline.md](docs/paper-outline.md) | Paper skeleton and gap list |
+| [index.html](index.html) | Readable score panel (browser preview) |
+| [docs/research-notes.md](docs/research-notes.md) | Research round 1: Chinese legal evaluation |
+| [docs/research-notes-round2.md](docs/research-notes-round2.md) | Research round 2: coding / agent / engineering hardening |
+| [docs/research-notes-round3.md](docs/research-notes-round3.md) | Round 3: anti-reward-hacking scoring and statistical-reading audit ledger (45 dispositions) |
+| [docs/lawkb-ingest-queue.md](docs/lawkb-ingest-queue.md) | Statute library verbatim-proofreading intake queue (official text + text_hash) |
+| [docs/self-review-new-items-batch4.md](docs/self-review-new-items-batch4.md) | batch4 six items (cit-022..027) self-review and baseline scan, awaiting approval |
+| `reports/baseline-report.md` | Baseline distribution and near-perfect-score alerts (R17 leak monitoring, always on) |
+| `reports/headroom-report.md` | Item-expansion/pruning headroom report (saturation × rules × empirical p) |
+| `reports/repro-inventory.md` | Existence inventory of assets cited by paper-outline |
+| [docs/impl-P0a.md](docs/impl-P0a.md) | **P0a implementation doc** (lawkb + validation + smoke task package) |
+| [docs/impl-P0b.md](docs/impl-P0b.md) | **P0b implementation doc** (FTP/PTP + CiteGuard + API/Manifest) |
+| [docs/impl-P1.md](docs/impl-P1.md) | **P1 implementation doc** (Judge / red lines / gates) |
+| [docs/impl-P1-rest.md](docs/impl-P1-rest.md) | **P1 wrap-up** (Judge into runner / CI gate) |
+| [docs/impl-P2.md](docs/impl-P2.md) | **P2 implementation doc** (tool sandbox / Tool-Bench / Legal-GAIA) |
+| [docs/impl-P3.md](docs/impl-P3.md) | **P3 implementation doc** (τ-Jud / contract track / IRAC / Long-Horizon) |
+
+## Project status
+
+- [x] Design and research (v0.3.1, including external review revisions)
+- [x] **P0a implementation doc** (`docs/impl-P0a.md`)
+- [x] **P0a code**: lawkb multi-version parsing + item/predicate validation + `cit_validity` smoke (60 tests)
+- [x] **P0b implementation doc** (`docs/impl-P0b.md`)
+- [x] **P0b code**: FTP/PTP executors + CiteGuard + API adapter (104 tests)
+- [x] **P1 implementation doc** (`docs/impl-P1.md`)
+- [x] **P1 code**: Judge/Abst/red lines/diagnostic deductions/bootstrap/$/solve/canary (114 tests)
+- [x] **P1 wrap-up code**: `--with-judge` into the runner + machine/Judge column split + limits.md + holdout guard + CI gate (133 tests, `scripts/ci_gate` all green)
+- [x] **P2 code**: 6-tool sandbox + Legal-Tool-Bench (L2, 19 items, zero score for fabricated calls) + Legal-GAIA curated 10 items (L3a exact + progress) + trajectory hashes into manifest (156 tests)
+- [x] **P3 code**: τ-Jud (user_script + end-state F1 + Proto + pass^k dual columns/variance decomposition) + contract track + IRAC + Long-Horizon + `run-dialog` (175 tests)
+- [x] **v0.4 Sprint A**: safety/capability column split + status_ladder/fee ladder/must_not + partial-only cardinality + over_refuse×0.50
+- [x] **v0.4 statistical protocol**: bootstrap CI / pass^k combinational semantics / report.csv / formal-score provisional gate / n-gram contamination dual check (ci_gate step 7) / random·rules baselines through the same pipeline
+- [x] **v0.4 new tasks**: calc_fail_to_pass 46 items (hidden unit-test oracle, five formulas: filing fee / simple interest / periods / semi-annual compounding / preservation fee, hard variants on holiday rollover and caps) + u_element hard subset 28 items — GLM measured 82.1%, see [docs/u-hard-subset-report.md](docs/u-hard-subset-report.md) + dms_side_effect_intake 16 items (env_diff end-state diff; state0 presets an "open case" and dual-card distraction) + tool_fault_recovery 12 items (§5.4 four fault-injection types, recovery×final + R22 nth=2 "success-then-failure" advanced 4 items)
+- [x] **v0.4 flip empirics**: GLM examinee mode k=3 retest: per-item pairwise flips 6/11≈55% ≫ 5% gate (docs/u-hard-subset-report.md, appended section) → single-sample runs are always provisional, main tables mandate pass^k
+- [x] **v0.4.1 measurement-validity audit**: gold legal-review ablation (same answer re-scored 31.58→86.84, acceptable_articles any-of multi-answer reading) · baseline leak fixes and scan (law_anchors scoring anchors banned from baselines, a_irac random/rules 96→12) · lh-06 anchor temporal fix (inheritance law 10 with repeal window) · lawkb v0.4.1 expansion (12 laws, 51 versions) · v0.4.1 baseline table (random 9.03 / rules 29.25 / mock:gold all-100 on 8 packages, see docs/calc-real-model-report.md §C5) · E12+ element no-name empirical (ah-101..104 still saturated, as_of version selection is the only substantive error cause) · E15 citation bracket false-negative fix (2/29 items wrongly penalized 50→100, trailing brackets stripped on the citation side)
+- [x] **v0.5 difficulty restructuring Phase 1+2a+3a+3b+3c+4**: whole-corpus four-level inventory — 38 hard / 88 prune candidates / 143 to test, see [docs/difficulty-audit-v05.md](docs/difficulty-audit-v05.md) · a_irac reduced 32→12 (20 all-saturation items moved to data/archive, 8-subject per-package grid invariant kept) · lawkb adds the SPC [2020] No.15 temporal-effectiveness provisions, 10 articles — 12 laws, 61 versions, Gazette official text + per-article text_hash for after-the-fact verification, source [docs/sources/spc_civil_temporal_2020_gongbao.html](docs/sources/spc_civil_temporal_2020_gongbao.html) · 18 temporal-effectiveness hard items (at-001..018: old/new law transitions 8 / procedure-limitation crossings 5 / private-lending three versions 5, as_of-driven version resolution, negatives verified) · 8 calculation hard variants (cx-001..008: period rollover / limitation interruption / caps and offsets / compounding rivalry, hidden unit-test oracle + trap-value negatives verified) · 10 extraction and tool advanced items (u-044..049 negative-form elements / multi-date + f-105..108 nth=3 fault chains / partial-success state judgment) · 30 practice items (gaia timeline 6 / lh six-domain whole cases 6 / dms deadline monitoring 4 / tau near-deadline intake 4 / contract risk disclosure 6 / document adaptation 4; 4e Judge writing track deferred by risk clause) · Phase 5 dual-isolated examinees ×62 items measured (pass^2=46.77, at/lh/c families discriminate effectively; 4 gold/item-text defects fixed in-loop: at-019 anchor 25→16, at-022 anchor 27→1+acc19, cx-007 expected value 7470→11863.40, tau prompt made explicit; lawkb 61 versions, docs/paper-outline.md §9 E17)
+- [ ] To do: DS v0.4 re-run (keys) · holdout freeze execution (protocol ready) · human-rating κ pilot (plan ready) · f-105..108 tool-track real-examinee measurement (needs an API round) · tau real-examinee expansion (v0.6 partial-credit scoring empirically discriminates, see paper-outline E18)
+
+## License
+
+- Code: MIT (see LICENSE).  
+- Data / item text / task packages: CC BY 4.0; lawkb statute texts are official works (not subject to copyright protection under Article 5 of the Copyright Law), shipped with sha256 text_hash and source notes (split-license declaration in LICENSE.DATA).
