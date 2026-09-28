@@ -122,6 +122,30 @@ body::before {
   outline: none;
 }
 
+/* ── 语言切换按钮（中/英）── */
+.lang-toggle {
+  margin-left: auto;
+  flex: none;
+  font-family: var(--font-data);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: var(--paper-dim);
+  background: transparent;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-sm);
+  padding: 4px 12px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: color 0.2s, border-color 0.2s;
+}
+
+.lang-toggle:hover,
+.lang-toggle:focus-visible {
+  color: var(--paper);
+  border-color: var(--paper-dim);
+  outline: none;
+}
+
 /* ── hero / docket cover ── */
 .hero {
   padding: 72px 0 48px;
