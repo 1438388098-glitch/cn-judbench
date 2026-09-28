@@ -59,6 +59,9 @@ def test_c263_profile_price_keys_known():
 
 def test_c266_baseline_report_warn_threshold(tmp_path):
     sys.path.insert(0, str(REPO / "scripts"))
+    import pytest
+    if not (REPO / "reports" / "runs" / "baseline-v06" / "summary.json").is_file():
+        pytest.skip("本机历史 run 产物缺失（CI 无 reports/runs，跳过对账类检查）")
     import baseline_report as agg
 
     out = agg.OUT

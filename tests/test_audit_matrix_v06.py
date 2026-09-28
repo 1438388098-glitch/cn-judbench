@@ -30,6 +30,10 @@ CI_RUN = REPO / "reports" / "runs" / "ci"
 
 
 def test_c282_preregistered_dropped_recomputable():
+    import pytest
+    if not (REPO / "reports" / "runs" / "v05new-s1m-score" / "summary.json").is_file():
+        pytest.skip("本机历史 run 产物缺失（CI 无 reports/runs，跳过对账类检查）")
+
     sys.path.insert(0, str(REPO / "src"))
     from cnjudbench.metrics.compare import CORE_SIX_TASKS, compare_runs
 

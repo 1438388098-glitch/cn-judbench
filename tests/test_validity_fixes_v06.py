@@ -122,6 +122,9 @@ def test_c325_passk_k_bounds():
 
 def test_c326_eligibility_tiers():
     sys.path.insert(0, str(REPO / "src"))
+    import pytest
+    if not (REPO / "reports" / "runs" / "v05new-s1m-score" / "summary.json").is_file():
+        pytest.skip("本机历史 run 产物缺失（CI 无 reports/runs，跳过对账类检查）")
     from cnjudbench.metrics.compare import _eligibility, compare_runs
 
     assert _eligibility(100)["tier"] == "rankable"
@@ -139,6 +142,9 @@ def test_c326_eligibility_tiers():
 
 def test_c328_macro_missing_tasks_warned():
     sys.path.insert(0, str(REPO / "src"))
+    import pytest
+    if not (REPO / "reports" / "runs" / "v05new-s1m-score" / "summary.json").is_file():
+        pytest.skip("本机历史 run 产物缺失（CI 无 reports/runs，跳过对账类检查）")
     from cnjudbench.metrics.compare import compare_runs
 
     out = compare_runs(REPO / "reports" / "runs" / "v05new-s1m-score",

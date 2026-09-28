@@ -58,6 +58,9 @@ def test_c177_doc_table_no_dead_links():
 
 
 def test_c178_release_manifest_and_cost_null_discipline():
+    import pytest
+    if not (REPO / "reports" / "runs" / "baseline-v06" / "summary.json").is_file():
+        pytest.skip("本机历史 run 产物缺失（CI 无 reports/runs，跳过对账类检查）")
     man = json.loads((REPO / "data" / "public" / "MANIFEST.json")
                      .read_text(encoding="utf-8"))
     assert len(man["packages"]) == 12

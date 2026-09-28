@@ -10,7 +10,7 @@
 from __future__ import annotations
 
 import re
-from pathlib import Path
+from pathlib import Path, PurePosixPath, PureWindowsPath
 from datetime import date
 from typing import Literal
 
@@ -60,8 +60,13 @@ class ArticleVersion(BaseModel):
     def _check_text_ref(self) -> "ArticleVersion":
         # c448：与 predicates_ref 同等的路径逃逸防线（P0-5 对称化）——
         # 法条 YAML 可能来自外部贡献，禁止绝对路径与 .. 触碰库外文件
+        # POSIX 与 Windows 双视角同判：C:/xx 这类盘符路径在 Linux 上不是绝对路径，
+        # 但在 Windows 贡献者机器上是逃逸路径，按更严一侧拒绝（c448 跨平台一致化）
         ref = Path(self.text_ref)
-        if ref.is_absolute() or ".." in ref.parts:
+        ref_posix = PurePosixPath(self.text_ref)
+        ref_win = PureWindowsPath(self.text_ref)
+        if (ref.is_absolute() or ref_posix.is_absolute() or ref_win.is_absolute()
+                or ".." in ref.parts or ".." in ref_posix.parts or ".." in ref_win.parts):
             raise ValueError(f"text_ref 须为库内相对路径: {self.text_ref!r}")
         return self
 
