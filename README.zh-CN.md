@@ -57,7 +57,7 @@ py -3.13 -m venv .venv
 # Linux/macOS:
 # python3 -m venv .venv && .venv/bin/python -m pip install -e ".[dev]"
 
-# 2) 跑测试（630+ 项测试全绿；精确计数见 CI，勿在 README 硬编码）
+# 2) 跑测试（全绿即可；精确计数以 CI 为准）
 # Windows 用 .venv\Scripts\python；Linux/macOS 用 .venv/bin/python
 .venv/Scripts/python -m pytest -q
 .venv/Scripts/python -m cnjudbench run-all   --tasks cit_validity,dms_side_effect_intake,tool_fault_recovery   --model mock:gold --out reports/runs/demo
