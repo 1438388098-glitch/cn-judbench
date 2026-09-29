@@ -14,10 +14,14 @@ management. Scoring is machine-checked at the predicate level with a registered
 failure taxonomy, contamination canaries, random/rules baseline leak monitoring,
 and a preregistered statistical protocol (pass^k combinational semantics, paired
 bootstrap CIs, McNemar exact tests, two-tier ranking granularity). Version 0.6
-closes three scoring-validity gaps found via live examinee rounds: free-text
-state predicates now award partial credit, reward-hacking via answer dumping is
-blocked by one-to-one set matching, and per-package baselines guard against
-scoring shortcuts. Code is MIT-licensed; the public split is CC BY 4.0
+closes three scoring-validity gaps: the question-stem as_of date is mandatory
+for temporal validity (a self-reported citation date can no longer mask a
+stale-statute failure), polarity-opposed wording no longer scores as supported,
+and refusal judgments gain a negative exemption ("no referral needed" is no
+longer miscounted as a refusal). State-predicate partial credit, one-to-one set
+matching against whole-answer dumping, and the preregistered per-package
+comparison shipped in the same release but are not on the scoring-validity fix
+list. Code is MIT-licensed; the public split is CC BY 4.0
 (see CITATION.cff).
 
 - **目标** (Goal): measure *which* legal capability a model can perform in Chinese judicial workflows, *where* it is dangerous, *whether* it is stable across runs, and *at what cost*.

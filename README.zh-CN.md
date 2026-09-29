@@ -4,7 +4,7 @@
 
 [![ci-gate](https://github.com/1438388098-glitch/cn-judbench/actions/workflows/ci.yml/badge.svg)](https://github.com/1438388098-glitch/cn-judbench/actions/workflows/ci.yml)
 
-中国司法多维度大模型 / 司法 Agent 评测框架（**v0.6**：补判分效度与反刷分——tau 部分得分、set_f1 1-1 反倾倒、any-of 双口径与分包基线守门；新增 `cnjudbench compare`（bootstrap CI + McNemar + 预注册六包 macro/micro）与 gold 改判预注册政策、MIT/CC BY 4.0 分表许可；完整历史见 [CHANGELOG.md](CHANGELOG.md)，版本真源 = [FRAMEWORK.md](FRAMEWORK.md) 头部）。
+中国司法多维度大模型 / 司法 Agent 评测框架（**v0.6**：判分效度三修复——c322 as_of 强制题面反自证 / c323 极性对冲 / c324 拒绝否定豁免；tau 部分得分、set_f1 1-1 反倾倒、any-of 双口径与分包基线守门为 v0.6 同期发布项，不在判分效度修复清单内；新增 `cnjudbench compare`（bootstrap CI + McNemar + 预注册六包 macro/micro）与 gold 改判预注册政策、MIT/CC BY 4.0 分表许可；完整历史见 [CHANGELOG.md](CHANGELOG.md)，版本真源 = [FRAMEWORK.md](FRAMEWORK.md) 头部）。
 
 **Abstract (EN)**: CN-JudBench evaluates large language models on Chinese judicial
 workflows across 12 task packages (323 public items) spanning citation validity,

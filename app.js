@@ -76,7 +76,7 @@ const MODELS = [
   {
     run: "mimo-sub-iso-20260924b-scored",
     name: "MiMo",
-    think: "思考默认继承",
+    think: "思考默认继承，型号待确认",
     purity: "洁净隔离",
     grand_eq: 66.11,
     grand_w: 73.86,
